@@ -1,6 +1,6 @@
 ---
 name: dcore
-description: Turn a recorded debate, townhall or podcast on YouTube into one HTML page with the argument thread (claims, replies, challenges, questions left unanswered, each timestamped) and a "how this debate went" report with per-voice stats. Use when asked to map, break down or report on a video debate or discussion.
+description: Turn a recorded debate, townhall or podcast on YouTube into one HTML page with the argument branches (each distinct claim once, with its challenges, replies and unanswered questions, each timestamped) and a "how this debate went" report with per-voice stats. Use when asked to map, break down or report on a video debate or discussion.
 ---
 
 # dcore
@@ -55,16 +55,29 @@ Scripts are in `.claude/skills/dcore/scripts/` and need only Python 3.10+
 4. **Turns.** Mark who held the floor, in order, covering the talk:
    `{"voice": "B", "start": 61.0, "end": 118.5}`. Use caption start times.
 
-5. **Points.** Pull out the moves that matter, not every sentence:
-   - `question`: a question put to someone. Needs `to` (or `null` for the room),
-     `outcome` (`answered`, `partly`, `not_answered`), `answered_at` (the point
-     that answers it) and `followed_up` (did anyone come back to it).
-   - `claim`: a statement offered as true or as a reason.
-   - `reply`, `challenge`, `concession`, `agreement`: responses; set `parent` to
-     the point they respond to.
-   A point with no `parent` starts a line of the thread. Every point has a `t`
-   (seconds) near where it is said. `note` (shown) describes an action, e.g.
-   "Moved to the opposition's record instead". Merge repeats into one point.
+5. **Branches.** The map is not the conversation in order. It's a tree of the
+   distinct claims and how they were contested, so a reader sees each line of
+   argument once:
+   - `position`: one of the answers on offer to the topic ("defend the rupee",
+     "let it float"). Top level, `parent: null`. Add positions only when the
+     debate has them; otherwise top-level claims hang straight off the topic.
+   - `claim`: a statement offered as true or as a reason. Under a position its
+     `stance` is `for` or `against`; under a claim or question it is
+     `supports`, `challenges`, `answers` or `concedes`.
+   - `question`: a question put to someone, as a move on the claim it presses
+     (`stance: "challenges"` usually). Needs `to` (or `null` for the room),
+     `outcome` (`answered`, `partly`, `not_answered`) and `followed_up` (did
+     anyone come back to it). Put the answer under it with `stance: "answers"`.
+   - **One node per distinct point.** When a point is repeated, add the moment
+     to its `said` list instead of a new node: `said: [{"voice": "B", "t": 275,
+     "quote": "..."}, ...]`. The page shows "said 3 times" with each time.
+   - `also`: ids of other branches a point bears on (a claim about reserves
+     that matters to two positions).
+   - `note` (shown) describes an action, e.g. "Voice D returned to the previous
+     government's record". Drop small talk and procedure.
+   The scripts work out each claim's state from the moves under it (not
+   challenged, challenged with no reply, challenged and replied to, conceded);
+   don't write it yourself.
 
 6. **Moments.** Talk-overs and turns in the debate:
    `{"t": 402, "kind": "interruption", "by": "C", "of": "B", "note": "..."}`.
@@ -93,10 +106,15 @@ Scripts are in `.claude/skills/dcore/scripts/` and need only Python 3.10+
   ],
   "turns": [{"voice": "A", "start": 0, "end": 42.5}],
   "points": [
-    {"id": "P1", "parent": null, "kind": "question", "voice": "A", "to": "B", "t": 30,
-     "text": "Asks whether prices rose this year", "quote": "...",
-     "outcome": "not_answered", "answered_at": null, "followed_up": false,
-     "note": "Voice B spoke about the previous government instead", "label": "dodge"}
+    {"id": "S1", "parent": null, "kind": "position", "text": "Defend a level with reserves"},
+    {"id": "C1", "parent": "S1", "kind": "claim", "stance": "for",
+     "said": [{"voice": "D", "t": 240, "quote": "..."}], "text": "Defending the rupee steadies import prices"},
+    {"id": "C2", "parent": "C1", "kind": "claim", "stance": "challenges", "also": ["S2"],
+     "said": [{"voice": "B", "t": 275}, {"voice": "C", "t": 700}], "text": "Defending a level spends reserves"},
+    {"id": "Q1", "parent": "C2", "kind": "question", "stance": "challenges", "to": "D",
+     "said": [{"voice": "A", "t": 320}], "text": "How many months of imports do reserves cover?",
+     "outcome": "not_answered", "followed_up": false,
+     "note": "Voice D spoke about the previous government instead", "label": "dodge"}
   ],
   "moments": [{"t": 95, "kind": "interruption", "by": "C", "of": "B", "note": "..."}],
   "report": {"summary": "...", "takeaways": ["..."], "actions": ["..."], "left_open": ["..."]}
@@ -115,5 +133,5 @@ how the moderation went without anyone saying so.
 ## Limits
 
 - No speaker labels in captions, so voices and every count are approximate.
-- Crosstalk garbles auto-captions; the thread is thinnest where it was loudest.
+- Crosstalk garbles auto-captions; the map is thinnest where it was loudest.
 - No fact-checking: a claim on the map is what was said, not what is true.

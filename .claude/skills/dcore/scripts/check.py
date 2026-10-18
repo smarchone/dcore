@@ -13,7 +13,11 @@ import re
 import sys
 from pathlib import Path
 
-KINDS = {"question", "claim", "reply", "challenge", "concession", "agreement"}
+# A map is a tree of branches: the topic at the root, positions (the answers on
+# offer), claims under them, and the moves made on each claim.
+KINDS = {"position", "claim", "question"}
+# How a point relates to its parent.
+STANCES = {"for", "against", "supports", "challenges", "answers", "concedes"}
 OUTCOMES = {"answered", "partly", "not_answered"}
 MOMENT_KINDS = {"interruption", "crosstalk", "topic_change", "other"}
 ROLES = {"anchor", "panelist", "guest", "audience", "other"}
@@ -89,23 +93,35 @@ def check(tr: dict, m: dict) -> tuple[list[str], list[str]]:
         pts[pid] = p
     for pid, p in pts.items():
         w = f"point {pid}"
-        if p.get("kind") not in KINDS:
+        kind = p.get("kind")
+        if kind not in KINDS:
             err.append(f"{w}: kind must be one of {sorted(KINDS)}")
-        voice_ok(w, p.get("voice"))
-        time_ok(w, p.get("t"))
         if not p.get("text"):
             err.append(f"{w}: needs text")
         par = p.get("parent")
         if par is not None and par not in pts:
             err.append(f"{w}: parent {par!r} doesn't exist")
-        if p.get("kind") == "question":
+        if kind == "position":
+            if par is not None:
+                err.append(f"{w}: a position sits at the top, under the topic (parent null)")
+        else:
+            if par is not None and p.get("stance") not in STANCES:
+                err.append(f"{w}: stance must be one of {sorted(STANCES)}")
+            if not p.get("said"):
+                err.append(f"{w}: 'said' needs at least one {{voice, t}} for when it was said")
+        for j, s_ in enumerate(p.get("said") or []):
+            voice_ok(f"{w} said[{j}]", s_.get("voice"))
+            time_ok(f"{w} said[{j}]", s_.get("t"))
+        for a in p.get("also") or []:
+            if a not in pts:
+                err.append(f"{w}: also {a!r} doesn't exist")
+        if kind == "question":
             voice_ok(f"{w} 'to'", p.get("to"), allow_none=True)
             if p.get("outcome") not in OUTCOMES:
                 err.append(f"{w}: a question needs outcome, one of {sorted(OUTCOMES)}")
-            if p.get("answered_at") and p["answered_at"] not in pts:
-                err.append(f"{w}: answered_at {p['answered_at']!r} doesn't exist")
-            if p.get("outcome") in ("answered", "partly") and not p.get("answered_at"):
-                warn.append(f"{w}: say which point answers it in 'answered_at'")
+            answered = any(c.get("parent") == pid and c.get("stance") == "answers" for c in pts.values())
+            if p.get("outcome") in ("answered", "partly") and not answered:
+                warn.append(f"{w}: add the answer as a point under it with stance 'answers'")
             if p.get("outcome") != "answered" and "followed_up" not in p:
                 warn.append(f"{w}: say whether anyone came back to it in 'followed_up'")
         for k in SHOWN:
@@ -169,7 +185,7 @@ def stats(tr: dict, m: dict) -> list[dict]:
     for p in m["points"]:
         if p["kind"] != "question":
             continue
-        rows[p["voice"]]["asked"] += 1
+        rows[p["said"][0]["voice"]]["asked"] += 1
         to = p.get("to")
         if to:
             r = rows[to]
@@ -181,6 +197,24 @@ def stats(tr: dict, m: dict) -> list[dict]:
     for r in rows.values():
         r["share"] = r["seconds"] / total
     return list(rows.values())
+
+
+def state(m: dict, pid: str) -> tuple[str, str]:
+    """Where a claim stands in the discourse, from the moves under it.
+
+    Not whether it's true: only whether it was challenged and whether anyone
+    came back to the challenge. Returns (key, words).
+    """
+    kids = [p for p in m["points"] if p.get("parent") == pid]
+    if any(k.get("stance") == "concedes" for k in kids):
+        return "conceded", "Conceded"
+    chal = [k for k in kids if k.get("stance") == "challenges"]
+    if not chal:
+        return "clear", "Not challenged"
+    replied = [c for c in chal if any(p.get("parent") == c["id"] for p in m["points"])]
+    if len(replied) == len(chal):
+        return "replied", "Challenged, replied to"
+    return "open", "Challenged, no reply"
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -3,9 +3,9 @@
     python render.py debates/my-debate        # writes debates/my-debate/page.html
 
 Reads transcript.json and map.json, checks them (see check.py), computes the
-per-voice stats, and draws the page: a timeline of who held the floor, the
-thread of points as a tree, and the report. Every time on the page opens the
-video at that moment. Private labels in the map are never shown.
+per-voice stats, and draws the page: a timeline of who held the floor, each
+distinct claim once as a branch with its challenges and replies, and the
+report. Every time on the page opens the video at that moment. Private labels in the map are never shown.
 """
 
 from __future__ import annotations
@@ -16,10 +16,10 @@ from html import escape
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check import check, load, stats  # noqa: E402
+from check import check, load, state, stats  # noqa: E402
 
-VERB = {"question": "asks", "claim": "claims", "reply": "replies", "challenge": "challenges",
-        "concession": "concedes", "agreement": "agrees"}
+LABEL = {"for": "Claim · for", "against": "Claim · against", "supports": "Supports",
+         "challenges": "Challenge", "answers": "Answer", "concedes": "Concession"}
 ROLE = {"anchor": "anchor", "panelist": "panelist", "guest": "guest", "audience": "audience", "other": "voice"}
 MOMENT = {"interruption": "talks over", "crosstalk": "Several voices at once",
           "topic_change": "Topic changes", "other": ""}
@@ -49,7 +49,7 @@ class Page:
                 n += 1
         self.pts = {p["id"]: p for p in m["points"]}
         self.kids: dict = {}
-        for p in sorted(m["points"], key=lambda p: p["t"]):
+        for p in sorted(m["points"], key=lambda p: p["said"][0]["t"] if p.get("said") else -1):
             self.kids.setdefault(p.get("parent"), []).append(p)
 
     def at(self, t: float, label: str | None = None) -> str:
@@ -109,31 +109,59 @@ class Page:
     def outcome(self, p: dict) -> str:
         o = p["outcome"]
         to = f" by Voice {escape(p['to'])}" if p.get("to") else ""
-        ans = self.pts.get(p.get("answered_at"))
-        link = f" at {self.at(ans['t'])}" if ans else ""
+        ans = next((k for k in self.kids.get(p["id"], []) if k.get("stance") == "answers"), None)
+        link = f" at {self.at(ans['said'][0]['t'])}" if ans else ""
         if o == "answered":
-            s, cls = f"Answered{to}{link}", "ok"
-        elif o == "partly":
-            s, cls = f"Partly answered{to}{link}", "part"
-        else:
-            again = "Asked again later" if p.get("followed_up") else "Not asked again"
-            s, cls = f"No direct answer{to}. {again}", "none"
-        return f'<div class="outcome" data-o="{cls}">{s}</div>'
+            return f'<span class="state" data-s="replied">Answered{to}{link}</span>'
+        if o == "partly":
+            return f'<span class="state" data-s="part">Partly answered{to}{link}</span>'
+        again = "asked again later" if p.get("followed_up") else "not asked again"
+        return f'<span class="state" data-s="open">No direct answer{to}, {again}</span>'
+
+    def label(self, p: dict) -> str:
+        if p["kind"] == "position":
+            return "Position"
+        if p["kind"] == "question":
+            return "Question" + (f" · to Voice {escape(p['to'])}" if p.get("to") else "")
+        return LABEL.get(p.get("stance"), "Claim")
 
     def node(self, p: dict) -> str:
-        unanswered = p["kind"] == "question" and p["outcome"] != "answered"
-        quote = (f'<details><summary>In their words</summary><blockquote lang="{escape(self.tr.get("lang") or "")}">'
-                 f'{escape(p["quote"])}</blockquote></details>') if p.get("quote") else ""
+        kids = self.kids.get(p["id"], [])
+        said = p.get("said") or []
+        if p["kind"] == "question":
+            badge = self.outcome(p)
+            is_open = p["outcome"] != "answered"
+        elif p["kind"] == "claim":
+            key, words = state(self.m, p["id"])
+            # "Not challenged" on every leaf would be noise; show a state only when something happened.
+            badge = f'<span class="state" data-s="{key}">{words}</span>' if key != "clear" else ""
+            is_open = key == "open"
+        else:
+            badge, is_open = "", False
+        voices = list(dict.fromkeys(x["voice"] for x in said))
+        by = ""
+        if said:
+            times = " ".join(self.at(x["t"]) for x in said)
+            many = f'<span class="many">said {len(said)} times</span>' if len(said) > 1 else ""
+            by = f'<div class="by">{"".join(self.chip(v, False) for v in voices)}<span class="times">{times}</span>{many}</div>'
+        also = "".join(f'<span class="also">also bears on: {escape(self.short(self.pts[a]))}</span>'
+                       for a in p.get("also") or [])
+        quotes = [x for x in said if x.get("quote")]
+        quote = ("<details><summary>In their words</summary>" + "".join(
+            f'<blockquote lang="{escape(self.tr.get("lang") or "")}">{self.at(x["t"])} {escape(x["quote"])}</blockquote>'
+            for x in quotes) + "</details>") if quotes else ""
         note = f'<p class="note">{escape(p["note"])}</p>' if p.get("note") else ""
-        kids = "".join(self.node(k) for k in self.kids.get(p["id"], []))
-        to = f' <span class="to">to Voice {escape(p["to"])}</span>' if p.get("to") and p["kind"] == "question" else ""
-        return (f'<li class="pt" data-voice="{escape(p["voice"])}" data-kind="{p["kind"]}"'
-                f'{" data-open" if unanswered else ""}>'
-                f'<div class="head">{self.at(p["t"])}{self.chip(p["voice"], False)}'
-                f'<span class="verb">{VERB[p["kind"]]}</span>{to}</div>'
-                f'<p class="text">{escape(p["text"])}</p>'
-                f'{self.outcome(p) if p["kind"] == "question" else ""}{note}{quote}'
-                f'{"<ul>" + kids + "</ul>" if kids else ""}</li>')
+        fold = (f'<button type="button" class="fold" aria-expanded="true" aria-label="Fold this branch">'
+                f'{len(kids)}</button>') if kids else ""
+        sub = "<ul>" + "".join(self.node(k) for k in kids) + "</ul>" if kids else ""
+        return (f'<li class="pt" data-kind="{p["kind"]}" data-voices="{" ".join(escape(v) for v in voices)}"'
+                f'{" data-open" if is_open else ""}><div class="row">'
+                f'<div class="meta"><span class="kind">{self.label(p)}</span>{badge}{fold}</div>'
+                f'<p class="text">{escape(p["text"])}</p>{by}{also}{note}{quote}</div>{sub}</li>')
+
+    def short(self, p: dict) -> str:
+        t = p["text"]
+        return t if len(t) <= 48 else t[:46].rsplit(" ", 1)[0] + "…"
 
     # --- report -------------------------------------------------------------
 
@@ -178,7 +206,9 @@ class Page:
                          f'aria-pressed="false">{self.chip(i)}</button>' for i in self.voices)
         roots = "".join(self.node(p) for p in self.kids.get(None, []))
         n_q = sum(p["kind"] == "question" for p in m["points"])
-        n_open = sum(p["kind"] == "question" and p["outcome"] != "answered" for p in m["points"])
+        n_claims = sum(p["kind"] == "claim" for p in m["points"])
+        n_open = sum((p["kind"] == "question" and p["outcome"] != "answered") or
+                     (p["kind"] == "claim" and state(m, p["id"])[0] == "open") for p in m["points"])
         return TEMPLATE.format(
             title=escape(title),
             channel=escape(v.get("channel") or ""),
@@ -191,7 +221,7 @@ class Page:
             report=self.report(),
             stats=self.stats_table(),
             caps=caps,
-            n_points=len(m["points"]),
+            n_claims=n_claims,
             n_q=n_q,
             n_open=n_open,
             basis="".join(f"<li>{self.chip(i)}: {escape(x.get('basis', ''))}</li>" for i, x in self.voices.items()),
@@ -263,20 +293,42 @@ a:focus-visible, button:focus-visible, summary:focus-visible {{ outline: 2px sol
 .filter, .toggle {{ font: inherit; font-size: 14px; background: var(--card); color: var(--ink); border: 1px solid var(--rule);
   border-radius: 999px; padding: 5px 12px; cursor: pointer; }}
 .filter[aria-pressed="true"], .toggle[aria-pressed="true"] {{ border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }}
+.topic-root {{ margin: 0 0 4px; }}
+.topic-root .kind {{ display: block; margin-bottom: 2px; }}
+.topic-root p {{ margin: 0; font: 600 18px/1.35 var(--display); max-width: 60ch; }}
 .thread ul {{ list-style: none; margin: 0; padding: 0; }}
-.thread > ul > li {{ border-top: 1px solid var(--rule); padding-block: 14px; }}
-.thread li li {{ margin-top: 12px; padding-left: 16px; border-left: 2px solid var(--rule); }}
-.pt .head {{ display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }}
-.verb {{ color: var(--muted); font-size: 14px; }}
-.to {{ color: var(--muted); font-size: 14px; }}
-.text {{ margin: 6px 0 0; max-width: 68ch; }}
-.note {{ margin: 4px 0 0; color: var(--muted); font-size: 14px; max-width: 68ch; }}
-.outcome {{ margin-top: 6px; font-size: 14px; font-weight: 700; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }}
-.outcome[data-o="ok"] {{ color: var(--ok); }} .outcome[data-o="part"] {{ color: var(--part); }} .outcome[data-o="none"] {{ color: var(--none); }}
+.thread ul ul {{ margin-left: 7px; padding-left: 16px; border-left: 1px solid var(--rule); }}
+.thread li {{ position: relative; padding-top: 10px; }}
+.thread ul ul > li::before {{ content: ""; position: absolute; left: -16px; top: 22px; width: 11px; border-top: 1px solid var(--rule); }}
+.tree > ul {{ border-left: 1px solid var(--rule); margin-left: 7px; padding-left: 16px; }}
+.tree > ul > li::before {{ content: ""; position: absolute; left: -16px; top: 22px; width: 11px; border-top: 1px solid var(--rule); }}
+.row {{ display: grid; gap: 3px; }}
+.meta {{ display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }}
+.kind {{ font: 500 11px/1.4 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }}
+.pt[data-kind="position"] > .row .text {{ font: 600 17px/1.35 var(--display); }}
+.state {{ font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 5px; align-items: center; flex-wrap: wrap; }}
+.state::before {{ content: ""; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid currentColor; }}
+.state[data-s="open"] {{ color: var(--none); }} .state[data-s="part"] {{ color: var(--part); }}
+.state[data-s="replied"] {{ color: var(--ok); }} .state[data-s="conceded"] {{ color: var(--accent); }}
+.state[data-s="open"]::before, .state[data-s="conceded"]::before {{ background: currentColor; }}
+.state .tc {{ font-size: 11.5px; padding: 2px 4px; }}
+.fold {{ margin-left: auto; font: 500 11px var(--mono); color: var(--muted); background: none; border: 1px solid var(--rule);
+  border-radius: 999px; padding: 1px 8px; cursor: pointer; }}
+.fold::before {{ content: "▾ "; }}
+.pt.folded > ul {{ display: none; }}
+.pt.folded > .row .fold::before {{ content: "▸ "; }}
+.text {{ margin: 0; max-width: 68ch; }}
+.by {{ display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; font-size: 13px; }}
+.by .voice {{ font-size: 13px; }}
+.times {{ display: inline-flex; flex-wrap: wrap; gap: 4px; }}
+.times .tc {{ font-size: 11.5px; padding: 2px 5px; }}
+.many {{ color: var(--muted); }}
+.also {{ font-size: 13px; color: var(--accent); }}
+.note {{ margin: 0; color: var(--muted); font-size: 14px; max-width: 68ch; }}
 details {{ margin-top: 6px; font-size: 14px; }}
 summary {{ cursor: pointer; color: var(--muted); }}
 blockquote {{ margin: 6px 0 0; padding-left: 10px; border-left: 2px solid var(--rule); color: var(--muted); max-width: 68ch; }}
-.dim {{ opacity: .28; }}
+.dim > .row {{ opacity: .3; }}
 .hide {{ display: none; }}
 aside {{ display: grid; gap: 22px; background: var(--card); border: 1px solid var(--rule); border-radius: 6px; padding: 18px; }}
 aside ul {{ margin: 0; padding-left: 20px; display: grid; gap: 6px; }}
@@ -301,14 +353,14 @@ table.stats {{ border-collapse: collapse; font-size: 14px; font-variant-numeric:
   <div class="eyebrow">How this debate went</div>
   <h1>{title}</h1>
   <p class="topic">{topic}</p>
-  <div class="meta"><span>{channel}</span><span>{length} long</span><span>{n_points} points, {n_q} questions, {n_open} without a full answer</span><a href="{url}" target="_blank" rel="noopener">Open the video</a></div>
+  <div class="meta"><span>{channel}</span><span>{length} long</span><span>{n_claims} claims, {n_q} questions, {n_open} left open</span><a href="{url}" target="_blank" rel="noopener">Open the video</a></div>
 </header>
 <div class="timeline"><p class="cap">Who held the floor. Each band is a stretch of talk; triangles mark talking over. Tap any band to open the video there.</p>{timeline}</div>
 <div class="grid">
 <main class="thread">
-  <h2>The thread</h2>
-  <div class="controls" role="group" aria-label="Filter the thread">{voices}<button type="button" class="toggle" id="f-open" aria-pressed="false">Questions without a full answer</button></div>
-  <ul>{roots}</ul>
+  <h2>The branches</h2>
+  <div class="controls" role="group" aria-label="Filter the thread">{voices}<button type="button" class="toggle" id="f-open" aria-pressed="false">Left open</button></div>
+  <div class="tree"><div class="topic-root"><span class="kind">Topic</span><p>{topic}</p></div><ul>{roots}</ul></div>
 </main>
 <aside>{report}</aside>
 </div>
@@ -328,7 +380,7 @@ table.stats {{ border-collapse: collapse; font-size: 14px; font-variant-numeric:
   var active = null, openOnly = false;
   function apply() {{
     pts.forEach(function (li) {{
-      li.classList.toggle('dim', !!active && li.dataset.voice !== active);
+      li.classList.toggle('dim', !!active && (' ' + li.dataset.voices + ' ').indexOf(' ' + active + ' ') < 0 && li.dataset.kind !== 'position');
       var keep = !openOnly || li.hasAttribute('data-open') || li.querySelector('[data-open]') || li.parentElement.closest('[data-open]');
       li.classList.toggle('hide', !keep);
     }});
@@ -337,6 +389,12 @@ table.stats {{ border-collapse: collapse; font-size: 14px; font-variant-numeric:
   }}
   filters.forEach(function (b) {{ b.addEventListener('click', function () {{ active = active === b.dataset.voice ? null : b.dataset.voice; apply(); }}); }});
   openBtn.addEventListener('click', function () {{ openOnly = !openOnly; apply(); }});
+  Array.prototype.forEach.call(document.querySelectorAll('.fold'), function (b) {{
+    b.addEventListener('click', function () {{
+      var li = b.closest('.pt'), folded = li.classList.toggle('folded');
+      b.setAttribute('aria-expanded', String(!folded));
+    }});
+  }});
 }})();
 </script>
 """

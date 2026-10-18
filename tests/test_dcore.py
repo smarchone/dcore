@@ -33,12 +33,18 @@ MAP = {
         {"voice": "C", "start": 200, "end": 290},
     ],
     "points": [
-        {"id": "P1", "parent": None, "kind": "question", "voice": "A", "to": "B", "t": 10,
-         "text": "Asks what bus lanes cost", "outcome": "answered", "answered_at": "P2"},
-        {"id": "P2", "parent": "P1", "kind": "reply", "voice": "B", "t": 30, "text": "Gives a cost figure"},
-        {"id": "P3", "parent": "P2", "kind": "challenge", "voice": "C", "t": 130, "text": "Says shops lose parking"},
-        {"id": "P4", "parent": None, "kind": "question", "voice": "A", "to": "C", "t": 185,
-         "text": "Asks for evidence on shop losses", "outcome": "not_answered", "followed_up": False,
+        {"id": "S1", "parent": None, "kind": "position", "text": "Add bus lanes"},
+        {"id": "Q1", "parent": "S1", "kind": "question", "stance": "challenges", "to": "B",
+         "said": [{"voice": "A", "t": 10}], "text": "What do bus lanes cost?", "outcome": "answered"},
+        {"id": "P2", "parent": "Q1", "kind": "claim", "stance": "answers",
+         "said": [{"voice": "B", "t": 30, "quote": "about 40 crore"}], "text": "They cost about 40 crore"},
+        {"id": "C1", "parent": "S1", "kind": "claim", "stance": "for",
+         "said": [{"voice": "B", "t": 60}, {"voice": "B", "t": 100}], "text": "Buses get faster"},
+        {"id": "P3", "parent": "C1", "kind": "claim", "stance": "challenges",
+         "said": [{"voice": "C", "t": 130}], "text": "Shops lose parking", "also": ["S1"]},
+        {"id": "Q4", "parent": "P3", "kind": "question", "stance": "challenges", "to": "C",
+         "said": [{"voice": "A", "t": 185}], "text": "What evidence is there of shop losses?",
+         "outcome": "not_answered", "followed_up": False,
          "note": "Voice C spoke about traffic instead", "label": "dodge"},
     ],
     "moments": [{"t": 125, "kind": "interruption", "by": "C", "of": "B", "note": "Before B finished"}],
@@ -77,17 +83,18 @@ def test_clean_map_passes():
 def test_check_catches_errors():
     m = copy.deepcopy(MAP)
     m["points"][2]["parent"] = "P9"
-    m["points"][3]["outcome"] = "maybe"
+    m["points"][5]["outcome"] = "maybe"
+    m["points"][3]["stance"] = "sideways"
     m["turns"][1]["voice"] = "Z"
     m["moments"][0]["by"] = None
     err, _ = check.check(TR, m)
     joined = " ".join(err)
-    assert "P9" in joined and "outcome" in joined and "'Z'" in joined and "interruption" in joined
+    assert "P9" in joined and "outcome" in joined and "stance" in joined and "'Z'" in joined and "interruption" in joined
 
 
 def test_label_words_warn_only_in_shown_text():
     m = copy.deepcopy(MAP)
-    m["points"][3]["note"] = "Voice C dodged the question"
+    m["points"][5]["note"] = "Voice C dodged the question"
     _, warn = check.check(TR, m)
     assert any("dodged" in w for w in warn)
 
@@ -101,13 +108,24 @@ def test_stats():
     assert abs(sum(r["share"] for r in rows.values()) - 1) < 1e-9
 
 
+def test_claim_state():
+    assert check.state(MAP, "C1") == ("replied", "Challenged, replied to")
+    assert check.state(MAP, "P3") == ("open", "Challenged, no reply")
+    m = copy.deepcopy(MAP)
+    m["points"].append({"id": "X", "parent": "P3", "kind": "claim", "stance": "concedes",
+                        "said": [{"voice": "B", "t": 200}], "text": "Fair point"})
+    assert check.state(m, "P3")[0] == "conceded"
+
+
 def test_render(tmp_path):
     (tmp_path / "transcript.json").write_text(json.dumps(TR))
     (tmp_path / "map.json").write_text(json.dumps(MAP))
     assert render.main([str(tmp_path)]) == 0
     html = (tmp_path / "page.html").read_text()
     assert "watch?v=abcdefghijk&amp;t=185s" in html
-    assert "No direct answer by Voice C. Not asked again" in html
+    assert "No direct answer by Voice C, not asked again" in html
+    assert "said 2 times" in html and "Challenged, no reply" in html
+    assert "also bears on: Add bus lanes" in html
     assert "dodge" not in html  # private labels never reach the page
     assert "vh" not in html.replace("vhs", "")
 
