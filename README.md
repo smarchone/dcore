@@ -1,9 +1,9 @@
 # dcore
 
 The [`dcore`](.claude/skills/dcore/SKILL.md) skill turns a recorded debate,
-townhall or podcast on YouTube into one HTML page: the thread of claims,
-replies, challenges and questions (each timestamped and linked into the video)
-plus a "how this debate went" report with per-voice stats.
+townhall or podcast on YouTube into one HTML page: each distinct claim once,
+as a branch with its challenges, replies and questions (each timestamped and
+linked into the video), plus a "how this debate went" report with per-voice stats.
 
 Claude does the judging; three small stdlib scripts do the plumbing. `fetch.py`
 gets captions or reads a pasted transcript, `check.py` validates the map and
