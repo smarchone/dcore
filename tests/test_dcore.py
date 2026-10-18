@@ -1,4 +1,4 @@
-"""Tests for the debate-map skill's scripts (fetch, check, render)."""
+"""Tests for the dcore skill's scripts (fetch, check, render)."""
 
 import copy
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / ".claude/skills/debate-map/scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / ".claude/skills/dcore/scripts"))
 import check  # noqa: E402
 import fetch  # noqa: E402
 import render  # noqa: E402

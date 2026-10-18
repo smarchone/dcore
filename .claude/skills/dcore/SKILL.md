@@ -1,9 +1,9 @@
 ---
-name: debate-map
+name: dcore
 description: Turn a recorded debate, townhall or podcast on YouTube into one HTML page with the argument thread (claims, replies, challenges, questions left unanswered, each timestamped) and a "how this debate went" report with per-voice stats. Use when asked to map, break down or report on a video debate or discussion.
 ---
 
-# Debate map
+# dcore
 
 You do the judgment work; the scripts do the plumbing. Never hand-count a stat
 or hand-write HTML: `check.py` and `render.py` compute those from the file you
@@ -18,7 +18,7 @@ Everything lives in one folder, `debates/<id>/`:
 | `map.json` | you |
 | `page.html` | `render.py` |
 
-Scripts are in `.claude/skills/debate-map/scripts/` and need only Python 3.10+
+Scripts are in `.claude/skills/dcore/scripts/` and need only Python 3.10+
 (plus `youtube-transcript-api` to fetch captions).
 
 ## Principles (non-negotiable)
