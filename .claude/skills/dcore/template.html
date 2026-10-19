@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discussion Explained</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* dcore page. Claude fills only the JSON in <script id="deliberation"> near the end; the rest stays as is. */
+:root {
+  --bg: #f4f4f1; --paper: #fdfdfb; --ink: #1f2328; --soft: #6a7078; --line: #e1e2dd; --wash: #efefea;
+  --holds: #22745a; --holds-wash: #e1f0e9; --challenged: #a8670f; --challenged-wash: #f8ecd9;
+  --fails: #a4423a; --fails-wash: #f6e4e1; --open: #6f7680; --open-wash: #eceef0;
+  --ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121417; --paper: #1a1d21; --ink: #e8e9e6; --soft: #9aa0a8; --line: #2e3238; --wash: #23272c;
+  --holds: #6cc4a3; --holds-wash: #1b3229; --challenged: #e3a64e; --challenged-wash: #3a2c17;
+  --fails: #e48a80; --fails-wash: #3b2321; --open: #a3a9b1; --open-wash: #262a30; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121417; --paper: #1a1d21; --ink: #e8e9e6; --soft: #9aa0a8; --line: #2e3238; --wash: #23272c;
+  --holds: #6cc4a3; --holds-wash: #1b3229; --challenged: #e3a64e; --challenged-wash: #3a2c17;
+  --fails: #e48a80; --fails-wash: #3b2321; --open: #a3a9b1; --open-wash: #262a30; color-scheme: dark }
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--ui); }
+.wrap { max-width: 820px; margin: 0 auto; padding-block: 28px 64px; display: grid; gap: 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header h1 { font-size: 20px; font-weight: 600; line-height: 1.3; margin: 2px 0 6px; text-wrap: balance; }
+header p { margin: 0; color: var(--soft); max-width: 64ch; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+section { display: grid; gap: 10px; min-width: 0; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px clamp(14px, 3vw, 24px); min-width: 0; }
+.tc { font: 400 11px var(--mono); color: var(--soft); white-space: nowrap; }
+a.tc { text-decoration: none; } a.tc:hover { color: var(--ink); text-decoration: underline; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.toggle { display: inline-flex; background: var(--wash); border-radius: 999px; padding: 2px; }
+.toggle button { border: 0; background: none; padding: 4px 12px; border-radius: 999px; font-size: 13px; color: var(--soft); }
+.toggle button[aria-pressed="true"] { background: var(--paper); color: var(--ink); font-weight: 500; box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+
+.key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--soft); margin-bottom: 14px; }
+.key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; border: 1px solid var(--line); }
+
+/* One rope per option: what argued for it on the left, against it on the right (stacked on phones). */
+.rope + .rope { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+.rope-title { font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+.sides { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 680px) { .sides { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+  .side.for { border-right: 1px solid var(--soft); padding-right: 16px; } .side.against { padding-left: 16px; }
+  .side.for h3 { text-align: right; } }
+.side h3 { margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); font-weight: 500; }
+.none { margin: 0; font-size: 12.5px; color: var(--soft); font-style: italic; }
+.pts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pt { border-radius: 6px; padding: 7px 10px; border: 1px solid transparent; }
+.pt.holds { background: var(--holds-wash); } .pt.challenged { background: var(--challenged-wash); }
+.pt.open { background: var(--open-wash); }
+.pt.fails { border: 1px dashed var(--line); }
+.pt .say { display: block; font-weight: 500; line-height: 1.4; }
+.pt.fails .say { text-decoration: line-through; color: var(--soft); font-weight: 400; }
+.trail { list-style: none; margin: 4px 0 0; padding: 0; font-size: 12px; line-height: 1.4; color: var(--soft); display: grid; gap: 1px; }
+.trail li { display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 6px; }
+.trail .end { color: var(--ink); font-weight: 500; }
+.lean { text-align: center; font-size: 12.5px; color: var(--soft); margin: 8px 0 0; }
+
+/* Timeline view */
+.story { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 1px solid var(--line); display: grid; gap: 16px; }
+.story li { position: relative; }
+.story li::before { content: ""; position: absolute; left: -23px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--soft); }
+.story li.turn::before { background: var(--fails); border-color: var(--fails); }
+.story li.common::before { background: var(--holds); border-color: var(--holds); }
+.story b { font-weight: 600; } .story b .tc { margin-left: 4px; }
+.story p { margin: 2px 0 0; max-width: 66ch; }
+.story .shift { display: block; margin-top: 2px; font-size: 12px; color: var(--soft); }
+
+.qs { margin: 0; padding: 0; list-style: none; }
+.qs li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; }
+.qs li:first-child { border-top: 0; padding-top: 0; }
+.q { font-weight: 600; }
+.a { grid-column: 1; max-width: 66ch; }
+.tag { font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px; white-space: nowrap; grid-row: 1; grid-column: 2; }
+.tag.holds { background: var(--holds-wash); color: var(--holds); }
+.tag.challenged { background: var(--challenged-wash); color: var(--challenged); }
+.tag.open { background: var(--open-wash); color: var(--open); }
+.tag.fails { background: var(--fails-wash); color: var(--fails); }
+footer { font-size: 12px; color: var(--soft); max-width: 64ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">What happened in this discussion</span>
+    <h1 id="topic"></h1>
+    <p id="about"></p>
+  </header>
+
+  <section aria-labelledby="h-main">
+    <div class="bar">
+      <h2 id="h-main">How each point fared</h2>
+      <div class="toggle" role="group" aria-label="View">
+        <button type="button" data-view="points" aria-pressed="true">Points</button>
+        <button type="button" data-view="timeline" aria-pressed="false">Timeline</button>
+      </div>
+    </div>
+    <div class="sheet" id="points-view"><div class="key" id="key"></div><div id="ropes"></div></div>
+    <div class="sheet" id="timeline-view" hidden><ol class="story" id="story"></ol></div>
+  </section>
+
+  <section aria-labelledby="h-qs">
+    <h2 id="h-qs">Your questions, answered</h2>
+    <div class="sheet"><ul class="qs" id="qs"></ul></div>
+  </section>
+
+  <footer><span id="source"></span> Voices are anonymous. Nothing here is fact-checked: "stands" means no one in the discussion knocked it down, not that it's true.</footer>
+</div>
+
+<!-- Claude replaces this JSON (the sample below is a made-up panel). Schema: see SKILL.md. -->
+<script id="deliberation" type="application/json">
+{
+ "topic": "Should the RBI defend the rupee, or let it find its level?",
+ "about": "A made-up 16-minute TV panel: an anchor and three panelists.",
+ "source": "Made-up transcript; no real broadcast.",
+ "video": "",
+ "options": [
+  {
+   "title": "Defend the rupee",
+   "lean": "Its strongest support fell away; the cost to families still stands.",
+   "for": [
+    {
+     "say": "Families pay more as the rupee falls",
+     "end": "holds",
+     "steps": [
+      {
+       "t": "0:40",
+       "did": "Raised: fuel, fees and medicines get dearer."
+      },
+      {
+       "t": "1:35",
+       "did": "Challenged: fuel prices are mostly taxes."
+      },
+      {
+       "t": "1:50",
+       "did": "Answered: the import bill rises anyway, taxes sit on top."
+      }
+     ],
+     "outcome": "Stands. The objection wasn't pressed again."
+    },
+    {
+     "say": "Defending steadies import prices",
+     "end": "challenged",
+     "steps": [
+      {
+       "t": "12:30",
+       "did": "Raised as the protection families need."
+      },
+      {
+       "t": "13:05",
+       "did": "Challenged: only as long as reserves last."
+      }
+     ],
+     "outcome": "Disputed. No reply came."
+    },
+    {
+     "say": "Reserves can defend it for a long time",
+     "end": "fails",
+     "steps": [
+      {
+       "t": "2:41",
+       "did": "Raised: reserves are among the largest in the world."
+      },
+      {
+       "t": "4:30",
+       "did": "Asked: how many months of imports do they cover?"
+      },
+      {
+       "t": "4:41",
+       "did": "Not answered; the reply compared earlier governments."
+      },
+      {
+       "t": "5:10",
+       "did": "A panelist cites about ten months."
+      },
+      {
+       "t": "5:35",
+       "did": "Its own side accepts reserves can't be spent forever."
+      }
+     ],
+     "outcome": "Fell away."
+    }
+   ],
+   "against": [
+    {
+     "say": "Defending spends reserves every day",
+     "end": "holds",
+     "steps": [
+      {
+       "t": "3:20",
+       "did": "Raised: holding a level means selling dollars."
+      },
+      {
+       "t": "3:44",
+       "did": "Accepted by the government side: \"that is how it works\"."
+      }
+     ],
+     "outcome": "Stands."
+    },
+    {
+     "say": "Past defences only delayed the fall",
+     "end": "challenged",
+     "steps": [
+      {
+       "t": "3:47",
+       "did": "Raised from past episodes; no specific episode named."
+      },
+      {
+       "t": "5:35",
+       "did": "Partly met: a sudden fall also hurts confidence."
+      }
+     ],
+     "outcome": "Disputed."
+    }
+   ]
+  },
+  {
+   "title": "Let it find its level",
+   "lean": "Agreed it helps exporters; disputed whether families feel it in time.",
+   "for": [
+    {
+     "say": "Exports get cheaper abroad",
+     "end": "holds",
+     "steps": [
+      {
+       "t": "7:15",
+       "did": "Raised: IT and textiles gain."
+      },
+      {
+       "t": "7:50",
+       "did": "Not disputed; the pushback is about timing."
+      }
+     ],
+     "outcome": "Stands. The fight was over timing."
+    },
+    {
+     "say": "IT hiring is already up",
+     "end": "challenged",
+     "steps": [
+      {
+       "t": "8:20",
+       "did": "Offered as proof gains are happening now."
+      },
+      {
+       "t": "8:40",
+       "did": "Challenged: that's one sector; traders and farmers see none of it."
+      }
+     ],
+     "outcome": "Disputed. No reply came."
+    },
+    {
+     "say": "The fall is a strong dollar anyway",
+     "end": "open",
+     "steps": [
+      {
+       "t": "6:20",
+       "did": "Raised: the dollar is strong against everyone."
+      }
+     ],
+     "outcome": "Never taken up."
+    }
+   ],
+   "against": [
+    {
+     "say": "Gains take years; prices rise now",
+     "end": "challenged",
+     "steps": [
+      {
+       "t": "7:50",
+       "did": "Raised against the export case."
+      },
+      {
+       "t": "8:20",
+       "did": "Challenged with IT hiring this quarter."
+      }
+     ],
+     "outcome": "Disputed. The IT reply covers one sector."
+    },
+    {
+     "say": "Subsidies cost money too",
+     "end": "open",
+     "steps": [
+      {
+       "t": "10:30",
+       "did": "Asked where the money for targeted support comes from."
+      },
+      {
+       "t": "10:45",
+       "did": "Lost in crosstalk."
+      }
+     ],
+     "outcome": "Never answered."
+    }
+   ]
+  }
+ ],
+ "moments": [
+  {
+   "t": "0:40",
+   "title": "It opens on the cost to families",
+   "text": "A falling rupee makes fuel, fees and medicines dearer. An objection that fuel is mostly taxes is answered at once.",
+   "shift": "Settled early: families pay more.",
+   "kind": ""
+  },
+  {
+   "t": "2:41",
+   "title": "The government side leans on reserves",
+   "text": "\"We have huge reserves.\" The reply: defending means selling dollars, and past defences only delayed the fall.",
+   "shift": "",
+   "kind": ""
+  },
+  {
+   "t": "4:30",
+   "title": "The turning point: how long do reserves last?",
+   "text": "Asked directly, the answer points to their size and to earlier governments. A panelist cites about ten months of imports. At 5:35 the government side accepts reserves can't be spent forever.",
+   "shift": "Falls away: \"reserves can defend for a long time\".",
+   "kind": "turn"
+  },
+  {
+   "t": "7:15",
+   "title": "The other option: let it fall",
+   "text": "A cheaper rupee helps exporters. Pushback: gains take years, prices rise now. IT hiring is offered as proof; \"that's one sector\" goes unanswered.",
+   "shift": "Left disputed: do gains reach families in time?",
+   "kind": ""
+  },
+  {
+   "t": "11:40",
+   "title": "Common ground, and the gap",
+   "text": "Everyone agrees families need protection. Defending is offered as that protection, and challenged. How to pay for targeted subsidies is lost in crosstalk.",
+   "shift": "Ends open: how to protect families, and at what cost.",
+   "kind": "common"
+  }
+ ],
+ "questions": [
+  {
+   "q": "Will a falling rupee hurt families?",
+   "a": "Yes. Both sides agreed; the \"it's mostly taxes\" objection was answered.",
+   "answer": "settled"
+  },
+  {
+   "q": "Can the RBI afford to defend it?",
+   "a": "Not for long. The government side accepted that reserves can't be spent forever, but nobody said how long they'd last.",
+   "answer": "leans no"
+  },
+  {
+   "q": "Does a cheaper rupee help anyone?",
+   "a": "Exporters, yes. Whether families feel it soon enough was disputed, and the only evidence covered IT.",
+   "answer": "disputed"
+  },
+  {
+   "q": "What protects families meanwhile?",
+   "a": "Targeted fuel subsidies were proposed. How to pay for them was never discussed.",
+   "answer": "open"
+  },
+  {
+   "q": "Is the fall India's doing?",
+   "a": "One panelist said it's a strong dollar. Nobody examined it, though the case against defending rests on it.",
+   "answer": "open"
+  }
+ ]
+}
+</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById('deliberation').textContent);
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const secs = t => t.split(':').map(Number).reduce((a, n) => a * 60 + n, 0);
+  // With a video link, each timestamp opens the video at that moment.
+  const tc = t => {
+    if (!t) return '<span class="tc"></span>';
+    if (!D.video) return `<span class="tc">${esc(t)}</span>`;
+    const u = new URL(D.video); u.searchParams.set('t', secs(t) + 's');
+    return `<a class="tc" href="${esc(u.href)}" target="_blank" rel="noopener">${esc(t)}</a>`;
+  };
+  const TAG = { 'settled': 'holds', 'leans yes': 'challenged', 'leans no': 'fails', 'disputed': 'challenged', 'open': 'open' };
+
+  document.title = D.topic;
+  document.getElementById('topic').textContent = D.topic;
+  document.getElementById('about').textContent = D.about;
+  document.getElementById('source').textContent = D.source || '';
+
+  document.getElementById('key').innerHTML = [['holds-wash', 'stands'], ['challenged-wash', 'disputed'], ['open-wash', 'never taken up'], [null, 'fell away']]
+    .map(([c, l]) => `<span><i style="${c ? `background:var(--${c})` : 'border-style:dashed;border-color:var(--soft)'}"></i>${l}</span>`).join('');
+
+  const point = p => `<li class="pt ${esc(p.end)}"><span class="say">${esc(p.say)}</span><ul class="trail">${
+    p.steps.map(s => `<li>${tc(s.t)}<span>${esc(s.did)}</span></li>`).join('')
+  }<li>${tc('')}<span class="end">${esc(p.outcome)}</span></li></ul></li>`;
+  const side = (o, k, h) => `<div class="side ${k}"><h3>${h}</h3>${
+    (o[k] || []).length ? `<ul class="pts">${o[k].map(point).join('')}</ul>` : '<p class="none">Nothing was raised.</p>'}</div>`;
+  document.getElementById('ropes').innerHTML = D.options.map(o =>
+    `<div class="rope"><div class="rope-title">${esc(o.title)}</div><div class="sides">${side(o, 'for', 'For')}${side(o, 'against', 'Against')}</div>${
+      o.lean ? `<p class="lean">${esc(o.lean)}</p>` : ''}</div>`).join('');
+
+  document.getElementById('story').innerHTML = D.moments.map(m =>
+    `<li class="${esc(m.kind || '')}"><b>${esc(m.title)} ${tc(m.t)}</b><p>${esc(m.text)}</p>${m.shift ? `<span class="shift">${esc(m.shift)}</span>` : ''}</li>`).join('');
+
+  document.getElementById('qs').innerHTML = D.questions.map(q =>
+    `<li><span class="q">${esc(q.q)}</span><span class="tag ${TAG[q.answer] || 'open'}">${esc(q.answer)}</span><span class="a">${esc(q.a)}</span></li>`).join('');
+
+  document.querySelector('.toggle').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('.toggle button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    document.getElementById('points-view').hidden = b.dataset.view !== 'points';
+    document.getElementById('timeline-view').hidden = b.dataset.view !== 'timeline';
+  });
+})();
+</script>
