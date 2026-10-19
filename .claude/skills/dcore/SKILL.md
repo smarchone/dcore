@@ -97,7 +97,8 @@ point down, not that it is true.
    discussion left open.
 
 10. **Build the page.** Copy `template.html` to `debates/<id>/index.html` and
-    replace only the JSON inside `<script id="deliberation">`. Check that the
+    replace only the JSON inside `<script id="deliberation">` and the
+    `<title>` (a 2 to 4 word name, such as "CEC Resignation Debate"). Check that the
     JSON parses (`python -c "import json,sys; ..."` or similar) and that
     every point follows the rules above. Then share the page (publish it as
     an artifact when that tool is available), with one line saying what the
