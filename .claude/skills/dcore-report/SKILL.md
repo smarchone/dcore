@@ -51,7 +51,8 @@ A transcript, ideally with timestamps (YouTube "Show transcript" text, .vtt/.srt
     - To spot a distraction: Was the question answered, or did the talk move to something else? / When someone made a strong claim, did they back it up, or just repeat it louder? / Did they argue the point, or attack and mock the other side? / Did the host ask questions, or argue for one side?
     - To spot talk that went nowhere: When someone made a point, did anyone reply to it? / Did anyone agree on anything, even one small fact? / At the end, did anyone say what was settled and what is still open?
     Don't ask about citing numbers; people rarely do.
-11. **Write the provenance file** (`provenance.md`): every segment with a one-line reason, every dot with the rule it met or broke, plus the questions each side faced marked Answered / Dodged (replied but didn't answer) / Ignored, with the reply when there was one. Questions-each-side-faced stays in this file, not on the page.
+11. **Link every timestamp to its source.** If the conversation is a YouTube video, put its link in `youtube`; every timestamp on the page then opens the video at that second. Otherwise put the raw transcript in `transcript` as `[start_sec, text]` lines grouped into ~20-second chunks (`python3 .claude/skills/dcore-report/transcript_chunks.py debates/<id>/transcript.txt` prints them for `[m:ss] text` lines); the page hosts it behind a "Full transcript" toggle and every timestamp opens it at that line. Leave `transcript` empty when there is a YouTube link. The raw transcript is the source as said, so it may contain names; the report itself still uses roles.
+12. **Write the provenance file** (`provenance.md`): every segment with a one-line reason, every dot with the rule it met or broke, plus the questions each side faced marked Answered / Dodged (replied but didn't answer) / Ignored, with the reply when there was one. Questions-each-side-faced stays in this file, not on the page.
 
 ## Output
 
@@ -87,6 +88,8 @@ Copy `template.html` to `debates/<id>/report.html` and replace only the JSON ins
     "forward": [{"t": "3:15", "what": "Asked \"how?\" when ..."}],
     "back": [{"t": "14:40", "what": "Argued a personal view that ...", "better": "Keep the host's own view out; ask ...", "cost": "The moderator became a debater ..."}]}],
   "ask": {"distraction": ["...4 questions..."], "nowhere": ["...3 questions..."]},
+  "youtube": "",                  // the video link, if any; timestamps then open the video at that second
+  "transcript": [[0, "First ~20 seconds of the raw transcript"], [21, "..."]],  // only when there is no YouTube link
   "footer": "The missed steps come from a simulated better version of the same debate, not the truth. Each side keeps its view; only the arguing improves. Timings are approximate. Numbers quoted were not checked."
 }
 ```
@@ -97,6 +100,7 @@ If the template file is not available, build the same page by hand in the school
 - "Where the N minutes went": three horizontal bars with percentages (progress green, on topic but nobody engaged orange, distractions red), a line "The other X% was the intro and tech trouble". A "Minute by minute" toggle holds the timeline ribbon (same colours, idle black), axis and legend. Then a box listing the distraction kinds with a "Who did what, and when" toggle, and the insight callout.
 - "Report card": one row per voice (name, a fixed-width column of green then red dots, one-line remark) so dots line up; each row is a toggle listing every move with its time, and for red moves the better move and the cost.
 - "Next time you watch a debate, ask": the two question groups.
+- A "Full transcript, as broadcast" toggle (only without a YouTube link); every timestamp on the page links to the video second or the transcript line.
 - Footer caveat.
 
 ## Format and tone rules (from the person who designed this)

@@ -86,3 +86,16 @@ def test_report_sample_follows_schema():
         assert all(m["t"] and m["what"] for m in v["forward"])
         assert all(m["t"] and m["what"] and m["better"] and m["cost"] for m in v["back"])
     assert d["ask"]["distraction"] and d["ask"]["nowhere"] and d["footer"]
+    assert d["youtube"] or d["transcript"], "timestamps need a source to link to"
+    starts = [s for s, _ in d["transcript"]]
+    assert starts == sorted(starts) and all(t for _, t in d["transcript"])
+
+
+def test_transcript_chunks(tmp_path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("tc", REPORT / "transcript_chunks.py")
+    tc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tc)
+    f = tmp_path / "t.txt"
+    f.write_text("[0:00] a\n[0:05] b\n[0:21] c\n[1:02:03] d\n", encoding="utf-8")
+    assert tc.chunks(str(f)) == [[0, "a b"], [21, "c"], [3723, "d"]]
