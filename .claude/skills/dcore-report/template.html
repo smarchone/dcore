@@ -1,0 +1,467 @@
+<title>Debate Report Card</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Courier+Prime:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone-first column of pictures (steps, the clock, the voices); every label stands on its own. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --fg: #1d2330;
+  --muted: #5b6475;
+  --line: #d4d9e2;
+  --real: #3b4a66;
+  --reach: #1f7a5c;
+  --reach-soft: #e3f3ec;
+  --slip: #c2352b;
+  --slip-soft: #fbe6e3;
+  --amber: #a8650b;
+  --amber-soft: #fbf0dc;
+  --idle: #dde1e7;
+  --talk: #8d9ab3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ee; --muted: #9aa3b5; --line: #353c48;
+  --real: #a9b8d6; --reach: #5cc59d; --reach-soft: #17302a;
+  --slip: #f06a5e; --slip-soft: #3a1f1d; --amber: #e5a74a; --amber-soft: #352914;
+  --idle: #2c323c; --talk: #66748f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ee; --muted: #9aa3b5; --line: #353c48;
+  --real: #a9b8d6; --reach: #5cc59d; --reach-soft: #17302a;
+  --slip: #f06a5e; --slip-soft: #3a1f1d; --amber: #e5a74a; --amber-soft: #352914;
+  --idle: #2c323c; --talk: #66748f; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.4; }
+.wrap { max-width: 680px; margin: 0 auto; padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 34px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.6rem; line-height: 1.15; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: .95rem; }
+p { margin: 0; }
+.eyebrow { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.ts { font-family: var(--f-mono); font-size: .72rem; color: var(--muted); white-space: nowrap; }
+header { display: grid; gap: 8px; }
+.ctx { color: var(--muted); font-size: .95rem; }
+section { display: grid; gap: 12px; }
+.cap { font-size: .88rem; color: var(--muted); }
+
+/* 1. Steps: reached in green, missed in red; consequences sit inside each step and grow redder; both misses merge into one outcome */
+.steps, .misses { display: grid; gap: 8px; }
+.step { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 10px; font-weight: 600; }
+.step .ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; color: var(--bg); }
+.step .st { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.step.ok { background: var(--reach-soft); }
+.step.ok .ic { background: var(--reach); }
+.step.ok .st { color: var(--reach); }
+.step.miss { background: var(--slip-soft); }
+.step.miss .ic { background: var(--slip); }
+.step.miss .st { color: var(--slip); }
+.flow { grid-column: 2 / 4; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ar { font-size: .8rem; color: var(--muted); }
+.why { grid-column: 1 / 4; position: relative; display: grid; gap: 10px; padding-left: 40px; margin-top: 2px; }
+.why::before { content: ""; position: absolute; left: 13px; top: -10px; bottom: 9px; width: 2px; background: color-mix(in srgb, var(--slip) 35%, transparent); }
+.step.ok .why::before { background: color-mix(in srgb, var(--reach) 35%, transparent); }
+.because { font-size: .78rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+.so { position: relative; font-weight: 600; line-height: 1.3; }
+.so::before { content: ""; position: absolute; border-radius: 50%; }
+.so.g1, .so.r1 { font-size: .85rem; font-weight: 400; }
+.so.g2, .so.r2 { font-size: .9rem; }
+.so.r3 { font-size: .98rem; color: var(--slip); }
+.so.g1::before, .so.r1::before { width: 10px; height: 10px; left: -32px; top: .2em; }
+.so.g2::before, .so.r2::before { width: 14px; height: 14px; left: -34px; top: .1em; }
+.so.r3::before { width: 18px; height: 18px; left: -36px; top: 0; }
+.so.g1::before { background: color-mix(in srgb, var(--reach) 45%, var(--bg)); }
+.so.g2::before { background: var(--reach); }
+.so.r1::before { background: color-mix(in srgb, var(--slip) 40%, var(--bg)); }
+.so.r2::before { background: color-mix(in srgb, var(--slip) 70%, var(--bg)); }
+.so.r3::before { background: var(--slip); }
+.merge { display: grid; gap: 4px; justify-items: center; }
+.merge .ar { color: var(--slip); font-weight: 600; font-size: .78rem; }
+.outcome { width: 100%; box-sizing: border-box; background: var(--slip); color: var(--bg); border-radius: 10px; padding: 14px 16px; font-family: var(--f-display); font-size: 1.1rem; text-align: center; }
+
+/* 3. The clock: 21 minutes as one ribbon, then the distractions as bars sized by time lost */
+.ribbon { display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.seg { height: 100%; }
+.seg.fwd { background: var(--reach); }
+.seg.talk { background: var(--talk); }
+.seg.side { background: var(--slip); }
+.seg.idle { background: var(--idle); }
+.axis { display: flex; justify-content: space-between; margin-top: 4px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.big { font-family: var(--f-display); font-size: .88rem; line-height: 1.2; display: grid; gap: 2px; }
+.big span { font-size: 1.9rem; }
+.big.g span { color: var(--reach); }
+.big.t span { color: var(--talk); }
+.big.r span { color: var(--slip); }
+.leak { border-left: 4px solid var(--talk); background: var(--surface); border-radius: 0 10px 10px 0; padding: 12px 16px; display: grid; gap: 4px; }
+.leak-h { font-family: var(--f-display); font-size: 1.05rem; font-weight: 700; }
+
+.distbox { background: var(--slip-soft); border-radius: 10px; padding: 12px 16px; display: grid; gap: 8px; }
+.dh { font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--slip); }
+.distbox ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: .9rem; }
+.distbox li span { color: var(--muted); }
+.distbox li span::before { content: "· "; }
+
+/* 4. Report card: one dot per notable move */
+.voices { display: grid; gap: 10px; }
+.voice { display: grid; grid-template-columns: 96px 128px 1fr; gap: 12px; align-items: center; }
+.voice .n { font-size: .85rem; font-weight: 600; }
+.moves { display: flex; align-items: center; gap: 5px; }
+.mv { width: 14px; height: 14px; border-radius: 50%; }
+.mv.g { background: var(--reach); }
+.mv.a { background: var(--slip); }
+.voice .note { font-size: .82rem; color: var(--muted); line-height: 1.3; }
+
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+.ask ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-weight: 600; }
+
+footer { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; }
+footer a { color: var(--real); }
+@media (max-width: 560px) {
+  .tug { grid-template-columns: 1fr; gap: 22px; }
+  .big span { font-size: 1.5rem; }
+  .voice { grid-template-columns: 84px auto; row-gap: 2px; }
+  .voice .note { grid-column: 2 / -1; }
+}
+/* =========================================================
+   C. MARKSHEET — a school report card: ruled paper, rubber stamps, the teacher's red-pen remarks
+   ========================================================= */
+body[data-v="marks"] {
+  --bg: #fdfdfb; --surface: #ffffff; --fg: #1f2a44; --muted: #5e6a85; --line: #c9d3e6;
+  --reach: #1d7a4a; --reach-soft: transparent; --slip: #c8102e; --slip-soft: transparent;
+  --talk: #8d9ab3; --idle: #e3e7ef; --real: #1f3a8a;
+  --f-display: "Courier Prime", "Courier New", monospace; --f-body: "Source Sans 3", "Segoe UI", sans-serif; --f-mono: "Courier Prime", monospace;
+  --hand: "Kalam", "Comic Sans MS", cursive;
+  color-scheme: light;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, #e4ebf7 31px 32px);
+}
+body[data-v="marks"] .wrap { border-left: 2px solid #f2b8c0; }
+body[data-v="marks"] header { border-bottom: 3px double var(--fg); padding-bottom: 14px; }
+body[data-v="marks"] .eyebrow { font-family: var(--f-display); letter-spacing: .2em; color: var(--fg); }
+body[data-v="marks"] h1 { font-size: 1.7rem; }
+body[data-v="marks"] h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .12em; text-decoration: underline; text-underline-offset: 4px; }
+body[data-v="marks"] .step { background: var(--surface); border: 1px solid var(--line); border-radius: 0; }
+body[data-v="marks"] .step .ic { background: transparent !important; color: var(--slip); font-family: var(--hand); font-size: 1.4rem; }
+body[data-v="marks"] .step.ok .ic { color: var(--reach); }
+body[data-v="marks"] .step .st { font-family: var(--f-display); font-weight: 700; font-size: .9rem; padding: 3px 10px; border: 3px double currentColor; border-radius: 4px; transform: rotate(-8deg); opacity: .85; letter-spacing: .15em; }
+body[data-v="marks"] .so.r3 { font-family: var(--hand); font-size: 1.15rem; font-weight: 400; }
+body[data-v="marks"] .outcome { background: transparent; color: var(--slip); border: 3px double var(--slip); border-radius: 0; font-family: var(--f-display); transform: rotate(-1.5deg); }
+body[data-v="marks"] .big { font-family: var(--f-display); }
+body[data-v="marks"] .big span { font-family: var(--hand); font-size: 2.4rem; }
+body[data-v="marks"] .distbox { background: var(--surface); border: 1px solid var(--line); border-radius: 0; }
+body[data-v="marks"] .leak { background: transparent; border-left: none; padding: 0 0 0 14px; }
+body[data-v="marks"] .leak-h, body[data-v="marks"] .leak p { font-family: var(--hand); color: var(--slip); font-weight: 400; }
+body[data-v="marks"] .leak-h { font-size: 1.35rem; }
+body[data-v="marks"] .leak p:last-child { font-size: 1.1rem; }
+body[data-v="marks"] .voice .note { font-family: var(--hand); color: var(--slip); font-size: 1rem; }
+body[data-v="marks"] .ask { border-radius: 0; border: 2px dashed var(--line); }
+body[data-v="marks"] .ask h2 { text-decoration: none; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .82rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.lead-mark { display: none; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <p class="ctx" id="context"></p>
+  </header>
+
+  <section>
+    <h2>How far they got</h2>
+    <p class="cap" id="steps-caption"></p>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section>
+    <h2 id="time-heading"></h2>
+    <div>
+      <div class="ribbon" id="ribbon"></div>
+      <div class="axis" id="axis"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--reach)"></i>Progress: agreed or answered</span>
+      <span><i style="background:var(--talk)"></i>On topic, but nobody engaged</span>
+      <span><i style="background:var(--slip)"></i>Distractions</span>
+      <span><i style="background:var(--idle)"></i>Intro, tech trouble</span>
+    </div>
+    <div class="stats">
+      <p class="big g"><span id="p-fwd"></span>produced progress</p>
+      <p class="big t"><span id="p-talk"></span>on topic, but went nowhere</p>
+      <p class="big r"><span id="p-side"></span>went on distractions</p>
+    </div>
+    <div class="distbox"><p class="dh">The distractions were</p><ul id="dist"></ul></div>
+    <div class="leak"><p class="leak-h" id="leak-h"></p><p id="leak"></p></div>
+    <p class="cap">Progress here means a point was agreed or a question was answered.</p>
+  </section>
+
+  <section>
+    <h2>Report card</h2>
+    <div class="voices" id="voices"></div>
+    <div class="legend">
+      <span><i style="background:var(--reach);border-radius:50%"></i>Moved the debate forward</span>
+      <span><i style="background:var(--slip);border-radius:50%"></i>Held the debate back</span>
+    </div>
+  </section>
+
+  <section class="ask">
+    <h2>Next time you watch a debate, ask</h2>
+    <ol id="ask"></ol>
+  </section>
+
+  <footer>
+    <p id="footer"></p>
+    <p id="full-link"></p>
+  </footer>
+</div>
+
+<script id="report" type="application/json">
+{
+ "style": "marksheet",
+ "eyebrow": "TV debate · 21 minutes · quick read",
+ "question": "Should the Election Commission chief resign?",
+ "context": "Two election commissioners raised 14 objections to how the Chief Election Commissioner ran decisions. A TV panel argued about whether the chief should resign.",
+ "steps_caption": "Three steps were within reach. The panel took one.",
+ "steps": [
+  {
+   "status": "reached",
+   "text": "Everyone agreed: the Election Commission must explain itself in public",
+   "because": "What this leads to",
+   "chain": [
+    "The Commission is now under pressure from all sides to speak",
+    "So if the Commission stays silent, its silence counts against it"
+   ]
+  },
+  {
+   "status": "missed",
+   "text": "Agree a list of questions the Commission must answer",
+   "because": "Because no list was agreed",
+   "chain": [
+    "The Commission can choose which questions to answer",
+    "So each party can say the answers left out what matters",
+    "So the resignation fight keeps going on TV, louder each time"
+   ]
+  },
+  {
+   "status": "missed",
+   "text": "Agree a test: the Commission shows its files on each disputed decision",
+   "because": "Because nobody agreed what evidence would settle it",
+   "chain": [
+    "When the facts come out, each side reads them its own way",
+    "So new facts change nobody's view",
+    "So each new fact becomes ammunition in the fight"
+   ]
+  }
+ ],
+ "outcome": "More distrust in elections, whichever side was right",
+ "outcome_note": "Each step makes the next harder to undo. Lost trust is the slowest thing to rebuild.",
+ "total_seconds": 1265,
+ "segments": [
+  [
+   0,
+   28,
+   "idle"
+  ],
+  [
+   28,
+   140,
+   "talk"
+  ],
+  [
+   140,
+   223,
+   "side"
+  ],
+  [
+   223,
+   334,
+   "talk"
+  ],
+  [
+   334,
+   469,
+   "side"
+  ],
+  [
+   469,
+   615,
+   "fwd"
+  ],
+  [
+   615,
+   790,
+   "talk"
+  ],
+  [
+   790,
+   826,
+   "idle"
+  ],
+  [
+   826,
+   853,
+   "side"
+  ],
+  [
+   853,
+   880,
+   "talk"
+  ],
+  [
+   880,
+   934,
+   "side"
+  ],
+  [
+   934,
+   989,
+   "talk"
+  ],
+  [
+   989,
+   1020,
+   "side"
+  ],
+  [
+   1020,
+   1176,
+   "fwd"
+  ],
+  [
+   1176,
+   1230,
+   "side"
+  ],
+  [
+   1230,
+   1265,
+   "idle"
+  ]
+ ],
+ "distractions": [
+  {
+   "term": "Red herring",
+   "gloss": "switching to an unrelated topic instead of answering"
+  },
+  {
+   "term": "Unsupported claims and loaded language",
+   "gloss": "slogans and big numbers with no source"
+  },
+  {
+   "term": "Moderator bias",
+   "gloss": "the moderator argues one side instead of moderating"
+  },
+  {
+   "term": "Appeal to ridicule",
+   "gloss": "mocking a view instead of answering it"
+  },
+  {
+   "term": "Ad hominem",
+   "gloss": "attacking the other side's motives instead of the argument"
+  }
+ ],
+ "insight": {
+  "title": "The biggest loss was not the shouting",
+  "text": "Most on-topic points were made and then left alone. Nobody replied to them, so they changed nothing. The former CEC's question about the commissioners' majority is one of them."
+ },
+ "voices": [
+  {
+   "name": "Former CEC",
+   "forward": 3,
+   "back": 0,
+   "note": "asked the hardest question"
+  },
+  {
+   "name": "Analyst",
+   "forward": 2,
+   "back": 1,
+   "note": "hear the Commission first, then act"
+  },
+  {
+   "name": "Ruling party",
+   "forward": 3,
+   "back": 3,
+   "note": "agreed on answers, then changed the subject"
+  },
+  {
+   "name": "Opposition",
+   "forward": 2,
+   "back": 3,
+   "note": "sharp questions, but overstated and dodged"
+  },
+  {
+   "name": "Host",
+   "forward": 3,
+   "back": 3,
+   "note": "pushed for evidence, but took a side"
+  }
+ ],
+ "ask": [
+  "Did they answer the question asked?",
+  "Did they say where a number came from?",
+  "Did anyone agree on anything?"
+ ],
+ "footer": "The missed steps come from a simulated better version of the same debate, not the truth. Each side keeps its view; only the arguing improves. Timings are approximate. Numbers quoted on the panel were not checked.",
+ "full_report_url": "",
+ "full_report_label": ""
+}
+</script>
+
+<script>
+// Everything on the page comes from the JSON above; Claude replaces only that JSON and the <title>.
+const DATA = JSON.parse(document.getElementById("report").textContent);
+
+// ===== Rendering (no need to edit below) =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+if (DATA.style === "marksheet") document.body.setAttribute("data-v", "marks");
+$("eyebrow").textContent = DATA.eyebrow;
+$("title").textContent = DATA.question;
+$("context").textContent = DATA.context;
+$("steps-caption").textContent = DATA.steps_caption;
+
+const reached = DATA.steps.filter(s => s.status === "reached");
+const missed = DATA.steps.filter(s => s.status === "missed");
+const stepHtml = s => {
+  const ok = s.status === "reached";
+  const tiers = ok ? ["g1", "g2", "g2"] : ["r1", "r2", "r3"];
+  const chain = s.chain.map((c, i) => '<p class="so ' + tiers[Math.min(i, 2)] + '">' + esc(c) + '</p>').join("");
+  return '<div class="step ' + (ok ? "ok" : "miss") + '"><span class="ic">' + (ok ? "✓" : "✕") + '</span><span>' + esc(s.text) +
+    '</span><span class="st">' + (ok ? "Reached" : "Missed") + '</span><div class="why"><p class="because">' + esc(s.because) + '</p>' + chain + '</div></div>';
+};
+let stepsHtml = reached.map(stepHtml).join("");
+if (missed.length) {
+  stepsHtml += '<div class="misses">' + missed.map(stepHtml).join("") +
+    (DATA.outcome ? '<div class="merge"><span class="ar">↓ ' + (missed.length === 1 ? "this miss leads here" : missed.length === 2 ? "both misses lead here" : "these misses lead here") + ' ↓</span><div class="outcome">' + esc(DATA.outcome) + '</div></div>' : "") + '</div>';
+}
+$("steps").innerHTML = stepsHtml + (DATA.outcome_note ? '<p class="cap">' + esc(DATA.outcome_note) + '</p>' : "");
+
+const fmt = s => Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
+const total = DATA.total_seconds;
+$("time-heading").textContent = "Where the " + Math.round(total / 60) + " minutes went";
+$("axis").innerHTML = '<span class="ts">0:00</span><span class="ts">' + fmt(total / 2) + '</span><span class="ts">' + fmt(total) + '</span>';
+DATA.segments.forEach(([a, b, t]) => {
+  const s = document.createElement("span");
+  s.className = "seg " + t;
+  s.style.flex = String(b - a);
+  $("ribbon").appendChild(s);
+});
+const share = t => Math.round(DATA.segments.filter(s => s[2] === t).reduce((n, [a, b]) => n + b - a, 0) / total * 100) + "%";
+["fwd", "talk", "side"].forEach(t => { $("p-" + t).textContent = share(t); });
+$("dist").innerHTML = DATA.distractions.map(d => '<li><b>' + esc(d.term) + '</b> <span>' + esc(d.gloss) + '</span></li>').join("");
+$("leak-h").textContent = DATA.insight.title;
+$("leak").textContent = DATA.insight.text;
+
+$("voices").innerHTML = DATA.voices.map(v =>
+  '<div class="voice"><span class="n">' + esc(v.name) + '</span><div class="moves">' +
+  '<span class="mv g"></span>'.repeat(v.forward) + '<span class="mv a"></span>'.repeat(v.back) +
+  '</div><span class="note">' + esc(v.note) + '</span></div>').join("");
+$("ask").innerHTML = DATA.ask.map(q => '<li>' + esc(q) + '</li>').join("");
+$("footer").textContent = DATA.footer;
+if (DATA.full_report_url) $("full-link").innerHTML = '<a href="' + esc(DATA.full_report_url) + '" target="_blank" rel="noopener">' + esc(DATA.full_report_label || "Read the full report") + '</a>';
+</script>

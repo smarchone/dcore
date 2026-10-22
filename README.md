@@ -20,4 +20,21 @@ python .claude/skills/dcore/scripts/fetch.py <youtube-url> --out debates/<id>   
 # Claude writes debates/<id>/index.html from the template (see the skill)
 ```
 
+## dcore-report
+
+The [`dcore-report`](.claude/skills/dcore-report/SKILL.md) skill turns the same
+kind of transcript into a one-screen report card for busy citizens:
+
+- **How far they got:** the steps a good-faith panel could have reached, each
+  marked reached or missed, with what each one leads to.
+- **Where the time went:** progress, on-topic talk nobody engaged with, and
+  distractions (named by type: red herring, ad hominem and so on).
+- **Report card:** each voice's moves that moved the debate forward or held it
+  back, traced to timestamps in a separate `provenance.md`.
+
+Unlike `dcore`, it grades moves (never positions) to hold participants and the
+moderator accountable. The "could have" part is a simulated good-faith version,
+labelled as such. Claude fills the JSON in
+[`template.html`](.claude/skills/dcore-report/template.html), as with `dcore`.
+
 Tests: `pip install pytest && pytest -q tests`.

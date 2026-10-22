@@ -52,3 +52,29 @@ def test_template_sample_follows_schema():
     assert all(m["kind"] in {"", "turn", "common"} for m in d["moments"])
     assert all(q["answer"] in {"settled", "leans yes", "leans no", "disputed", "open"} for q in d["questions"])
 
+
+
+REPORT = Path(__file__).resolve().parents[1] / ".claude/skills/dcore-report"
+
+
+def report_sample():
+    html = (REPORT / "template.html").read_text(encoding="utf-8")
+    start = html.index('<script id="report" type="application/json">')
+    body = html[html.index(">", start) + 1:html.index("</script>", start)]
+    return json.loads(body)
+
+
+def test_report_sample_follows_schema():
+    d = report_sample()
+    assert d["style"] in {"marksheet", "plain"}
+    assert d["question"] and d["context"] and d["steps_caption"]
+    assert {s["status"] for s in d["steps"]} <= {"reached", "missed"}
+    assert all(s["text"] and s["because"] and s["chain"] for s in d["steps"])
+    segs = d["segments"]
+    assert all(t in {"fwd", "talk", "side", "idle"} for _, _, t in segs)
+    assert segs[0][0] == 0 and segs[-1][1] == d["total_seconds"]
+    assert all(a[1] == b[0] for a, b in zip(segs, segs[1:])), "segments must be contiguous"
+    assert all(x["term"] and x["gloss"] for x in d["distractions"])
+    assert d["insight"]["title"] and d["insight"]["text"]
+    assert all(v["name"] and v["note"] and v["forward"] + v["back"] > 0 for v in d["voices"])
+    assert len(d["ask"]) == 3 and d["footer"]
