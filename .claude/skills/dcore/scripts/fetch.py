@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-LANGS = ["hi", "en", "en-IN", "hi-IN"]
+LANGS = ["en", "en-IN", "hi", "hi-IN"]
 
 
 def video_id(url_or_id: str) -> str:
