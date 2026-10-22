@@ -66,15 +66,23 @@ def report_sample():
 
 def test_report_sample_follows_schema():
     d = report_sample()
-    assert d["style"] in {"marksheet", "plain"}
     assert d["question"] and d["context"] and d["steps_caption"]
     assert {s["status"] for s in d["steps"]} <= {"reached", "missed"}
     assert all(s["text"] and s["because"] and s["chain"] for s in d["steps"])
+    for s in d["steps"]:
+        for block in s.get("detail", []):
+            assert block.get("items") or block.get("note")
+            assert all(isinstance(i, str) or i["text"] for i in block.get("items", []))
     segs = d["segments"]
     assert all(t in {"fwd", "talk", "side", "idle"} for _, _, t in segs)
     assert segs[0][0] == 0 and segs[-1][1] == d["total_seconds"]
     assert all(a[1] == b[0] for a, b in zip(segs, segs[1:])), "segments must be contiguous"
-    assert all(x["term"] and x["gloss"] for x in d["distractions"])
+    assert all(x["label"] for x in d["distractions"])
+    labels = {x["label"] for x in d["distractions"]}
+    assert all(m["t"] and m["who"] and m["what"] and m["label"] in labels for m in d["distraction_moments"])
     assert d["insight"]["title"] and d["insight"]["text"]
-    assert all(v["name"] and v["note"] and v["forward"] + v["back"] > 0 for v in d["voices"])
-    assert len(d["ask"]) == 3 and d["footer"]
+    for v in d["voices"]:
+        assert v["name"] and v["note"] and v["forward"] + v["back"]
+        assert all(m["t"] and m["what"] for m in v["forward"])
+        assert all(m["t"] and m["what"] and m["better"] and m["cost"] for m in v["back"])
+    assert d["ask"]["distraction"] and d["ask"]["nowhere"] and d["footer"]

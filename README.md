@@ -28,9 +28,16 @@ kind of transcript into a one-screen report card for busy citizens:
 - **How far they got:** the steps a good-faith panel could have reached, each
   marked reached or missed, with what each one leads to.
 - **Where the time went:** progress, on-topic talk nobody engaged with, and
-  distractions (named by type: red herring, ad hominem and so on).
+  distractions, in plain words ("changed the subject", "host took a side").
 - **Report card:** each voice's moves that moved the debate forward or held it
-  back, traced to timestamps in a separate `provenance.md`.
+  back.
+- **Next time you watch, ask:** questions for spotting distractions and talk
+  that goes nowhere.
+
+Collapsed, the page reads in about a minute. Toggles open the detail in place:
+the real timestamped moments behind each step, who did what and when, the
+minute-by-minute timeline, and every move behind a voice's dots with the better
+move and its cost.
 
 Unlike `dcore`, it grades moves (never positions) to hold participants and the
 moderator accountable. The "could have" part is a simulated good-faith version,
