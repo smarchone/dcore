@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dcore</title>
+<meta name="description" content="A review for public debates: what a conversation reached, what it missed, and why.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root { --bg: #faf8f4; --ink: #1d1b18; --muted: #5f5a52; --line: #e4dfd6; --card: #ffffff; --green: #2f7d4f; --red: #b5452f; --accent: #1d1b18; }
+@media (prefers-color-scheme: dark) { :root { --bg: #16150f; --ink: #f0ece4; --muted: #a8a197; --line: #34312a; --card: #1f1d17; --green: #6cc08f; --red: #e9826b; --accent: #f0ece4; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 "Source Sans 3", system-ui, sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: 56px 16px 64px; }
+h1 { font: 700 44px/1.05 "Bricolage Grotesque", system-ui, sans-serif; margin: 0 0 12px; letter-spacing: -0.02em; }
+.lede { font-size: 21px; margin: 0 0 28px; }
+p { margin: 0 0 16px; color: var(--muted); }
+ul { margin: 0 0 32px; padding: 0; list-style: none; }
+li { padding: 10px 0; border-top: 1px solid var(--line); }
+li b { color: var(--ink); }
+h2 { font: 700 13px/1 "Source Sans 3", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 40px 0 12px; }
+a.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; color: inherit; text-decoration: none; }
+a.card:hover { border-color: var(--accent); }
+.card strong { display: block; font: 700 22px/1.2 "Bricolage Grotesque", sans-serif; margin-bottom: 6px; }
+.card span { display: block; color: var(--muted); font-size: 15px; }
+.ok { color: var(--green); font-weight: 600; }
+.miss { color: var(--red); font-weight: 600; }
+.small { font-size: 15px; }
+.small a { color: var(--ink); }
+code { font: 15px ui-monospace, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>dcore</h1>
+  <p class="lede">A review for public debates. In about a minute, see what a conversation actually achieved, what it missed, and why.</p>
+  <p>A chess engine doesn't tell you which side to play. It shows the better move you missed and what it cost. dcore does the same for a debate, panel or townhall.</p>
+  <ul>
+    <li><b>What was reached:</b> where speakers agreed, or sharpened their disagreement.</li>
+    <li><b>What was missed:</b> progress one or two moves away, and the moment it slipped.</li>
+    <li><b>Where the time went:</b> progress, talk nobody replied to, and distractions.</li>
+    <li><b>Who did what:</b> every voice's good moves and misses, host included. No scores.</li>
+    <li><b>A fair replay:</b> one way a stuck thread could have gone, same people, same views.</li>
+  </ul>
+
+  <h2>Example</h2>
+  <a class="card" href="examples/civic-sense/citizen.html">
+    <strong>Are Indian cities broken because Indians lack civic sense?</strong>
+    <span>49-minute studio debate</span>
+    <span><span class="ok">Reached:</span> civic sense is learned; citizens should demand accountability.</span>
+    <span><span class="miss">Missed:</span> cheap bribes and cheap fines were the same point. Nobody noticed.</span>
+  </a>
+  <p class="small" style="margin-top:12px"><a href="https://www.youtube.com/watch?v=rBPLwZI5whY">Watch the debate</a> · <a href="https://github.com/smarchone/dcore/blob/main/docs/examples/civic-sense/citizen-provenance.md">How each call was made</a></p>
+
+  <h2>Try it</h2>
+  <p>In <a class="small" style="color:var(--ink)" href="https://claude.com/claude-code">Claude Code</a>, from the <a style="color:var(--ink)" href="https://github.com/smarchone/dcore">repo</a>: <code>/dcore &lt;youtube-url&gt;</code></p>
+</main>
+</body>
+</html>
