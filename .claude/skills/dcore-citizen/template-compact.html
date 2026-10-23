@@ -86,8 +86,8 @@ details.step > summary { grid-template-columns: minmax(0, 1fr) 12px; }
 details.step .tx-main, details.step .tx-sub { grid-column: 1; }
 details.step > summary::after { grid-column: 2; }
 details.step .body { padding-left: 14px; }
-details.step.ok { --row: color-mix(in srgb, var(--good-soft) 60%, var(--surface)); --edge: color-mix(in srgb, var(--good) 55%, var(--surface)); }
-details.step.miss { --row: color-mix(in srgb, var(--bad-soft) 60%, var(--surface)); --edge: color-mix(in srgb, var(--bad) 55%, var(--surface)); }
+details.step.ok { --row: color-mix(in srgb, var(--good) 13%, var(--surface)); --edge: var(--good); }
+details.step.miss { --row: color-mix(in srgb, var(--bad) 12%, var(--surface)); --edge: var(--bad); }
 details.step, details.step[open] > summary { background: var(--row); box-shadow: inset 3px 0 var(--edge); }
 .tx-main { font-weight: 600; grid-column: 2; grid-row: 1; }
 details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
