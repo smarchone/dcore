@@ -1,14 +1,13 @@
 # Building the page
 
-Copy `template.html` to `debates/<id>/citizen.html` and replace only the JSON
-inside `<script id="report">` and the `<title>` (a 2 to 4 word name, such as
-"CEC Citizen Report"). Don't change the rendering code or styles. The template
-ships with a worked example (a Hindi TV panel on whether the Chief Election
-Commissioner should resign); replace all of it.
+Copy `template-compact.html` to `debates/<id>/citizen.html` and replace only
+the JSON inside `<script id="report">` and the `<title>` (a 2 to 4 word name,
+such as "CEC Citizen Report"). Don't change the rendering code or styles. The
+template ships with a worked example (a Hindi TV panel on whether the Chief
+Election Commissioner should resign); replace all of it.
 
-`template-compact.html` is a variant that reads the same JSON: summary tiles,
-one line per step, a single stacked time bar, thin thread rows, plain type.
-Use it instead when the user asks for the compact page.
+`template.html` is the fuller variant that reads the same JSON. Use it only
+when the user asks for the full page.
 
 Check that the JSON parses and that every `thread` field names an `id` in
 `threads`. The `//` notes below are explanations only; the real JSON must not

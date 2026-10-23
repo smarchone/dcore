@@ -99,11 +99,12 @@ for (default English).
 
 ## Output
 
-`debates/<id>/citizen.html` and `debates/<id>/citizen-provenance.md`. Share
-the page (publish it as an artifact when that tool is available).
+`debates/<id>/citizen.html` and `debates/<id>/citizen-provenance.md`. Keep
+the page local: don't publish it as an artifact or share it unless the user
+asks. Open it in the browser with `open debates/<id>/citizen.html`.
 
 ## Reply to the user
 
-Give the link and three lines: what was reached, the biggest miss and what
+Give the file path and three lines: what was reached, the biggest miss and what
 cost it, and the share of time lost to distractions. Mention that the replays
 are one fair path, not what happened, and where the provenance file is.
