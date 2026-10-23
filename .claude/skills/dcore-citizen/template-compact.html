@@ -71,6 +71,14 @@ section[id] { scroll-margin-top: 16px; }
 section > h2::before { content: ""; position: absolute; width: 28px; height: 4px; border-radius: 2px; background: var(--fg); margin-top: -12px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
+/* Section tabs: one section at a time under the summary; sticks to the top while reading */
+.sectabs { position: sticky; top: 0; z-index: 3; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
+.sectabs::-webkit-scrollbar { display: none; }
+.sectabs button { flex: none; font: 600 .9rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
+.sectabs button:hover { color: var(--fg); }
+.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+.sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
 
 /* How to read: a quiet "?" that opens a floating panel, so nothing on the page moves */
 .help { position: relative; }
@@ -280,6 +288,8 @@ footer { font-size: .78rem; color: var(--muted); }
   </div>
   </div>
 
+
+  <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
 
   <section id="s-done">
     <h2>Outcome analysis</h2>
@@ -1675,32 +1685,40 @@ if (DATA.ask) {
 } else $("ask").hidden = true;
 $("footer").textContent = DATA.footer;
 
-// Minimap: one stop per section with its headline number; the stop for the section in view is marked.
+// Sections as tabs: the tab bar under the summary and the minimap on wide screens both switch which section shows.
 (function () {
   const voices = DATA.voices.length;
   const stops = [
-    ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Outcome analysis"],
-    ["s-threads", DATA.threads.length + " threads", "Thread by thread analysis"],
-    ["s-dist", fwd + " fruitful", "Distraction analysis"],
-    ["s-acc", voices + (voices === 1 ? " voice" : " voices"), "Accountability"]
+    ["s-done", "Outcomes", "Outcome analysis", reached.length + " of " + DATA.progress.length + " reached"],
+    ["s-threads", "Threads", "Thread by thread analysis", DATA.threads.length + " threads"],
+    ["s-dist", "Distractions", "Distraction analysis", fwd + " fruitful"],
+    ["s-acc", "Accountability", "Accountability", voices + (voices === 1 ? " voice" : " voices")]
   ];
-  $("minimap").innerHTML = stops.map(([id, stat, name]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
-  const links = [...$("minimap").querySelectorAll("a")];
+  $("sectabs").innerHTML = stops.map(([id, tab, name]) => '<button type="button" role="tab" aria-controls="' + id + '" title="' + esc(name) + '">' + esc(tab) + '</button>').join("");
+  $("minimap").innerHTML = stops.map(([id, , name, stat]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
+  const tabs = [...$("sectabs").querySelectorAll("button")], links = [...$("minimap").querySelectorAll("a")];
+  stops.forEach(([id]) => { const sec = document.getElementById(id); sec.classList.add("pane"); sec.setAttribute("role", "tabpanel"); });
+  const show = (id, scroll) => {
+    stops.forEach(([sid]) => { document.getElementById(sid).hidden = sid !== id; });
+    tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+    links.forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + id));
+    // Keep the reader at the top of the new section, not wherever the last one was scrolled to.
+    if (scroll && $("sectabs").getBoundingClientRect().top <= 1) $("sectabs").scrollIntoView({ block: "start" });
+  };
+  tabs.forEach((b, i) => {
+    b.addEventListener("click", () => show(b.getAttribute("aria-controls"), true));
+    b.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      next.click(); next.focus();
+    });
+  });
   links.forEach(a => a.addEventListener("click", e => {
     e.preventDefault();
-    document.getElementById(a.getAttribute("href").slice(1)).scrollIntoView({ behavior: "smooth", block: "start" });
+    show(a.getAttribute("href").slice(1), false);
+    $("sectabs").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
-  const mark = () => {
-    const y = innerHeight * 0.4;
-    let current = "s-done";
-    stops.forEach(([id]) => { if (document.getElementById(id).getBoundingClientRect().top <= y) current = id; });
-    links.forEach(a => {
-      const on = a.getAttribute("href") === "#" + current;
-      a.setAttribute("aria-current", on);
-    });
-  };
-  addEventListener("scroll", mark, { passive: true });
-  mark();
+  show("s-done", false);
 })();
 
 // Collapsibles open and close smoothly, and only one is open at a time (never closing its own parent).
