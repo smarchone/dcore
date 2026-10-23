@@ -81,8 +81,14 @@ details.row > summary::after { content: "▸"; color: var(--muted); font-size: .
 details.row > summary:hover::after { color: var(--fg); }
 details.row[open] > summary::after { transform: rotate(90deg); }
 details.row > summary:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
-.ic { font-weight: 700; grid-row: 1; }
-.ic.g { color: var(--good); } .ic.r { color: var(--bad); }
+/* outcome rows: a faint green or red wash and edge instead of a tick or cross */
+details.step > summary { grid-template-columns: minmax(0, 1fr) 12px; }
+details.step .tx-main, details.step .tx-sub { grid-column: 1; }
+details.step > summary::after { grid-column: 2; }
+details.step .body { padding-left: 14px; }
+details.step.ok { --row: color-mix(in srgb, var(--good-soft) 60%, var(--surface)); --edge: color-mix(in srgb, var(--good) 55%, var(--surface)); }
+details.step.miss { --row: color-mix(in srgb, var(--bad-soft) 60%, var(--surface)); --edge: color-mix(in srgb, var(--bad) 55%, var(--surface)); }
+details.step, details.step[open] > summary { background: var(--row); box-shadow: inset 3px 0 var(--edge); }
 .tx-main { font-weight: 600; grid-column: 2; grid-row: 1; }
 details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
 .tx-sub { grid-column: 2; font-size: .86rem; line-height: 1.4; color: var(--muted); }
@@ -1454,7 +1460,7 @@ const MOD = DATA.moderator || "Host";
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", label);
   label();
 })();
-const row = (summary, body, cls) => '<details class="row ' + (cls || "") + '" name="' + (cls || "step") + '"><summary>' + summary + '</summary><div class="body">' + body + '</div></details>';
+const row = (summary, body, cls) => '<details class="row ' + (cls || "") + '" name="' + (cls || "step").split(" ")[0] + '"><summary>' + summary + '</summary><div class="body">' + body + '</div></details>';
 
 $("title").textContent = DATA.question;
 $("context").textContent = DATA.context;
@@ -1483,8 +1489,8 @@ $("steps").innerHTML = DATA.progress.map(s => {
   const ok = s.status === "reached", last = lead(s.chain[s.chain.length - 1]);
   const sub = ok ? '<span class="tx-sub">→ ' + esc(last) + '</span>' :
     '<span class="tx-sub">' + (s.lost ? (s.lost.t ? ts(s.lost.t) + " " : "") + esc(s.lost.label) + " " : "") + '→ <span class="why">' + esc(last) + '</span></span>';
-  return row('<span class="ic ' + (ok ? "g" : "r") + '">' + (ok ? "✓" : "✕") + '</span><span class="tx-main">' + esc(s.text) + '</span>' + sub,
-    '<h4>' + esc(s.because) + '</h4><ul class="chain ' + (ok ? "g" : "r") + '">' + s.chain.map(c => '<li>' + esc(c) + '</li>').join("") + '</ul>' + blocks(s.detail));
+  return row('<span class="tx-main">' + esc(s.text) + '</span>' + sub,
+    '<h4>' + esc(s.because) + '</h4><ul class="chain ' + (ok ? "g" : "r") + '">' + s.chain.map(c => '<li>' + esc(c) + '</li>').join("") + '</ul>' + blocks(s.detail), "step " + (ok ? "ok" : "miss"));
 }).join("");
 if (DATA.outcome) $("outcome").innerHTML = '<span class="lbl">What failing to reach ' + (missed.length > 1 ? "them" : "it") + ' leads to</span><span>' + esc(DATA.outcome) + '</span>' +
   (DATA.outcome_note ? '<span class="note">' + esc(DATA.outcome_note) + '</span>' : "");
