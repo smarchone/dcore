@@ -164,7 +164,8 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 .lg p { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
 .lg i { width: 9px; height: 9px; border-radius: 2px; display: block; align-self: center; }
 .lg b { font-weight: 600; }
-details.more h4 { margin: 6px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.moments { display: grid; gap: 6px; font-size: .86rem; }
+.moments h4, details.more h4 { margin: 6px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 /* stacked on narrow screens: donut beside its legend, so labels keep one line */
 @media (max-width: 520px) {
   .pies { grid-template-columns: 1fr; }
@@ -291,13 +292,9 @@ footer { font-size: .78rem; color: var(--muted); }
   <section id="s-dist">
     <h2>Distraction analysis</h2>
     <p class="muted">What pulled the debate off course.</p>
-    <div class="pies">
-      <figure class="pie" id="pie-time"></figure>
-      <figure class="pie" id="pie-kinds"></figure>
-    </div>
     <p id="unans-line"></p>
     <p id="gaps-line"></p>
-    <details class="more"><summary>Who did what, and when</summary><div>
+    <div class="moments">
       <h4>Minute by minute</h4><div class="ribbon" id="ribbon"></div><div class="axis" id="axis"></div>
       <div class="tabs" role="tablist" aria-label="Moments">
         <button type="button" role="tab" id="tab-dist" aria-controls="dist" aria-selected="true"></button>
@@ -308,7 +305,7 @@ footer { font-size: .78rem; color: var(--muted); }
       <div id="unans" role="tabpanel" aria-labelledby="tab-unans" hidden></div>
       <div id="gaps" role="tabpanel" aria-labelledby="tab-gaps" hidden></div>
       <button type="button" class="showmore off" id="showmore"></button>
-    </div></details>
+    </div>
     <p class="insight" id="insight"></p>
   </section>
 
@@ -1526,7 +1523,7 @@ if (DATA.outcome) $("outcome").innerHTML = '<span class="lbl">What failing to re
   (DATA.outcome_note ? '<span class="note">' + esc(DATA.outcome_note) + '</span>' : "");
 else $("outcome").hidden = true;
 
-// Distraction analysis: two donuts (how the time was used; what the distractions were), then one expand with every moment.
+// Two donuts (how the time was used; what the distractions were), shown under the summary.
 const donut = (parts, big, small) => {
   const r = 46, C = 2 * Math.PI * r, sum = parts.reduce((n, p) => n + p.v, 0) || 1, gap = parts.length > 1 ? 2 : 0;
   let at = 0;
@@ -1543,7 +1540,6 @@ const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="backgr
 const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
 const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
 const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "fruitful") + legend(timeParts);
-$("pie-time").innerHTML = pieTime;
 
 // distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
 // Measured in time throughout (slices, legend and centre), so this donut never mixes counts with shares of the whole debate.
@@ -1557,7 +1553,6 @@ const kindParts = kinds.map(([label, v], i) => ({ v, label, pc: span(v), color: 
 const nD = (DATA.distractions || []).length;
 const pieKinds = '<figcaption>What the distractions were</figcaption>' +
   donut(kindParts, span(dur(segs.filter(s => s.type === "side"))), "in " + nD + (nD === 1 ? " moment" : " moments")) + legend(kindParts);
-$("pie-kinds").innerHTML = pieKinds;
 // The same two donuts also sit under the summary, so the first screen shows where the time went.
 $("summary").insertAdjacentHTML("beforeend", '<div class="pies"><figure class="pie">' + pieTime + '</figure><figure class="pie">' + pieKinds + '</figure></div>');
 
@@ -1589,7 +1584,7 @@ if (GAPS.length) {
     (g.follow_up ? '<p class="muted">Follow-up that would close it: "' + esc(g.follow_up) + '"</p>' : "") + '</div></div>').join("");
 } else { $("gaps-line").hidden = true; $("tab-gaps").hidden = true; }
 
-// Tabs inside the expand: distractions, and points left unanswered.
+// Tabs under the distraction analysis: distractions, and points left unanswered.
 (function () {
   const tabs = [$("tab-dist"), $("tab-unans"), $("tab-gaps")];
   $("tab-dist").textContent = "Distractions (" + (DATA.distractions || []).length + ")";
@@ -1612,7 +1607,6 @@ if (GAPS.length) {
     expanded.has(panel.id) ? expanded.delete(panel.id) : expanded.add(panel.id);
     fit();
   });
-  more.closest("details").addEventListener("toggle", fit);
   const pick = t => {
     tabs.forEach(b => {
       const on = b === t;
@@ -1630,6 +1624,7 @@ if (GAPS.length) {
       pick(next); next.focus();
     });
   });
+  fit();
 })();
 $("insight").innerHTML = '<b>' + esc(DATA.insight.title) + '</b>' + esc(DATA.insight.text);
 
