@@ -54,8 +54,6 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 .summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
-/* Minimap: a quiet rail on the left; a dot per section, names beside it when there is room */
-.aside-col { display: grid; gap: 14px; }
 section[id] { scroll-margin-top: 16px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
@@ -70,25 +68,6 @@ section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
 #ask { padding-top: 16px; gap: 4px; }
 #trs { border-top: 0; padding-top: 0; margin-top: -24px; }
 .summary.pane { border-bottom: 0; padding-bottom: 0; }
-
-/* How to read: a quiet "?" that opens a floating panel, so nothing on the page moves */
-.help { position: relative; }
-.help-btn { display: inline-flex; align-items: center; gap: 7px; font: 600 .82rem var(--f-body); color: var(--muted); background: none; border: 0; min-height: 36px; padding: 0; cursor: pointer; }
-.help-btn:hover, .help-btn[aria-expanded="true"] { color: var(--fg); }
-.help-btn:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
-.q { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px dotted currentColor; font-size: .72rem; font-weight: 700; }
-.guide { margin-top: 8px; }
-.guide > summary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-.guide > div { background: var(--surface); border: 1.5px dotted var(--muted); border-radius: 10px; padding: 12px 14px; display: grid; gap: 7px; font-size: .84rem; line-height: 1.4; }
-.guide-h { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.guide b { font-weight: 600; }
-.kinds { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
-.kinds li { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 8px; align-items: baseline; }
-.kinds i { width: 9px; height: 9px; border-radius: 50%; display: block; transform: translateY(1px); }
-@media (min-width: 1120px) {
-  .aside-col { position: fixed; z-index: 4; top: 20px; right: 24px; width: min(280px, calc(50vw - 300px - 56px)); max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; }
-  .guide > div { font-size: .8rem; }
-}
 
 /* Rows: one line each, tap to open */
 .list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: clip; }
@@ -261,23 +240,6 @@ footer { font-size: .78rem; color: var(--muted); }
     <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
     <h1 id="title"></h1>
     <p class="ctx" id="context"></p>
-    <div class="aside-col">
-    <div class="help">
-      <button type="button" class="help-btn" id="howto-btn" aria-expanded="false" aria-controls="howto"><span class="q">?</span>How to read this report</button>
-      <details class="guide" id="howto"><summary>How to read this report</summary><div>
-        <p class="guide-h">How this report works</p>
-        <p>We follow each question the debate took up (a <b>thread</b>) and sort every moment into one of three kinds:</p>
-        <ul class="kinds">
-          <li><i class="fwd"></i><span><b>Progress:</b> something got settled. Everyone agreed on a point, or a question got a straight answer.</span></li>
-          <li><i class="talk"></i><span><b>Left open:</b> a point aimed at someone got no reply, or the answer left part of it open (a hollow dot).</span></li>
-          <li><i class="side"></i><span><b>Distraction:</b> a move that pulled the debate off its question, like changing the subject or attacking motives.</span></li>
-        </ul>
-        <p><b>Failed to reach</b> is a step that was close: one or two moves away, using only what had already been said.</p>
-        <p><b>Accountability</b> shows each voice's moves, one dot per moment, in the same three colours. We judge moves, never sides or opinions.</p>
-        <p>Each thread's <b>replay</b> is one fair way it could have gone, not what happened.</p>
-      </div></details>
-    </div>
-    </div>
   </header>
 
   <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
@@ -1717,14 +1679,6 @@ $("footer").textContent = DATA.footer;
 
 // Rows are plain <details>: rows in the same list share a name, so the browser keeps one open at a time.
 
-// "How to read": the "?" opens the guide as a floating panel; a tap outside or Escape closes it.
-(function () {
-  const btn = $("howto-btn"), guide = $("howto");
-  btn.addEventListener("click", () => { guide.open = !guide.open; });
-  guide.addEventListener("toggle", () => btn.setAttribute("aria-expanded", guide.open));
-  document.addEventListener("click", e => { if (guide.open && !guide.contains(e.target) && !btn.contains(e.target)) guide.open = false; });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && guide.open) { guide.open = false; btn.focus(); } });
-})();
 
 // Sources: with a YouTube link, every timestamp opens the video at that second;
 // otherwise the raw transcript is hosted here and every timestamp opens it at that line.
