@@ -23,34 +23,34 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 var(--f-body); }
-.wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 26px; }
+.wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 24px; }
 h1, h2 { font-family: var(--f-head); margin: 0; text-wrap: balance; }
 h1 { font-size: 1.45rem; line-height: 1.15; }
 h2 { font-size: 1.35rem; line-height: 1.2; letter-spacing: -.01em; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 h2 small { font: 600 .8rem var(--f-body); color: var(--muted); }
 p { margin: 0; }
-section { display: grid; gap: 8px; min-width: 0; }
-header { display: grid; gap: 6px; position: relative; }
+section { display: grid; gap: 16px; min-width: 0; }
+header { display: grid; gap: 8px; position: relative; }
 .top { position: absolute; top: 0; right: 0; }
 header h1 { padding-right: 84px; }
 .theme { flex: none; min-height: 32px; font: 600 .75rem var(--f-body); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
 .theme:hover { color: var(--fg); }
 .theme:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 .ctx { color: var(--muted); font-size: .92rem; }
-.ts { font: 500 .72rem var(--f-mono); color: var(--muted); white-space: nowrap; }
+.ts { font: 500 .78rem var(--f-mono); color: var(--muted); white-space: nowrap; }
 /* padding widens the tap area to about 32px; the negative margin keeps the layout unchanged */
 a.ts { color: var(--link); text-decoration: underline dotted; text-underline-offset: 3px; padding: 9px 4px; margin: -9px -4px; border-radius: 4px; }
 .muted { color: var(--muted); }
 
 /* In short: two lines a reader can repeat */
-.summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 6px; }
+.summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 12px; }
 .summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
 .summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--good); margin-right: 2px; }
 .summary > p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
-.summary .pies { margin-top: 8px; }
-.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1rem; }
+.summary .pies { margin-top: 4px; }
+.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: .92rem; line-height: 1.45; }
 .reach b:first-of-type { color: var(--bad); }
-.summary > p.hook-sub { font-size: .88rem; color: var(--muted); margin-top: -6px; }
+.summary > p.hook-sub { font-size: .88rem; color: var(--muted); margin-top: -10px; }
 .summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
@@ -60,25 +60,27 @@ section[id] { scroll-margin-top: 16px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
 /* Section tabs: one section at a time under the header; sticks to the top while reading */
-.sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
+.sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); }
 .sectabs::-webkit-scrollbar { display: none; }
 .sectabs button { flex: none; font: 600 1rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
 .sectabs button:hover { color: var(--fg); }
 .sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font-weight: 700; }
 .sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
 section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
+#ask { padding-top: 16px; gap: 4px; }
+#trs { border-top: 0; padding-top: 0; margin-top: -24px; }
 .summary.pane { border-bottom: 0; padding-bottom: 0; }
 
 /* How to read: a quiet "?" that opens a floating panel, so nothing on the page moves */
 .help { position: relative; }
-.help-btn { display: inline-flex; align-items: center; gap: 7px; font: 600 .78rem var(--f-body); color: var(--muted); background: none; border: 0; padding: 2px 0; cursor: pointer; }
+.help-btn { display: inline-flex; align-items: center; gap: 7px; font: 600 .82rem var(--f-body); color: var(--muted); background: none; border: 0; min-height: 36px; padding: 0; cursor: pointer; }
 .help-btn:hover, .help-btn[aria-expanded="true"] { color: var(--fg); }
 .help-btn:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
 .q { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px dotted currentColor; font-size: .72rem; font-weight: 700; }
 .guide { margin-top: 8px; }
 .guide > summary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .guide > div { background: var(--surface); border: 1.5px dotted var(--muted); border-radius: 10px; padding: 12px 14px; display: grid; gap: 7px; font-size: .84rem; line-height: 1.4; }
-.guide-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.guide-h { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .guide b { font-weight: 600; }
 .kinds { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
 .kinds li { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 8px; align-items: baseline; }
@@ -107,7 +109,7 @@ details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
 .tx-sub { grid-column: 2; font-size: .86rem; line-height: 1.4; color: var(--muted); }
 .tx-sub .why { color: var(--fg); }
 .body { padding: 12px 14px 16px 42px; display: grid; gap: 10px; font-size: .9rem; line-height: 1.45; }
-.body h4 { margin: 4px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.body h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .chain { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
 .chain li { padding-left: 14px; position: relative; }
 .chain li::before { content: ""; position: absolute; left: 0; top: .5em; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
@@ -117,8 +119,8 @@ details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
 .mo.neg { grid-template-columns: 1fr; padding-left: 50px; color: var(--muted); font-style: italic; }
 .mo.dot::before { content: none; }
 ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
-.outcome { border-left: 3px solid var(--bad); padding: 2px 0 2px 10px; font-weight: 600; font-size: .92rem; display: grid; gap: 2px; }
-.outcome .lbl { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.outcome { border-left: 3px solid var(--bad); margin-top: 8px; padding: 8px 0 8px 14px; font-weight: 600; font-size: .95rem; line-height: 1.4; display: grid; gap: 6px; }
+.outcome .lbl { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .outcome .note { font-weight: 400; color: var(--muted); font-size: .8rem; }
 
 /* Time */
@@ -142,12 +144,12 @@ ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
 .bl .pc { text-align: right; font-weight: 600; font-size: .86rem; }
 .bl .k { color: var(--muted); font-size: .76rem; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
-.card-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card-h { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .insight { border-left: 3px solid var(--line); padding: 4px 0 4px 12px; font-size: .92rem; line-height: 1.5; }
 #s-dist { gap: 14px; }
 #s-dist > p { line-height: 1.5; }
 .insight b { display: block; margin-bottom: 4px; }
-details.more > summary { list-style: none; cursor: pointer; font-size: .8rem; font-weight: 600; color: var(--link); display: inline-flex; gap: 5px; padding: 2px 0; }
+details.more > summary { list-style: none; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--link); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; }
 details.more > summary::-webkit-details-marker { display: none; }
 details.more > summary::before { content: "▸"; transition: transform .15s; }
 details.more[open] > summary::before { transform: rotate(90deg); }
@@ -159,7 +161,7 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 /* Two donuts side by side: how the time was used, and what the distractions were */
 .pies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .pie { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.pie figcaption { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pie figcaption { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .pie svg { width: 112px; height: 112px; justify-self: center; display: block; }
 .pie svg circle.seg { fill: none; stroke-width: 16; }
 .pie svg circle.seg:hover { stroke-width: 19; }
@@ -170,7 +172,7 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 .lg i { width: 9px; height: 9px; border-radius: 2px; display: block; align-self: center; }
 .lg b { font-weight: 600; }
 .moments { display: grid; gap: 6px; font-size: .86rem; }
-.moments h4, details.more h4 { margin: 6px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.moments h4, details.more h4 { margin: 6px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 /* stacked on narrow screens: donut beside its legend, so labels keep one line */
 @media (max-width: 520px) {
   .pies { grid-template-columns: 1fr; }
@@ -238,7 +240,7 @@ details.vo .body { padding-left: 14px; max-height: 340px; overflow-y: auto; over
 .mv .better b, .mv .cost b { color: var(--fg); font-weight: 600; }
 
 .ask ol { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
-.ask h4 { margin: 4px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ask h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .txs { max-height: 55vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 .txs p { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 6px; padding: 2px; }
 .txs p.hit { background: var(--quiet-soft); }
@@ -259,29 +261,29 @@ footer { font-size: .78rem; color: var(--muted); }
     <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
     <h1 id="title"></h1>
     <p class="ctx" id="context"></p>
+    <div class="aside-col">
+    <div class="help">
+      <button type="button" class="help-btn" id="howto-btn" aria-expanded="false" aria-controls="howto"><span class="q">?</span>How to read this report</button>
+      <details class="guide" id="howto"><summary>How to read this report</summary><div>
+        <p class="guide-h">How this report works</p>
+        <p>We follow each question the debate took up (a <b>thread</b>) and sort every moment into one of three kinds:</p>
+        <ul class="kinds">
+          <li><i class="fwd"></i><span><b>Progress:</b> something got settled. Everyone agreed on a point, or a question got a straight answer.</span></li>
+          <li><i class="talk"></i><span><b>Left open:</b> a point aimed at someone got no reply, or the answer left part of it open (a hollow dot).</span></li>
+          <li><i class="side"></i><span><b>Distraction:</b> a move that pulled the debate off its question, like changing the subject or attacking motives.</span></li>
+        </ul>
+        <p><b>Failed to reach</b> is a step that was close: one or two moves away, using only what had already been said.</p>
+        <p><b>Accountability</b> shows each voice's moves, one dot per moment, in the same three colours. We judge moves, never sides or opinions.</p>
+        <p>Each thread's <b>replay</b> is one fair way it could have gone, not what happened.</p>
+      </div></details>
+    </div>
+    </div>
   </header>
 
   <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
 
   <div class="summary" id="summary"></div>
 
-  <div class="aside-col">
-  <div class="help">
-    <button type="button" class="help-btn" id="howto-btn" aria-expanded="false" aria-controls="howto"><span class="q">?</span>How to read this report</button>
-    <details class="guide" id="howto"><summary>How to read this report</summary><div>
-      <p class="guide-h">How this report works</p>
-      <p>We follow each question the debate took up (a <b>thread</b>) and sort every moment into one of three kinds:</p>
-      <ul class="kinds">
-        <li><i class="fwd"></i><span><b>Progress:</b> something got settled. Everyone agreed on a point, or a question got a straight answer.</span></li>
-        <li><i class="talk"></i><span><b>Left open:</b> a point aimed at someone got no reply, or the answer left part of it open (a hollow dot).</span></li>
-        <li><i class="side"></i><span><b>Distraction:</b> a move that pulled the debate off its question, like changing the subject or attacking motives.</span></li>
-      </ul>
-      <p><b>Failed to reach</b> is a step that was close: one or two moves away, using only what had already been said.</p>
-      <p><b>Accountability</b> shows each voice's moves, one dot per moment, in the same three colours. We judge moves, never sides or opinions.</p>
-      <p>Each thread's <b>replay</b> is one fair way it could have gone, not what happened.</p>
-    </div></details>
-  </div>
-  </div>
 
 
   <section id="s-done">
