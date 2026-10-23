@@ -50,6 +50,7 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 .summary .pies { margin-top: 8px; }
 .reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1rem; }
 .reach b:first-of-type { color: var(--bad); }
+.summary > p.hook-sub { font-size: .88rem; color: var(--muted); margin-top: -6px; }
 .summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
@@ -1500,7 +1501,8 @@ const things = n => n + (n === 1 ? " thing" : " things");
 // Lead with the share of time that moved the debate forward; "Only" when it was under half.
 const fwdSec = dur(segs.filter(s => s.type === "fwd")), fwd = pct(fwdSec);
 $("summary").innerHTML =
-  '<p class="hook">' + (fwdSec < total / 2 ? "Only " : "") + '<em>' + fwd + '</em> of ' + Math.round(total / 60) + ' minutes moved the debate forward.</p>';
+  '<p class="hook">' + (fwdSec < total / 2 ? "Only " : "") + '<em>' + fwd + '</em> of ' + Math.round(total / 60) + ' minutes was fruitful.</p>' +
+  '<p class="hook-sub">Fruitful: time where something got agreed or answered.</p>';
 // The progress report opens with how many steps were missed and how many settled.
 $("reach").innerHTML = (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
     (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.');
@@ -1540,7 +1542,7 @@ const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="backgr
 
 const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
 const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
-const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "forward") + legend(timeParts);
+const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "fruitful") + legend(timeParts);
 $("pie-time").innerHTML = pieTime;
 
 // distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
@@ -1680,7 +1682,7 @@ $("footer").textContent = DATA.footer;
   const stops = [
     ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Progress report"],
     ["s-threads", DATA.threads.length + " threads", "Thread by thread analysis"],
-    ["s-dist", fwd + " forward", "Distraction analysis"],
+    ["s-dist", fwd + " fruitful", "Distraction analysis"],
     ["s-acc", voices + (voices === 1 ? " voice" : " voices"), "Accountability"]
   ];
   $("minimap").innerHTML = stops.map(([id, stat, name]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
