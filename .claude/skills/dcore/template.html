@@ -1,418 +1,1744 @@
-<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Discussion Explained</title>
+<title>Citizen Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Courier+Prime:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* dcore page. Claude fills only the JSON in <script id="deliberation"> near the end; the rest stays as is. */
+/* Layout: phone-first column of pictures (steps, the clock, the voices); every label stands on its own. */
 :root {
-  --bg: #f4f4f1; --paper: #fdfdfb; --ink: #1f2328; --soft: #6a7078; --line: #e1e2dd; --wash: #efefea;
-  --holds: #22745a; --holds-wash: #e1f0e9; --challenged: #a8670f; --challenged-wash: #f8ecd9;
-  --fails: #a4423a; --fails-wash: #f6e4e1; --open: #6f7680; --open-wash: #eceef0;
-  --ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --fg: #1d2330;
+  --muted: #5b6475;
+  --line: #d4d9e2;
+  --real: #3b4a66;
+  --reach: #1f7a5c;
+  --reach-soft: #e3f3ec;
+  --slip: #c2352b;
+  --slip-soft: #fbe6e3;
+  --amber: #a8650b;
+  --amber-soft: #fbf0dc;
+  --idle: #dde1e7;
+  --talk: #8d9ab3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #121417; --paper: #1a1d21; --ink: #e8e9e6; --soft: #9aa0a8; --line: #2e3238; --wash: #23272c;
-  --holds: #6cc4a3; --holds-wash: #1b3229; --challenged: #e3a64e; --challenged-wash: #3a2c17;
-  --fails: #e48a80; --fails-wash: #3b2321; --open: #a3a9b1; --open-wash: #262a30; color-scheme: dark } }
+  --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ee; --muted: #9aa3b5; --line: #353c48;
+  --real: #a9b8d6; --reach: #5cc59d; --reach-soft: #17302a;
+  --slip: #f06a5e; --slip-soft: #3a1f1d; --amber: #e5a74a; --amber-soft: #352914;
+  --idle: #2c323c; --talk: #66748f; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #121417; --paper: #1a1d21; --ink: #e8e9e6; --soft: #9aa0a8; --line: #2e3238; --wash: #23272c;
-  --holds: #6cc4a3; --holds-wash: #1b3229; --challenged: #e3a64e; --challenged-wash: #3a2c17;
-  --fails: #e48a80; --fails-wash: #3b2321; --open: #a3a9b1; --open-wash: #262a30; color-scheme: dark }
-* { box-sizing: border-box }
-[hidden] { display: none !important }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--ui); }
-.wrap { max-width: 820px; margin: 0 auto; padding-block: 28px 64px; display: grid; gap: 32px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-header h1 { font-size: 20px; font-weight: 600; line-height: 1.3; margin: 2px 0 6px; text-wrap: balance; }
-header p { margin: 0; color: var(--soft); max-width: 64ch; }
-.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
-section { display: grid; gap: 10px; min-width: 0; }
-.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
-h2 { margin: 0; font-size: 15px; font-weight: 600; }
-.sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px clamp(14px, 3vw, 24px); min-width: 0; }
-.tc { font: 400 11px var(--mono); color: var(--soft); white-space: nowrap; }
-a.tc { text-decoration: none; } a.tc:hover { color: var(--ink); text-decoration: underline; }
-button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  --bg: #13161c; --surface: #1b1f27; --fg: #e4e7ee; --muted: #9aa3b5; --line: #353c48;
+  --real: #a9b8d6; --reach: #5cc59d; --reach-soft: #17302a;
+  --slip: #f06a5e; --slip-soft: #3a1f1d; --amber: #e5a74a; --amber-soft: #352914;
+  --idle: #2c323c; --talk: #66748f; color-scheme: dark }
 
-.toggle { display: inline-flex; background: var(--wash); border-radius: 999px; padding: 2px; }
-.toggle button { border: 0; background: none; padding: 4px 12px; border-radius: 999px; font-size: 13px; color: var(--soft); }
-.toggle button[aria-pressed="true"] { background: var(--paper); color: var(--ink); font-weight: 500; box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.4; }
+.wrap { max-width: 680px; margin: 0 auto; padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 34px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.6rem; line-height: 1.15; }
+h2 { font-size: 1.1rem; }
+h3 { font-size: .95rem; }
+p { margin: 0; }
+.eyebrow { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.ts { font-family: var(--f-mono); font-size: .72rem; color: var(--muted); white-space: nowrap; }
+header { display: grid; gap: 8px; }
+.ctx { color: var(--muted); font-size: .95rem; }
+section { display: grid; gap: 12px; }
+.cap { font-size: .88rem; color: var(--muted); }
 
-.key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--soft); margin-bottom: 14px; }
-.key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; border: 1px solid var(--line); }
+/* 1. Steps: reached in green, missed in red; consequences sit inside each step and grow redder; both misses merge into one outcome */
+.steps, .misses { display: grid; gap: 8px; }
+.step { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 10px; font-weight: 600; }
+.step .ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: .85rem; color: var(--bg); }
+.step .st { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.step.ok { background: var(--reach-soft); }
+.step.ok .ic { background: var(--reach); }
+.step.ok .st { color: var(--reach); }
+.step.miss { background: var(--slip-soft); }
+.step.miss .ic { background: var(--slip); }
+.step.miss .st { color: var(--slip); }
+.flow { grid-column: 2 / 4; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ar { font-size: .8rem; color: var(--muted); }
+.why { grid-column: 1 / 4; position: relative; display: grid; gap: 10px; padding-left: 40px; margin-top: 2px; }
+.why::before { content: ""; position: absolute; left: 13px; top: -10px; bottom: 9px; width: 2px; background: color-mix(in srgb, var(--slip) 35%, transparent); }
+.step.ok .why::before { background: color-mix(in srgb, var(--reach) 35%, transparent); }
+.because { font-size: .78rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--muted); }
+.so { position: relative; font-weight: 600; line-height: 1.3; }
+.so::before { content: ""; position: absolute; border-radius: 50%; }
+.so.g1, .so.r1 { font-size: .85rem; font-weight: 400; }
+.so.g2, .so.r2 { font-size: .9rem; }
+.so.r3 { font-size: .98rem; color: var(--slip); }
+.so.g1::before, .so.r1::before { width: 10px; height: 10px; left: -32px; top: .2em; }
+.so.g2::before, .so.r2::before { width: 14px; height: 14px; left: -34px; top: .1em; }
+.so.r3::before { width: 18px; height: 18px; left: -36px; top: 0; }
+.so.g1::before { background: color-mix(in srgb, var(--reach) 45%, var(--bg)); }
+.so.g2::before { background: var(--reach); }
+.so.r1::before { background: color-mix(in srgb, var(--slip) 40%, var(--bg)); }
+.so.r2::before { background: color-mix(in srgb, var(--slip) 70%, var(--bg)); }
+.so.r3::before { background: var(--slip); }
+.merge { display: grid; gap: 4px; justify-items: center; }
+.merge .ar { color: var(--slip); font-weight: 600; font-size: .78rem; }
+.outcome { width: 100%; box-sizing: border-box; background: var(--slip); color: var(--bg); border-radius: 10px; padding: 14px 16px; font-family: var(--f-display); font-size: 1.1rem; text-align: center; }
 
-/* One rope per option: what argued for it on the left, against it on the right (stacked on phones). */
-.rope + .rope { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
-.rope-title { font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 8px; }
-.sides { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-@media (min-width: 680px) { .sides { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
-  .side.for { border-right: 1px solid var(--soft); padding-right: 16px; } .side.against { padding-left: 16px; }
-  .side.for h3 { text-align: right; } }
-.side h3 { margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); font-weight: 500; }
-.none { margin: 0; font-size: 12.5px; color: var(--soft); font-style: italic; }
-.pts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.pt { border-radius: 6px; padding: 7px 10px; border: 1px solid transparent; }
-.pt.holds { background: var(--holds-wash); } .pt.challenged { background: var(--challenged-wash); }
-.pt.open { background: var(--open-wash); }
-.pt.fails { border: 1px dashed var(--line); }
-.pt .say { display: block; font-weight: 500; line-height: 1.4; }
-.pt.fails .say { text-decoration: line-through; color: var(--soft); font-weight: 400; }
-.trail { list-style: none; margin: 4px 0 0; padding: 0; font-size: 12px; line-height: 1.4; color: var(--soft); display: grid; gap: 1px; }
-.trail li { display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 6px; }
-.trail .end { color: var(--ink); font-weight: 500; }
-.lean { text-align: center; font-size: 12.5px; color: var(--soft); margin: 8px 0 0; }
+/* 3. The clock: 21 minutes as one ribbon, then the distractions as bars sized by time lost */
+.ribbon { display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.seg { height: 100%; }
+.seg.fwd { background: var(--reach); }
+.seg.talk { background: var(--talk); }
+.seg.side { background: var(--slip); }
+.seg.idle { background: var(--idle); }
+.axis { display: flex; justify-content: space-between; margin-top: 4px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.big { font-family: var(--f-display); font-size: .88rem; line-height: 1.2; display: grid; gap: 2px; }
+.big span { font-size: 1.9rem; }
+.big.g span { color: var(--reach); }
+.big.t span { color: var(--talk); }
+.big.r span { color: var(--slip); }
+.leak { border-left: 4px solid var(--talk); background: var(--surface); border-radius: 0 10px 10px 0; padding: 12px 16px; display: grid; gap: 4px; }
+.leak-h { font-family: var(--f-display); font-size: 1.05rem; font-weight: 700; }
 
-/* Timeline view */
-.story { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 1px solid var(--line); display: grid; gap: 16px; }
-.story li { position: relative; }
-.story li::before { content: ""; position: absolute; left: -23px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 1.5px solid var(--soft); }
-.story li.turn::before { background: var(--fails); border-color: var(--fails); }
-.story li.common::before { background: var(--holds); border-color: var(--holds); }
-.story b { font-weight: 600; } .story b .tc { margin-left: 4px; }
-.story p { margin: 2px 0 0; max-width: 66ch; }
-.story .shift { display: block; margin-top: 2px; font-size: 12px; color: var(--soft); }
+.distbox { background: var(--slip-soft); border-radius: 10px; padding: 12px 16px; display: grid; gap: 8px; }
+.dh { font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--slip); }
+.distbox ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: .9rem; }
+.distbox li span { color: var(--muted); }
+.distbox li span::before { content: "· "; }
 
-.qs { margin: 0; padding: 0; list-style: none; }
-.qs li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; padding: 10px 0; border-top: 1px solid var(--line); align-items: baseline; }
-.qs li:first-child { border-top: 0; padding-top: 0; }
-.q { font-weight: 600; }
-.a { grid-column: 1; max-width: 66ch; }
-.tag { font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px; white-space: nowrap; grid-row: 1; grid-column: 2; }
-.tag.holds { background: var(--holds-wash); color: var(--holds); }
-.tag.challenged { background: var(--challenged-wash); color: var(--challenged); }
-.tag.open { background: var(--open-wash); color: var(--open); }
-.tag.fails { background: var(--fails-wash); color: var(--fails); }
-footer { font-size: 12px; color: var(--soft); max-width: 64ch; }
+/* 4. Report card: one dot per notable move */
+.voices { display: grid; gap: 10px; }
+.voice { display: grid; grid-template-columns: 96px 128px 1fr; gap: 12px; align-items: center; }
+.voice .n { font-size: .85rem; font-weight: 600; }
+.moves { display: flex; align-items: center; gap: 5px; }
+.mv { width: 14px; height: 14px; border-radius: 50%; }
+.mv.g { background: var(--reach); }
+.mv.a { background: var(--slip); }
+.voice .note { font-size: .82rem; color: var(--muted); line-height: 1.3; }
+
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+.ask ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-weight: 600; }
+
+footer { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; }
+footer a { color: var(--real); }
+@media (max-width: 560px) {
+  .tug { grid-template-columns: 1fr; gap: 22px; }
+  .big span { font-size: 1.5rem; }
+  .voice { grid-template-columns: 84px auto; row-gap: 2px; }
+  .voice .note { grid-column: 2 / -1; }
+}
+/* =========================================================
+   C. MARKSHEET — a school report card: ruled paper, rubber stamps, the teacher's red-pen remarks
+   ========================================================= */
+body[data-v="marks"] {
+  --bg: #fdfdfb; --surface: #ffffff; --fg: #1f2a44; --muted: #5e6a85; --line: #c9d3e6;
+  --reach: #1d7a4a; --reach-soft: transparent; --slip: #c8102e; --slip-soft: transparent;
+  --talk: #8d9ab3; --idle: #e3e7ef; --real: #1f3a8a;
+  --f-display: "Courier Prime", "Courier New", monospace; --f-body: "Source Sans 3", "Segoe UI", sans-serif; --f-mono: "Courier Prime", monospace;
+  --hand: "Kalam", "Comic Sans MS", cursive;
+  color-scheme: light;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, #e4ebf7 31px 32px);
+}
+body[data-v="marks"] .wrap { border-left: 2px solid #f2b8c0; }
+body[data-v="marks"] header { border-bottom: 3px double var(--fg); padding-bottom: 14px; }
+body[data-v="marks"] .eyebrow { font-family: var(--f-display); letter-spacing: .2em; color: var(--fg); }
+body[data-v="marks"] h1 { font-size: 1.7rem; }
+body[data-v="marks"] h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: .12em; text-decoration: underline; text-underline-offset: 4px; }
+body[data-v="marks"] .step { background: var(--surface); border: 1px solid var(--line); border-radius: 0; }
+body[data-v="marks"] .step .ic { background: transparent !important; color: var(--slip); font-family: var(--hand); font-size: 1.4rem; }
+body[data-v="marks"] .step.ok .ic { color: var(--reach); }
+body[data-v="marks"] .step .st { font-family: var(--f-display); font-weight: 700; font-size: .9rem; padding: 3px 10px; border: 3px double currentColor; border-radius: 4px; transform: rotate(-8deg); opacity: .85; letter-spacing: .15em; }
+body[data-v="marks"] .so.r3 { font-family: var(--hand); font-size: 1.15rem; font-weight: 400; }
+body[data-v="marks"] .outcome { background: transparent; color: var(--slip); border: 3px double var(--slip); border-radius: 0; font-family: var(--f-display); transform: rotate(-1.5deg); }
+body[data-v="marks"] .big { font-family: var(--f-display); }
+body[data-v="marks"] .big span { font-family: var(--hand); font-size: 2.4rem; }
+body[data-v="marks"] .distbox { background: var(--surface); border: 1px solid var(--line); border-radius: 0; }
+body[data-v="marks"] .leak { background: transparent; border-left: none; padding: 0 0 0 14px; }
+body[data-v="marks"] .leak-h, body[data-v="marks"] .leak p { font-family: var(--hand); color: var(--slip); font-weight: 400; }
+body[data-v="marks"] .leak-h { font-size: 1.35rem; }
+body[data-v="marks"] .leak p:last-child { font-size: 1.1rem; }
+body[data-v="marks"] .voice .note { font-family: var(--hand); color: var(--slip); font-size: 1rem; }
+body[data-v="marks"] .ask { border-radius: 0; border: 2px dashed var(--line); }
+body[data-v="marks"] .ask h2 { text-decoration: none; }
+.ask .ah { margin: 4px 0 -4px; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--slip); }
+.ask ol { font-size: .95rem; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .82rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.lead-mark { display: none; }
+
+/* ---------- Full report additions ---------- */
+:root { --amber: #a8650b; --amber-soft: #fbf0dc; }
+.wrap { max-width: 760px; }
+h3 { font-family: var(--f-display); font-size: .98rem; margin: 6px 0 0; }
+.ctx a, footer a { color: var(--real); }
+.src { grid-column: 1 / 4; margin: 4px 0 0 40px; padding-top: 10px; border-top: 1px dashed var(--line); display: grid; gap: 6px; font-weight: 400; }
+.src-h { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.src ul, .src ol { margin: 0; padding-left: 0; display: grid; gap: 5px; font-size: .88rem; }
+.src ol { padding-left: 20px; font-weight: 600; }
+.src ul { list-style: none; }
+.src ul li { display: grid; grid-template-columns: 46px 1fr; gap: 8px; align-items: baseline; }
+.src li.neg { grid-template-columns: 1fr; padding-left: 54px; color: var(--slip); }
+.src .note { font-size: .88rem; }
+.also { display: grid; grid-template-columns: 46px 1fr; gap: 8px; align-items: baseline; font-size: .9rem; background: var(--surface); border: 1px solid var(--line); padding: 10px 14px; }
+
+.tbl { display: grid; border-top: 1px solid var(--line); }
+.tr { display: grid; grid-template-columns: 46px 1fr auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: .9rem; }
+.tr b { color: var(--slip); }
+.tr .what { color: var(--muted); }
+
+.tug { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.side { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.side-h { display: grid; gap: 6px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+.side-h .who { font-size: .8rem; color: var(--muted); }
+.tally { display: flex; gap: 4px; }
+.tally i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.tally .ans { background: var(--reach); } .tally .dod { background: var(--amber); } .tally .ign { background: var(--slip); }
+.q { background: var(--surface); border: 1px solid var(--line); padding: 10px 12px; display: grid; gap: 6px; }
+.q .qt { font-weight: 600; font-size: .9rem; line-height: 1.3; }
+.q .meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pill { font-size: .68rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+.pill.ans { background: var(--reach-soft); color: var(--reach); box-shadow: inset 0 0 0 1px var(--reach); }
+.pill.dod { background: var(--amber-soft); color: var(--amber); }
+.pill.ign { background: var(--slip-soft); color: var(--slip); box-shadow: inset 0 0 0 1px var(--slip); }
+.q .resp { font-size: .85rem; border-left: 3px solid var(--line); padding-left: 8px; }
+.q.a .resp { border-color: var(--reach); }
+.q.d .resp { border-color: var(--amber); }
+.q .resp.muted { color: var(--muted); }
+
+.cards { display: grid; gap: 14px; }
+.vc { background: var(--surface); border: 1px solid var(--line); padding: 12px 14px; display: grid; gap: 10px; }
+.vc .voice { border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
+.mvlist { display: grid; gap: 8px; }
+.mvi { display: grid; grid-template-columns: 14px 46px 1fr; gap: 8px; align-items: baseline; font-size: .88rem; }
+.mvi::before { content: ""; width: 10px; height: 10px; border-radius: 50%; }
+.mvi.g::before { background: var(--reach); }
+.mvi.a::before { background: var(--slip); }
+.mvi .better { color: var(--reach); margin-top: 2px; }
+.mvi .cost { color: var(--slip); }
+
+.replay { background: var(--surface); border: 1px solid var(--line); padding: 16px; display: grid; gap: 10px; }
+.line { display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: .92rem; }
+.line b { font-size: .85rem; color: var(--muted); }
+.line.end { border-top: 1px dashed var(--line); padding-top: 10px; }
+.line.end p { color: var(--reach); font-weight: 600; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.checks span { font-size: .85rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+
+body[data-v="marks"] h3 { font-family: var(--f-display); text-transform: uppercase; letter-spacing: .08em; font-size: .9rem; }
+body[data-v="marks"] .mvi .better, body[data-v="marks"] .mvi .cost { font-family: var(--hand); font-size: 1rem; line-height: 1.3; }
+body[data-v="marks"] .replay .line p { font-family: var(--f-display); font-size: .9rem; }
+body[data-v="marks"] .line.end p { font-family: var(--hand); font-size: 1.1rem; font-weight: 400; }
+body[data-v="marks"] .src li.neg { font-family: var(--hand); font-size: 1rem; }
+
+@media (max-width: 600px) {
+  .tug { grid-template-columns: 1fr; gap: 22px; }
+  .src { margin-left: 0; }
+  .line { grid-template-columns: 1fr; gap: 0; }
+  .tr { grid-template-columns: 46px 1fr; }
+  .tr > .ts:last-child { grid-column: 2; }
+}
+
+/* ---------- Expand toggles ---------- */
+details.more { grid-column: 1 / 4; margin: 4px 0 0 40px; }
+.distbox details.more, .leak details.more { margin: 4px 0 0; grid-column: auto; }
+details.more > summary, details.vc > summary { cursor: pointer; list-style: none; }
+details.more > summary::-webkit-details-marker, details.vc > summary::-webkit-details-marker { display: none; }
+details.more > summary { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; font-weight: 600; color: var(--real); padding: 4px 0; }
+details.more > summary::before { content: "▸"; transition: transform .15s; }
+details.more[open] > summary::before { transform: rotate(90deg); }
+details.more .src { margin: 6px 0 0; }
+details.more > summary:focus-visible, details.vc > summary:focus-visible { outline: 2px solid var(--real); outline-offset: 2px; }
+.leak details.more .tug { margin-top: 10px; }
+body[data-v="marks"] .leak details.more p { font-family: var(--f-body); color: var(--fg); font-size: .88rem; font-weight: 400; }
+body[data-v="marks"] .leak details.more .qt { font-weight: 600; font-size: .9rem; }
+body[data-v="marks"] .leak details.more .resp.muted { color: var(--muted); }
+.leak details.more .legend { margin-top: 10px; }
+.distbox details.more .tbl { margin-top: 6px; background: var(--surface); padding: 0 10px; }
+details.vc { padding: 10px 14px; gap: 0; }
+details.vc > summary.voice { border-bottom: none; padding-bottom: 0; position: relative; padding-right: 22px; }
+details.vc > summary.voice::after { content: "▸"; position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: var(--real); transition: transform .15s; }
+details.vc[open] > summary.voice::after { transform: translateY(-50%) rotate(90deg); }
+details.vc[open] > summary.voice { border-bottom: 1px dashed var(--line); padding-bottom: 8px; margin-bottom: 10px; }
+.cards { gap: 8px; }
+@media (prefers-reduced-motion: reduce) { details.more > summary::before, details.vc > summary.voice::after { transition: none; } }
+@media (max-width: 600px) { details.more { margin-left: 0; } }
+
+/* compact boxes, headers pop */
+section:not(.ask) > :not(h2) { margin-left: 0; max-width: 640px; box-sizing: border-box; }
+header, footer { max-width: 640px; box-sizing: border-box; }
+section.ask { max-width: 640px !important; box-sizing: border-box; }
+section .distbox, section .leak { max-width: 640px; box-sizing: border-box; }
+.step { font-size: .92rem; }
+body[data-v="marks"] .step .st { font-size: .75rem; padding: 2px 8px; }
+body[data-v="marks"] .voice .note { font-size: .92rem; }
+.legend { gap: 4px 12px; font-size: .78rem; }
+body[data-v="marks"] section:not(.ask) > h2 { font-size: 1.3rem; padding-top: 6px; }
+section { gap: 10px; }
+.steps, .misses, .voices { gap: 6px; }
+.step { padding: 8px 12px; }
+.why { gap: 6px; }
+.distbox { padding: 10px 14px; gap: 6px; }
+.distbox ul { gap: 2px; }
+details.vc { padding: 6px 12px; }
+.outcome { padding: 10px 14px; }
+.ask { max-width: 628px; padding: 12px 16px; }
+
+
+/* sai 2026-10-22: orange on-topic, black idle, full-width ribbon */
+:root { --talk: #e07b16; --idle: #1b1b1b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --talk: #f0953a; --idle: #000; } }
+:root[data-theme="dark"] { --talk: #f0953a; --idle: #000; }
+body[data-v="marks"] { --talk: #e07b16; --idle: #1b1b1b; }
+.shares { display: grid; gap: 8px; }
+.sh { display: grid; grid-template-columns: 190px 1fr 44px; gap: 10px; align-items: center; font-size: .88rem; }
+.sh .bar { height: 14px; background: var(--line); background: color-mix(in srgb, var(--line) 45%, transparent); }
+.sh .bar i { display: block; height: 100%; }
+.sh.g .bar i { background: var(--reach); } .sh.t .bar i { background: var(--talk); } .sh.r .bar i { background: var(--slip); }
+.sh .pc { font-family: var(--hand); font-size: 1.35rem; text-align: right; line-height: 1; }
+.sh.g .pc { color: var(--reach); } .sh.t .pc { color: var(--talk); } .sh.r .pc { color: var(--slip); }
+.rest { font-size: .8rem; color: var(--muted); margin: 0; }
+section > details.more { grid-column: auto; }
+.timeline { display: grid; gap: 6px; padding-top: 6px; }
+@media (max-width: 600px) { .sh { grid-template-columns: 1fr 44px; row-gap: 2px; } .sh .lb { grid-column: 1 / 3; } }
+/* Timestamps link to the source: the video at that second, or the transcript below */
+a.ts { color: var(--real); text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
+a.ts:hover { text-decoration-style: solid; }
+.trs { gap: 6px; }
+.tx { max-height: 60vh; overflow-y: auto; display: grid; gap: 2px; margin-top: 6px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); font-size: .9rem; line-height: 1.5; }
+.tx p { margin: 0; display: grid; grid-template-columns: 46px 1fr; gap: 8px; padding: 3px 4px; scroll-margin-top: 8px; }
+.tx p.hit { background: color-mix(in srgb, var(--talk) 22%, transparent); }
+
+/* ---------- Citizen report additions ---------- */
+.sub { margin: 6px 0 -2px; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--reach); }
+.sub.bad { color: var(--slip); }
+.lost { grid-column: 2 / 4; font-family: var(--f-mono); font-size: .75rem; font-weight: 500; color: var(--slip); margin-top: -4px; }
+.thr { font-weight: 400; color: var(--muted); }
+
+/* Distraction labels: share of the whole run time */
+.dshares { display: grid; gap: 6px; margin-top: 2px; }
+.ds { display: grid; grid-template-columns: minmax(0, 1fr) 90px 40px; gap: 10px; align-items: center; font-size: .88rem; }
+.ds .kind { color: var(--muted); font-size: .8rem; }
+.ds .bar { height: 10px; background: color-mix(in srgb, var(--line) 45%, transparent); }
+.ds .bar i { display: block; height: 100%; background: var(--slip); }
+.ds .pc { font-family: var(--hand, var(--f-mono)); color: var(--slip); text-align: right; font-size: 1.1rem; line-height: 1; }
+
+/* Threads: one lane per thread across the run time, distractions laid over it in red */
+.lanes { display: grid; gap: 6px; }
+details.lane { background: var(--surface); border: 1px solid var(--line); padding: 8px 12px; }
+details.lane > summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr) auto 14px; gap: 4px 10px; align-items: center; }
+details.lane > summary::-webkit-details-marker { display: none; }
+details.lane > summary::after { content: "▸"; color: var(--real); transition: transform .15s; grid-row: 1; grid-column: 3; }
+details.lane[open] > summary::after { transform: rotate(90deg); }
+details.lane > summary:focus-visible { outline: 2px solid var(--real); outline-offset: 2px; }
+.lane .ln { font-weight: 600; font-size: .9rem; line-height: 1.25; min-width: 0; }
+.lane .track { grid-column: 1 / -1; position: relative; height: 12px; background: color-mix(in srgb, var(--line) 40%, transparent); }
+.lane .track i { position: absolute; top: 0; bottom: 0; }
+.track i.fwd { background: var(--reach); } .track i.talk { background: var(--talk); } .track i.side { background: var(--slip); }
+.lane .sum { grid-column: 1 / -1; font-size: .85rem; color: var(--muted); line-height: 1.3; }
+.badge { font-family: var(--f-display); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border: 2px solid currentColor; white-space: nowrap; }
+.badge.converged { color: var(--reach); }
+.badge.clarified { color: var(--reach); border-style: dashed; }
+.badge.bounded { color: var(--real); }
+.badge.stuck { color: var(--talk); }
+.badge.dropped { color: var(--slip); transform: rotate(-4deg); }
+.lane-body { display: grid; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.pulled { color: var(--slip); font-size: .9rem; }
+.mvi.t::before { background: var(--talk); }
+.mv.t { background: var(--talk); }
+.mv.h { background: transparent; box-shadow: inset 0 0 0 2.5px var(--talk); }
+.mvi.h::before { background: transparent; box-shadow: inset 0 0 0 2px var(--talk); }
+.unans { font-size: .88rem; margin: 2px 0 0; }
+.unans b { color: var(--talk); }
+.tr.ua b { color: var(--talk); }
+.tr .sig { color: var(--talk); font-weight: 600; }
+.mvi.n { grid-template-columns: 1fr; padding-left: 68px; color: var(--slip); }
+.mvi.n::before { display: none; }
+.replay .rh { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.line.end p .badge { margin-left: 4px; }
+.lanes-axis { display: flex; justify-content: space-between; padding: 0 13px; }
+body[data-v="marks"] details.lane { border-radius: 0; }
+body[data-v="marks"] .pulled { font-family: var(--hand); font-size: 1.02rem; }
+body[data-v="marks"] .replay .line p { font-family: var(--f-body); font-size: .92rem; }
+@media (max-width: 600px) {
+  .ds { grid-template-columns: minmax(0, 1fr) 40px; row-gap: 2px; }
+  .ds .bar { grid-column: 1 / -1; grid-row: 2; }
+  .mvi.n { padding-left: 0; }
+  .lost { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { details.lane > summary::after { transition: none; } }
 </style>
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">What happened in this discussion</span>
-    <h1 id="topic"></h1>
-    <p id="about"></p>
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <p class="ctx" id="context"></p>
   </header>
 
-  <section aria-labelledby="h-main">
-    <div class="bar">
-      <h2 id="h-main">How each point fared</h2>
-      <div class="toggle" role="group" aria-label="View">
-        <button type="button" data-view="points" aria-pressed="true">Points</button>
-        <button type="button" data-view="timeline" aria-pressed="false">Timeline</button>
-      </div>
+  <section>
+    <h2>What got done</h2>
+    <p class="cap" id="progress-caption"></p>
+    <div class="steps" id="steps"></div>
+  </section>
+
+  <section>
+    <h2>Distraction analysis</h2>
+    <p class="cap">What pulled the debate off course.</p>
+    <div class="shares">
+      <div class="sh g"><span class="lb">Progress: agreed, answered or made clearer</span><span class="bar"><i id="b-fwd"></i></span><span class="pc" id="p-fwd"></span></div>
+      <div class="sh t"><span class="lb">On topic, but left open</span><span class="bar"><i id="b-talk"></i></span><span class="pc" id="p-talk"></span></div>
+      <div class="sh r"><span class="lb">Distractions</span><span class="bar"><i id="b-side"></i></span><span class="pc" id="p-side"></span></div>
+      <p class="rest" id="rest"></p>
     </div>
-    <div class="sheet" id="points-view"><div class="key" id="key"></div><div id="ropes"></div></div>
-    <div class="sheet" id="timeline-view" hidden><ol class="story" id="story"></ol></div>
+    <p class="unans" id="unans-line"></p>
+    <details class="more" id="unans-more"><summary>Points left unanswered</summary><div class="tbl" id="unans"></div></details>
+    <p class="unans" id="gaps-line"></p>
+    <details class="more" id="gaps-more"><summary>Answers that left a gap</summary><div class="tbl" id="gaps"></div></details>
+    <details class="more"><summary>Minute by minute</summary>
+      <div class="timeline">
+        <div class="ribbon" id="ribbon"></div>
+        <div class="axis" id="axis"></div>
+        <div class="legend">
+          <span><i style="background:var(--reach)"></i>Progress</span>
+          <span><i style="background:var(--talk)"></i>Left open</span>
+          <span><i style="background:var(--slip)"></i>Distractions</span>
+          <span><i style="background:var(--idle)"></i>Intro and breaks</span>
+        </div>
+      </div>
+    </details>
+
+    <div class="distbox"><p class="dh">Where the distraction time went</p>
+      <div class="dshares" id="dshares"></div>
+      <details class="more"><summary>Who did what, and when</summary><div class="tbl" id="dist"></div></details></div>
+
+    <div class="leak"><p class="leak-h" id="leak-h"></p><p id="leak"></p></div>
   </section>
 
-  <section aria-labelledby="h-qs">
-    <h2 id="h-qs">Your questions, answered</h2>
-    <div class="sheet"><ul class="qs" id="qs"></ul></div>
+  <section>
+    <h2>Thread by thread</h2>
+    <p class="cap">Each bar is one thread across the whole run time. Red is where a distraction pulled it off course. Tap a thread for what happened and one fair way it could have gone.</p>
+    <div class="lanes" id="lanes"></div>
+    <div class="lanes-axis" id="lanes-axis"></div>
   </section>
 
-  <footer><span id="source"></span> Voices are anonymous. Nothing here is fact-checked: "stands" means no one in the discussion knocked it down, not that it's true.</footer>
+  <section>
+    <h2>Accountability</h2>
+    <p class="cap">Who moved the debate forward, and who held it back.</p>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="ask" id="ask">
+    <h2>Next time you watch a debate, ask</h2>
+    <p class="ah">To spot a distraction</p>
+    <ol id="ask-d"></ol>
+    <p class="ah" style="color:var(--talk)">To spot talk that went nowhere</p>
+    <ol id="ask-n"></ol>
+  </section>
+
+  <section class="trs" id="trs" hidden>
+    <details class="more" id="transcript"><summary>Full transcript, as broadcast</summary><div class="tx" id="tx"></div></details>
+  </section>
+
+  <footer><p id="footer"></p></footer>
 </div>
 
-<!-- Claude replaces this JSON (the sample below is a made-up panel). Schema: see SKILL.md. -->
-<script id="deliberation" type="application/json">
+<script id="report" type="application/json">
 {
- "topic": "Should the RBI defend the rupee, or let it find its level?",
- "about": "A made-up 16-minute TV panel: an anchor and three panelists.",
- "source": "Made-up transcript; no real broadcast.",
- "video": "",
- "options": [
+ "eyebrow": "TV debate · 21 minutes · quick read · tap ▸ for detail",
+ "question": "Should the Election Commission chief resign?",
+ "context": "Two election commissioners raised 14 objections to how the Chief Election Commissioner ran decisions. A TV panel argued about whether the chief should resign.",
+ "progress_caption": "Five steps were within reach. The panel took two.",
+ "progress": [
   {
-   "title": "Defend the rupee",
-   "lean": "Its strongest support fell away; the cost to families still stands.",
-   "for": [
-    {
-     "say": "Families pay more as the rupee falls",
-     "end": "holds",
-     "steps": [
-      {
-       "t": "0:40",
-       "did": "Raised: fuel, fees and medicines get dearer."
-      },
-      {
-       "t": "1:35",
-       "did": "Challenged: fuel prices are mostly taxes."
-      },
-      {
-       "t": "1:50",
-       "did": "Answered: the import bill rises anyway, taxes sit on top."
-      }
-     ],
-     "outcome": "Stands. The objection wasn't pressed again."
-    },
-    {
-     "say": "Defending steadies import prices",
-     "end": "challenged",
-     "steps": [
-      {
-       "t": "12:30",
-       "did": "Raised as the protection families need."
-      },
-      {
-       "t": "13:05",
-       "did": "Challenged: only as long as reserves last."
-      }
-     ],
-     "outcome": "Disputed. No reply came."
-    },
-    {
-     "say": "Reserves can defend it for a long time",
-     "end": "fails",
-     "steps": [
-      {
-       "t": "2:41",
-       "did": "Raised: reserves are among the largest in the world."
-      },
-      {
-       "t": "4:30",
-       "did": "Asked: how many months of imports do they cover?"
-      },
-      {
-       "t": "4:41",
-       "did": "Not answered; the reply compared earlier governments."
-      },
-      {
-       "t": "5:10",
-       "did": "A panelist cites about ten months."
-      },
-      {
-       "t": "5:35",
-       "did": "Its own side accepts reserves can't be spent forever."
-      }
-     ],
-     "outcome": "Fell away."
-    }
+   "status": "reached",
+   "thread": "explain",
+   "text": "Everyone agreed: the Election Commission must explain itself in public",
+   "because": "What this leads to",
+   "chain": [
+    "The Commission is now under pressure from all sides to speak",
+    "So if the Commission stays silent, its silence counts against it"
    ],
-   "against": [
+   "detail": [
     {
-     "say": "Defending spends reserves every day",
-     "end": "holds",
-     "steps": [
+     "heading": "Moments from the real debate",
+     "items": [
       {
-       "t": "3:20",
-       "did": "Raised: holding a level means selling dollars."
+       "t": "7:49",
+       "text": "Ruling party: \"The Commission should come out five times, 20 times. Answering is not my job.\""
       },
       {
-       "t": "3:44",
-       "did": "Accepted by the government side: \"that is how it works\"."
-      }
-     ],
-     "outcome": "Stands."
-    },
-    {
-     "say": "Past defences only delayed the fall",
-     "end": "challenged",
-     "steps": [
-      {
-       "t": "3:47",
-       "did": "Raised from past episodes; no specific episode named."
+       "t": "9:18",
+       "text": "Analyst: a press release is not enough; the whole Commission should come out, live, with the files."
       },
       {
-       "t": "5:35",
-       "did": "Partly met: a sudden fall also hurts confidence."
+       "t": "20:30",
+       "text": "Host: if the commissioners can hold a press conference to announce election dates, they can hold one now."
       }
-     ],
-     "outcome": "Disputed."
+     ]
     }
    ]
   },
   {
-   "title": "Let it find its level",
-   "lean": "Agreed it helps exporters; disputed whether families feel it in time.",
-   "for": [
-    {
-     "say": "Exports get cheaper abroad",
-     "end": "holds",
-     "steps": [
-      {
-       "t": "7:15",
-       "did": "Raised: IT and textiles gain."
-      },
-      {
-       "t": "7:50",
-       "did": "Not disputed; the pushback is about timing."
-      }
-     ],
-     "outcome": "Stands. The fight was over timing."
-    },
-    {
-     "say": "IT hiring is already up",
-     "end": "challenged",
-     "steps": [
-      {
-       "t": "8:20",
-       "did": "Offered as proof gains are happening now."
-      },
-      {
-       "t": "8:40",
-       "did": "Challenged: that's one sector; traders and farmers see none of it."
-      }
-     ],
-     "outcome": "Disputed. No reply came."
-    },
-    {
-     "say": "The fall is a strong dollar anyway",
-     "end": "open",
-     "steps": [
-      {
-       "t": "6:20",
-       "did": "Raised: the dollar is strong against everyone."
-      }
-     ],
-     "outcome": "Never taken up."
-    }
+   "status": "reached",
+   "thread": "results",
+   "text": "The voter-database question got a straight answer",
+   "because": "What this leads to",
+   "chain": [
+    "Viewers know what the voter database did and did not do",
+    "So the open part is narrower: how long the system was down"
    ],
-   "against": [
+   "detail": [
     {
-     "say": "Gains take years; prices rise now",
-     "end": "challenged",
-     "steps": [
+     "heading": "Moments from the real debate",
+     "items": [
       {
-       "t": "7:50",
-       "did": "Raised against the export case."
+       "t": "17:26",
+       "text": "Ruling party answered the voter-database question on substance."
       },
       {
-       "t": "8:20",
-       "did": "Challenged with IT hiring this quarter."
+       "t": "18:20",
+       "text": "Former CEC confirmed the answer, and named what is still missing: how long the system was down."
       }
-     ],
-     "outcome": "Disputed. The IT reply covers one sector."
+     ]
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "questions",
+   "text": "Agree a list of questions the Commission must answer",
+   "lost": {
+    "t": "16:29",
+    "label": "Changed the subject"
+   },
+   "because": "Because no list was agreed",
+   "chain": [
+    "The Commission can choose which questions to answer",
+    "So each party can say the answers left out what matters",
+    "So the resignation fight keeps going on TV, louder each time"
+   ],
+   "detail": [
+    {
+     "heading": "The list both parties could have signed",
+     "ordered": true,
+     "items": [
+      "What happened to each of the 14 objections?",
+      "What is the legal basis for changing Form 6, the voter registration form?",
+      "Who authorised removing voters' names in Goa?",
+      "What do the commissioners' letters to the Cabinet Secretary say?",
+      "Why did the two commissioners not use their majority, or go to the President?"
+     ]
     },
     {
-     "say": "Subsidies cost money too",
-     "end": "open",
-     "steps": [
+     "heading": "Moments from the real debate",
+     "items": [
       {
-       "t": "10:30",
-       "did": "Asked where the money for targeted support comes from."
+       "t": "15:34",
+       "text": "Opposition put the first four questions on the table."
       },
       {
-       "t": "10:45",
-       "did": "Lost in crosstalk."
+       "t": "16:00",
+       "text": "Host called them valid questions."
+      },
+      {
+       "t": "16:29",
+       "text": "Ruling party turned to the Opposition's record in Bihar instead of the four questions."
+      },
+      {
+       "t": "17:00",
+       "text": "Ruling party: \"the technical details have to come from the Commission\". The closest anyone came to agreeing the list; nobody proposed writing it down."
       }
-     ],
-     "outcome": "Never answered."
+     ]
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "test",
+   "text": "Agree a test: the Commission shows its files on each disputed order",
+   "lost": {
+    "t": "9:46",
+    "label": "Nobody took it up"
+   },
+   "because": "Because nobody agreed what evidence would settle it",
+   "chain": [
+    "When the facts come out, each side reads them its own way",
+    "So new facts change nobody's view",
+    "So each new fact becomes ammunition in the fight"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "9:46",
+       "text": "Analyst proposed the test: show that every disputed order had majority or full approval. Nobody took it up."
+      },
+      {
+       "text": "The Opposition never said what would make it drop the resignation demand."
+      },
+      {
+       "text": "The ruling party never said what would make resignation fair."
+      }
+     ]
+    },
+    {
+     "heading": "Also within reach",
+     "note": "Keep two questions apart: did the chief override the other commissioners, and did removing names change any result? The panel mixed them, so evidence for one was used against the other."
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "majority",
+   "text": "Put the commissioners' majority question to the Commission",
+   "lost": {
+    "t": "13:46",
+    "label": "Changed the subject"
+   },
+   "because": "Because the majority question was never answered",
+   "chain": [
+    "The strongest question against the resignation case stays open",
+    "So each side can claim the answer favours it"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "10:43",
+       "text": "Former CEC asked why the two commissioners wrote to the Cabinet Secretary instead of using their majority or going to the President."
+      },
+      {
+       "t": "13:46",
+       "text": "Opposition, asked to respond, moved to a scarf worn at a Bihar victory event."
+      }
+     ]
     }
    ]
   }
  ],
- "moments": [
+ "outcome": "More distrust in elections, whichever side was right",
+ "outcome_note": "Each step makes the next harder to undo. Lost trust is the slowest thing to rebuild.",
+ "total_seconds": 1265,
+ "segments": [
+  [
+   0,
+   28,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   28,
+   140,
+   "talk",
+   "majority",
+   ""
+  ],
+  [
+   140,
+   195,
+   "side",
+   "rigging",
+   "Slogans and numbers with no source"
+  ],
+  [
+   195,
+   223,
+   "side",
+   "rigging",
+   "Claimed more than the evidence shows"
+  ],
+  [
+   223,
+   283,
+   "talk",
+   "rigging",
+   ""
+  ],
+  [
+   283,
+   334,
+   "talk",
+   "explain",
+   ""
+  ],
+  [
+   334,
+   442,
+   "side",
+   "explain",
+   "Changed the subject"
+  ],
+  [
+   442,
+   469,
+   "side",
+   "explain",
+   "Attacked motives, not the argument"
+  ],
+  [
+   469,
+   560,
+   "fwd",
+   "explain",
+   ""
+  ],
+  [
+   560,
+   615,
+   "talk",
+   "test",
+   ""
+  ],
+  [
+   615,
+   790,
+   "talk",
+   "majority",
+   ""
+  ],
+  [
+   790,
+   826,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   826,
+   853,
+   "side",
+   "majority",
+   "Changed the subject"
+  ],
+  [
+   853,
+   880,
+   "talk",
+   "rigging",
+   ""
+  ],
+  [
+   880,
+   934,
+   "side",
+   "results",
+   "Host took a side"
+  ],
+  [
+   934,
+   960,
+   "talk",
+   "questions",
+   ""
+  ],
+  [
+   960,
+   989,
+   "fwd",
+   "questions",
+   ""
+  ],
+  [
+   989,
+   1020,
+   "side",
+   "questions",
+   "Changed the subject"
+  ],
+  [
+   1020,
+   1046,
+   "fwd",
+   "questions",
+   ""
+  ],
+  [
+   1046,
+   1176,
+   "fwd",
+   "results",
+   ""
+  ],
+  [
+   1176,
+   1230,
+   "side",
+   "explain",
+   "Mocked instead of answering"
+  ],
+  [
+   1230,
+   1256,
+   "fwd",
+   "explain",
+   ""
+  ],
+  [
+   1256,
+   1265,
+   "idle",
+   "",
+   ""
+  ]
+ ],
+ "threads": [
   {
-   "t": "0:40",
-   "title": "It opens on the cost to families",
-   "text": "A falling rupee makes fuel, fees and medicines dearer. An objection that fuel is mostly taxes is answered at once.",
-   "shift": "Settled early: families pay more.",
-   "kind": ""
+   "id": "explain",
+   "title": "Should the Commission explain itself in public?",
+   "end": "converged",
+   "summary": "Every voice ended up saying the Commission must face the public.",
+   "pulled": "Pulled off course at 5:34 by the Opposition's election record, and at 7:22 by an attack on motives.",
+   "flow": [
+    {
+     "t": "4:43",
+     "mark": "talk",
+     "text": "Host asked why the ruling party is answering for the Commission."
+    },
+    {
+     "t": "5:34",
+     "mark": "side",
+     "text": "Ruling party listed the Opposition's election losses instead."
+    },
+    {
+     "t": "7:22",
+     "mark": "side",
+     "text": "Ruling party said the demand comes from \"frustration of losing elections\"."
+    },
+    {
+     "t": "7:49",
+     "mark": "fwd",
+     "text": "Ruling party agreed the Commission should come out, \"20 times if needed\"."
+    },
+    {
+     "t": "9:18",
+     "mark": "fwd",
+     "text": "Analyst: a press release is not enough; the whole Commission should come out live."
+    },
+    {
+     "t": "19:36",
+     "mark": "side",
+     "text": "Analyst mocked a party's protest call."
+    },
+    {
+     "t": "20:30",
+     "mark": "fwd",
+     "text": "Host: the Commission should hold a press conference now."
+    }
+   ]
   },
   {
-   "t": "2:41",
-   "title": "The government side leans on reserves",
-   "text": "\"We have huge reserves.\" The reply: defending means selling dollars, and past defences only delayed the fall.",
-   "shift": "",
-   "kind": ""
+   "id": "questions",
+   "title": "What exactly must the Commission answer?",
+   "end": "clarified",
+   "summary": "Four specific questions were named and called valid, but nobody agreed them as a list.",
+   "pulled": "Pulled off course at 16:29 when the reply turned to the Opposition's record in Bihar.",
+   "flow": [
+    {
+     "t": "15:34",
+     "mark": "talk",
+     "text": "Opposition put four questions on the table: the 14 objections, Form 6, the Goa removals, the Cabinet Secretary letters."
+    },
+    {
+     "t": "16:00",
+     "mark": "fwd",
+     "text": "Host called the four questions valid and put them to the ruling party."
+    },
+    {
+     "t": "16:29",
+     "mark": "side",
+     "text": "Ruling party: \"out of power in Bihar since 1990\"."
+    },
+    {
+     "t": "17:00",
+     "mark": "fwd",
+     "text": "Ruling party: the technical details have to come from the Commission."
+    }
+   ],
+   "replay": {
+    "from": "16:29",
+    "lines": [
+     {
+      "who": "Host",
+      "says": "Ruling party, will you accept these four as the questions the Commission must answer?"
+     },
+     {
+      "who": "Ruling party",
+      "says": "The answers must come from the Commission, but yes, those are fair questions."
+     },
+     {
+      "who": "Opposition",
+      "says": "Then add the former CEC's question about the majority. That makes five."
+     },
+     {
+      "who": "Host",
+      "says": "Five questions both parties accept. The Commission's answers can be checked against them."
+     }
+    ],
+    "ends": "converged"
+   }
   },
   {
-   "t": "4:30",
-   "title": "The turning point: how long do reserves last?",
-   "text": "Asked directly, the answer points to their size and to earlier governments. A panelist cites about ten months of imports. At 5:35 the government side accepts reserves can't be spent forever.",
-   "shift": "Falls away: \"reserves can defend for a long time\".",
-   "kind": "turn"
+   "id": "test",
+   "title": "What evidence would settle it?",
+   "end": "dropped",
+   "summary": "The analyst proposed a test: show the files behind each disputed order.",
+   "pulled": "Nobody pulled it away. The test was left alone, and the host moved to another question.",
+   "flow": [
+    {
+     "t": "9:46",
+     "mark": "talk",
+     "text": "Analyst proposed the files test: show majority or full approval behind each disputed order."
+    },
+    {
+     "t": "10:25",
+     "mark": "talk",
+     "text": "Host moved on to the Cabinet Secretary letters without asking either side about the test."
+    },
+    {
+     "text": "Neither side said what evidence would change its mind."
+    }
+   ],
+   "replay": {
+    "from": "9:46",
+    "lines": [
+     {
+      "who": "Host",
+      "says": "Opposition, if the files show majority approval for each order, would you drop the resignation demand?"
+     },
+     {
+      "who": "Opposition",
+      "says": "For those orders, yes. Not for the Goa removals."
+     },
+     {
+      "who": "Ruling party",
+      "says": "And if the files don't show it, the Commission has to explain. Agreed."
+     },
+     {
+      "who": "Host",
+      "says": "So the files are the test, and both sides accept it."
+     }
+    ],
+    "ends": "converged"
+   }
   },
   {
-   "t": "7:15",
-   "title": "The other option: let it fall",
-   "text": "A cheaper rupee helps exporters. Pushback: gains take years, prices rise now. IT hiring is offered as proof; \"that's one sector\" goes unanswered.",
-   "shift": "Left disputed: do gains reach families in time?",
-   "kind": ""
+   "id": "majority",
+   "title": "Why didn't the two commissioners use their majority?",
+   "end": "dropped",
+   "summary": "The former CEC's question was the hardest challenge to the resignation case.",
+   "pulled": "Dropped at 13:46 when the reply turned to a scarf at a Bihar victory event.",
+   "flow": [
+    {
+     "t": "1:12",
+     "mark": "talk",
+     "text": "Former CEC explained how the Commission normally decides: disagree in discussion, then one agreed decision."
+    },
+    {
+     "t": "10:43",
+     "mark": "talk",
+     "text": "Former CEC: they had a majority; why not use it, or go to the President?"
+    },
+    {
+     "t": "13:46",
+     "mark": "side",
+     "text": "Opposition moved to a scarf worn at a Bihar victory event."
+    }
+   ],
+   "replay": {
+    "from": "13:46",
+    "lines": [
+     {
+      "who": "Opposition",
+      "says": "We don't know why they didn't use their majority."
+     },
+     {
+      "who": "Opposition",
+      "says": "That is one more thing the Commission must explain."
+     },
+     {
+      "who": "Former CEC",
+      "says": "Agreed. It belongs on the list of questions."
+     }
+    ],
+    "ends": "clarified"
+   }
   },
   {
-   "t": "11:40",
-   "title": "Common ground, and the gap",
-   "text": "Everyone agrees families need protection. Defending is offered as that protection, and challenged. How to pay for targeted subsidies is lost in crosstalk.",
-   "shift": "Ends open: how to protect families, and at what cost.",
-   "kind": "common"
+   "id": "rigging",
+   "title": "Did the two commissioners admit rigging?",
+   "end": "stuck",
+   "summary": "The Opposition said they did; asked how, it repeated the claim.",
+   "pulled": "Opened at 2:20 with slogans and a figure with no source, then an overstated claim at 3:15.",
+   "flow": [
+    {
+     "t": "2:20",
+     "mark": "side",
+     "text": "Opposition opened with \"vote theft\" slogans and a 13-crore figure with no source."
+    },
+    {
+     "t": "3:15",
+     "mark": "side",
+     "text": "Opposition said the two commissioners \"admitted rigging\"."
+    },
+    {
+     "t": "3:23",
+     "mark": "talk",
+     "text": "Host asked \"how?\"; the Opposition repeated the claim."
+    }
+   ],
+   "replay": {
+    "from": "3:15",
+    "lines": [
+     {
+      "who": "Host",
+      "says": "How did they admit rigging?"
+     },
+     {
+      "who": "Opposition",
+      "says": "They didn't use that word. They objected to how 14 decisions were made."
+     },
+     {
+      "who": "Opposition",
+      "says": "Objections from two of the three commissioners still matter. That is our case."
+     },
+     {
+      "who": "Ruling party",
+      "says": "Then let's talk about the 14 objections."
+     }
+    ],
+    "ends": "clarified"
+   }
+  },
+  {
+   "id": "results",
+   "title": "Did removing voters' names change any result?",
+   "end": "stuck",
+   "summary": "One checkable fact came up and one question got a straight answer, but no test was agreed.",
+   "pulled": "Pulled off course at 14:40 when the host argued a personal view about Bihar.",
+   "flow": [
+    {
+     "t": "6:51",
+     "mark": "talk",
+     "text": "Ruling party: in Bengal, 13 of the 20 seats with the most names removed went to the TMC. Nobody replied."
+    },
+    {
+     "t": "14:40",
+     "mark": "side",
+     "text": "Host argued that ₹10,000 paid to women decided Bihar."
+    },
+    {
+     "t": "17:26",
+     "mark": "fwd",
+     "text": "Ruling party answered the voter-database question on substance."
+    },
+    {
+     "t": "18:20",
+     "mark": "fwd",
+     "text": "Former CEC confirmed the answer and named what is still missing."
+    },
+    {
+     "t": "18:58",
+     "mark": "talk",
+     "text": "Former CEC: still not clear how long the system was down. The host moved on."
+    }
+   ],
+   "replay": {
+    "from": "14:40",
+    "lines": [
+     {
+      "who": "Host",
+      "says": "Each side: what evidence would show whether removals changed a result?"
+     },
+     {
+      "who": "Opposition",
+      "says": "Removed names seat by seat, against the winning margin."
+     },
+     {
+      "who": "Ruling party",
+      "says": "Fine. The Bengal numbers I gave are part of that."
+     },
+     {
+      "who": "Host",
+      "says": "So the test is removals against margins. Nobody has those numbers tonight."
+     }
+    ],
+    "ends": "clarified"
+   }
   }
  ],
- "questions": [
+ "distractions": [
   {
-   "q": "Will a falling rupee hurt families?",
-   "a": "Yes. Both sides agreed; the \"it's mostly taxes\" objection was answered.",
-   "answer": "settled"
+   "t": "2:20",
+   "who": "Opposition",
+   "kind": "unprompted",
+   "label": "Slogans and numbers with no source",
+   "thread": "rigging",
+   "what": "\"Vote theft\" and \"dealer and client\" slogans, and a 13-crore figure with no source",
+   "length": "1.4 min",
+   "better": "Open with the case for resignation: the 14 objections and what they were about",
+   "cost": "The opening went on slogans; the specific questions only came out at 15:34"
   },
   {
-   "q": "Can the RBI afford to defend it?",
-   "a": "Not for long. The government side accepted that reserves can't be spent forever, but nobody said how long they'd last.",
-   "answer": "leans no"
+   "t": "3:15",
+   "who": "Opposition",
+   "kind": "unprompted",
+   "label": "Claimed more than the evidence shows",
+   "thread": "rigging",
+   "what": "Said the two commissioners \"admitted rigging\"; when the host asked how, repeated the claim",
+   "length": "",
+   "better": "Say the report shows objections to process, then explain why process objections still matter",
+   "cost": "Gave the other side an easy target and weakened the real point"
   },
   {
-   "q": "Does a cheaper rupee help anyone?",
-   "a": "Exporters, yes. Whether families feel it soon enough was disputed, and the only evidence covered IT.",
-   "answer": "disputed"
+   "t": "5:34",
+   "who": "Ruling party",
+   "kind": "dodge",
+   "label": "Changed the subject",
+   "thread": "explain",
+   "victim": "The host's question: why is the ruling party answering for the Commission?",
+   "what": "Listed the Opposition's election losses in Raebareli, Amethi, Tamil Nadu, Bengal and Bihar",
+   "length": "1.8 min",
+   "better": "Answer the question, or say plainly the Commission must answer for itself",
+   "cost": "About two minutes on party history that says nothing about how the Commission decided"
   },
   {
-   "q": "What protects families meanwhile?",
-   "a": "Targeted fuel subsidies were proposed. How to pay for them was never discussed.",
-   "answer": "open"
+   "t": "7:22",
+   "who": "Ruling party",
+   "kind": "unprompted",
+   "label": "Attacked motives, not the argument",
+   "thread": "explain",
+   "what": "Said the resignation demand comes from \"frustration of losing elections\"",
+   "length": "27 sec",
+   "better": "Argue the objections, not the other side's motives",
+   "cost": "Turned a question about the Commission into a fight about the Opposition"
   },
   {
-   "q": "Is the fall India's doing?",
-   "a": "One panelist said it's a strong dollar. Nobody examined it, though the case against defending rests on it.",
-   "answer": "open"
+   "t": "13:46",
+   "who": "Opposition",
+   "kind": "dodge",
+   "label": "Changed the subject",
+   "thread": "majority",
+   "victim": "The former CEC's question about the commissioners' majority",
+   "what": "Brought up a scarf worn at a Bihar victory event",
+   "length": "27 sec",
+   "better": "Answer it, or say \"we don't know, and the Commission must explain that too\"",
+   "cost": "The strongest challenge to the resignation case was never addressed"
+  },
+  {
+   "t": "14:40",
+   "who": "Host",
+   "kind": "unprompted",
+   "label": "Host took a side",
+   "thread": "results",
+   "what": "Argued a personal view that ₹10,000 paid to women decided Bihar",
+   "length": "54 sec",
+   "better": "Keep the host's own view out; ask each side what evidence would show whether removals changed a result",
+   "cost": "The host became a debater, and the Opposition argued with the host instead of the panel"
+  },
+  {
+   "t": "16:29",
+   "who": "Ruling party",
+   "kind": "dodge",
+   "label": "Changed the subject",
+   "thread": "questions",
+   "victim": "The Opposition's four questions",
+   "what": "Back to the Opposition's record: \"out of power in Bihar since 1990\"",
+   "length": "31 sec",
+   "better": "Answer the four questions, or agree they are the Commission's to answer",
+   "cost": "The four questions were left hanging, so no list was agreed"
+  },
+  {
+   "t": "19:36",
+   "who": "Analyst",
+   "kind": "unprompted",
+   "label": "Mocked instead of answering",
+   "thread": "explain",
+   "what": "Mocked a party's protest call: \"they can bark at every tree\"",
+   "length": "54 sec",
+   "better": "Make the same point (the people in office must answer, not the street) without contempt",
+   "cost": "Small, but it shows viewers that mocking is acceptable"
   }
- ]
+ ],
+ "moderator": "Host",
+ "unanswered": [
+  {
+   "t": "6:51",
+   "by": "Ruling party",
+   "to": "Opposition",
+   "thread": "results",
+   "bid": "In Bengal, 13 of the 20 seats with the most names removed went to the TMC",
+   "matters": true,
+   "cost": "A checkable fact about whether removals changed results was never tested"
+  },
+  {
+   "t": "9:46",
+   "by": "Analyst",
+   "to": "",
+   "thread": "test",
+   "bid": "Proposed the files test: show majority or full approval behind each disputed order",
+   "matters": true,
+   "cost": "The one test on the table was left alone"
+  },
+  {
+   "t": "18:58",
+   "by": "Former CEC",
+   "to": "",
+   "thread": "results",
+   "bid": "Said it is still not clear how many days or weeks the voter-database system was down",
+   "matters": false
+  }
+ ],
+ "insight": {
+  "title": "The biggest loss was not the shouting",
+  "text": "Two threads were dropped without anyone raising their voice: the analyst's files test and the former CEC's majority question. Each was a step lost toward settling the fight."
+ },
+ "voices": [
+  {
+   "name": "Former CEC",
+   "note": "asked the hardest question",
+   "forward": [
+    {
+     "t": "1:12",
+     "what": "Explained how the Commission normally decides: disagreement in discussion, then one agreed decision"
+    },
+    {
+     "t": "10:43",
+     "what": "Asked why the two commissioners wrote to the Cabinet Secretary instead of using their majority or going to the President"
+    },
+    {
+     "t": "18:20",
+     "what": "Confirmed the voter-database answer, and named what is still missing: how long the system was down"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Analyst",
+   "note": "proposed the test nobody took up",
+   "forward": [
+    {
+     "t": "9:18",
+     "what": "Proposed a clear condition: hear the Commission's side, then act if the report holds up"
+    },
+    {
+     "t": "9:46",
+     "what": "Proposed the files test: show the majority or full approval behind each disputed order"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Ruling party",
+   "note": "agreed on answers, then changed the subject",
+   "forward": [
+    {
+     "t": "6:51",
+     "what": "Offered a checkable fact: in Bengal, 13 of the 20 seats with the most names removed went to the TMC"
+    },
+    {
+     "t": "7:49",
+     "what": "Agreed the Commission must come out and explain, \"20 times if needed\""
+    },
+    {
+     "t": "17:26",
+     "what": "Answered the voter-database question on substance"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Opposition",
+   "note": "sharp questions, but overstated and dodged",
+   "forward": [
+    {
+     "t": "15:34",
+     "what": "Put four specific questions on the table: the 14 objections, Form 6, the Goa removals, the Cabinet Secretary letters"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Host",
+   "note": "pushed for evidence, but took a side",
+   "forward": [
+    {
+     "t": "3:23",
+     "what": "Pressed for evidence: asked \"how?\" when the Opposition claimed an admission of rigging"
+    },
+    {
+     "t": "16:00",
+     "what": "Called the Opposition's four questions valid and put them to the other side"
+    },
+    {
+     "t": "20:30",
+     "what": "Asked the Commission to face the press"
+    }
+   ],
+   "missed": [
+    {
+     "t": "6:01",
+     "what": "Let the election-history detour run (5:34 to 7:49)",
+     "better": "Bring the panel back to the 14 objections",
+     "cost": "About two minutes went on party history"
+    },
+    {
+     "t": "20:56",
+     "what": "Closed with \"an evolving story, many chapters to come\" instead of summing up",
+     "better": "Read back the one thing everyone agreed on, and the questions still open",
+     "cost": "Viewers left without the agreement the panel had actually reached"
+    }
+   ]
+  }
+ ],
+ "ask": {
+  "distraction": [
+   "Was the question answered, or did the talk move to something else?",
+   "When someone made a strong claim, did they back it up, or just repeat it louder?",
+   "Did they argue the point, or attack and mock the other side?",
+   "Did the host ask questions, or argue for one side?"
+  ],
+  "nowhere": [
+   "When someone made a point, did anyone reply to it?",
+   "When a question was dropped, did anyone bring it back?",
+   "At the end, did anyone say what was settled and what is still open?"
+  ]
+ },
+ "youtube": "",
+ "transcript": [
+  [
+   0,
+   "आज रात मेरे साथ शो में भारत के पूर्व मुख्य चुनाव आयुक्त ओपी रावत जुड़ रहे हैं। सिद्धार्थ यादव भाजपा के राष्ट्रीय प्रवक्ता हैं और सुप्रीम कोर्ट के वकील भी हैं। हमारे साथ डॉ. निशांत आनंद हैं, जो सुप्रीम कोर्ट के वकील और कांग्रेस पार्टी के राष्ट्रीय प्रवक्ता भी हैं। और रजत सेठी एक राजनीतिक विश्लेषक हैं। मैं आपसे"
+  ],
+  [
+   20,
+   "शुरुआत करना चाहता हूँ, मिस्टर रावत। कांग्रेस इस्तीफे की मांग कर रही है। पूरा विपक्ष कह रहा है कि वर्तमान सीईसी का पद अब बनाए रखने योग्य नहीं रहा। क्या ऐसा है? मुझे व्यक्तिगत रूप से लगता है कि यह मामला सीईसी"
+  ],
+  [
+   40,
+   "के हाथ में है। अगर वह अपने दोनों सहयोगियों को विश्वास में लें, साथ बैठें, सभी गलतफहमियों को दूर करें और जल्द से जल्द मीडिया के माध्यम से जनता के सामने स्पष्ट स्थिति रखें। तो चीजें बहुत अलग होंगी ।"
+  ],
+  [
+   63,
+   "यदि इसमें कोई आपराधिकता शामिल नहीं है, तो विपक्ष क्यों कह रहा है कि उन्हें इस्तीफा दे देना चाहिए? सीईसी को इस्तीफा क्यों देना चाहिए? अगर यह मतभेदों की बात है और मिस्टर रावत, आप कल शो पर थे, आपका मानना था कि आपके कार्यकाल के"
+  ],
+  [
+   83,
+   "दौरान भी आयोग के भीतर मतभेद थे। और अंतिम निर्णय हमेशा सर्वसम्मति से लिया जाता है। तो फिर यहाँ वास्तव में समस्या क्या है? ऐसे मतभेद कई मुद्दों पर हमेशा होते हैं और तीन दिमाग मिलकर बहुत सारे बुद्धिमान इनपुट सामने"
+  ],
+  [
+   103,
+   "लाते हैं। और जब उनमें से हर कोई एक-दूसरे के दृष्टिकोण को समझता है और आम सहमति पर पहुँचता है, तो एक मूल्यवान निर्णय लिया जाता है। और इसलिए प्रक्रिया बिल्कुल सही है और ईसीआई के प्रेस नोट में यही दावा किया गया है। ठीक है, डॉ."
+  ],
+  [
+   123,
+   "निशांत को शामिल करते हैं । निशांत आनंद, हमें समझने में मदद करें कि कांग्रेस पार्टी ज्ञानेश कुमार के इस्तीफे की मांग क्यों कर रही है? नमस्ते, सभी को शुभ संध्या। देखिए, मैं सबसे पहले यह कहकर शुरुआत करूँगा कि वोट चोरी एक अपराध है भारत के लोगों के खिलाफ और हमारे संविधान पर एक सीधा हमला। और मैं आपको कुछ रिकॉर्ड देता"
+  ],
+  [
+   143,
+   "हूँ। एसआईआर के तहत राष्ट्रीय स्तर पर 13 करोड़ मतदाताओं के नाम हटाए गए हैं । आज सवाल सिर्फ वोट चोरी का नहीं है। सवाल भारत के लोकतंत्र और उसके संस्थानों पर सरकार के कब्जे का है। चुनाव आयोग शिशु है और ज्ञानेश कुमार नहाने का पानी। ज्ञानेश कुमार वोट चोरी पर, भाजपा ने कल पहले ही दो"
+  ],
+  [
+   163,
+   "प्रेस कॉन्फ्रेंस कर ली हैं, लेकिन चुनाव आयोग एक बार भी सामने नहीं आया है। कोई संवाद नहीं आया। कोई इनका समझें कि मामला कितना गंभीर है । डीलर, यानी चुनाव आयोग, एक तरफ हट गया है और क्लाइंट, यानी भाजपा, सीधे सामने आ गई है। स्पष्ट रूप से कहा गया है। उन्होंने चुनाव आयुक्तों की"
+  ],
+  [
+   183,
+   "नियुक्ति के तरीके में बदलाव पर सवाल उठाए। उन्होंने चुनाव आयुक्तों को मिली आजीवन छूट को चुनौती दी। उन्होंने कई बार वोटिंग में धांधली का खुलासा किया। उन्होंने एसआईआर (SIR) के खिलाफ अभियान चलाया। हर बार उनकी चेतावनियों को मनगढ़ंत बताकर खारिज कर दिया गया। वोटिंग धांधली पर, जो हम कहते रहे हैं , उसे दो चुनाव आयुक्तों ने स्वीकार किया"
+  ],
+  [
+   203,
+   "है। हमने यह भी कहा कैसे? मैं कैसे, कैसे, कैसे दो चुनाव आयुक्त, श्री संधू और श्री जोशी, यह स्वीकार कर रहे हैं कि वोटिंग में धांधली हुई है? मुझे जवाब देने दें। हाँ। जरूर। पहले, इन संस्थाओं ने हमारे दावों को नकारा था। अब, जैसा कि कहा गया है, उनके द्वारा इसे स्वीकार कर लिया गया है।"
+  ],
+  [
+   223,
+   "कांग्रेस और राहुल गांधी जी पिछले 3 साल से जो कह रहे हैं वह सच है कि श्री ज्ञानेश कुमार चुनाव चुराने में मदद कर रहे हैं। दो मौजूदा चुनाव आयुक्तों ने चुनावी प्रक्रिया के संचालन के तरीके पर 10 महीनों में 14 आपत्तियां जताईं। वे हमेशा कहते हैं कि सत्ता विरोधी लहर सबसे बड़ी राजनीतिक ताकत है, लेकिन ऐसा"
+  ],
+  [
+   243,
+   "लगता है कि यह मोदी और शाह को कभी प्रभावित नहीं करती। अब, दो चुनाव आयुक्तों ने खुद इसके कारण उजागर किए हैं। नंबर एक, अगर नरेंद्र मोदी और ज्ञानेश कुमार भारत की मतदान प्रणाली को नष्ट करना जारी रखते हैं, तो कांग्रेस और पूरा विपक्ष नहीं जो मैंने पूछा है क्योंकि जिन दो चुनाव आयुक्तों की आप बात कर रहे हैं"
+  ],
+  [
+   263,
+   "और ओ.पी. रावत जो खुद सीईसी (CEC) रह चुके हैं, उनकी राय है कि चुनाव आयोग इसी तरह काम करता है। कि चर्चा प्रक्रिया के दौरान कई चरणों में असहमति होती है और जब अंतिम चर्चा होती है, अंतिम निर्णय लिया जाता है, तो वह सर्वसम्मति से लिया जाता है। लेकिन मैं एक बिंदु पर आपसे सहमत हूँ। कि चुनाव आयोग प्रेस कॉन्फ्रेंस"
+  ],
+  [
+   283,
+   "क्यों नहीं कर रहा है? कि भाजपा चुनाव आयोग के बचाव में क्यों सामने आ रही है? उह सिद्धार्थ यादव, इसका जवाब दें। नहीं, एक पल। सिद्धार्थ यादव, इसका जवाब दें। भाजपा उन सभी आरोपों का जवाब क्यों दे रही है जो एक संवैधानिक निकाय, एक स्वतंत्र संवैधानिक निकाय के कामकाज पर उठाए जा रहे हैं, जिसे अब उठाए जा"
+  ],
+  [
+   303,
+   "रहे सभी आरोपों का जवाब देना चाहिए? इसके कामकाज के बारे में। शुभ संध्या, मारिया। आपकी सभी दर्शकों को शुभ संध्या। मारिया, न तो मैं चुनाव आयोग का बचाव करने यहाँ हूँ, न ही चुनाव आयोग की ओर से जवाब देने , और न ही भाजपा ऐसा कर रही है। लेकिन यदि आप विपक्ष द्वारा लगाए गए आरोपों"
+  ],
+  [
+   323,
+   "को सुनेंगे, तो आप समझ जाएंगे कि चुनाव आयोग के खिलाफ कोई आरोप, कोई सबूत नहीं है। यह भाजपा के खिलाफ एक बयानबाजी और नैरेटिव बनाने की कवायद है। तो , जब राहुल गांधी बाहर आकर कहते हैं कि अरे , हमारे पास हर चीज के लिए सबूत है और अब हम सब कुछ साबित कर सकते हैं। और यह भाजपा थी जो निर्देश दे रही थी कि किस पर क्या हो रहा था।"
+  ],
+  [
+   344,
+   "और लोग यह नहीं समझ पा रहे हैं कि अगर आपके पास सबूत है तो अदालत जाइए और उसे साबित कीजिए। आप भाजपा पर आरोप लगा रहे हैं और इसलिए भाजपा को जवाब देना होगा । अब, मैं आपको केवल दो सटीक जवाब दूंगा। पहला, मुझे पूरा हंगामा, पूरी बहस समझ नहीं आ रही कि राहुल गांधी ऐसा क्यों कहेंगे कि एंटी- इनकम्बेंसी"
+  ],
+  [
+   364,
+   "क्या है? मुझे एंटी- इनकम्बेंसी समझ नहीं आ रही। वे लगातार 16 बार रायबरेली जीते हैं। वे लगातार 13 बार अमेठी जीते हैं। वहां एंटी- इनकम्बेंसी की दलील का क्या हुआ? उसे छोड़िए । मैं सिक्के का दूसरा पहलू दिखाता हूं। मैं सिक्के का दूसरा पहलू दिखाता हूं। वे दशकों से तमिलनाडु में सत्ता से बाहर रहे हैं। वे दशकों से बंगाल में सत्ता से"
+  ],
+  [
+   384,
+   "बाहर रहे हैं। वे दशकों से बिहार में सत्ता से बाहर रहे हैं, भाजपा के सत्ता में आने से बहुत पहले से। चुनाव कौन जीत रहा है, इस सवाल का क्या हुआ? मुझे आपको एक और उदाहरण देने दीजिए। अब, जब वे कहते हैं कि वोट चोरी हो रही है, कांग्रेस पार्टी के मेरे विद्वान मित्र भी कह रहे हैं, मुझे नहीं पता कि जो भी रिपोर्ट आई हैं उनसे यह निष्कर्ष कैसे निकल रहा है कि वोट चोरी हो रही"
+  ],
+  [
+   404,
+   "है। पश्चिम बंगाल की जिन 20 सीटों पर सबसे ज्यादा मतदाता हटाए गए थे, उनमें से 13 टीएमसी ने जीती थीं। एक कांग्रेस ने जीती, सिर्फ छह भाजपा ने। तो, जहां सबसे ज्यादा मतदाता हटाए गए, वहां टीएमसी जीत रही है। लेकिन, यह मुद्दा नहीं है, मारिया। मुद्दा यह है कि"
+  ],
+  [
+   424,
+   "विपक्ष और कांग्रेस पार्टी देश की संवैधानिक संस्थाओं को अवैध क्यों ठहराने की कोशिश कर रही है ? भारतीय लोगों का हमारे लोकतंत्र के कामकाज पर जो भरोसा है, उस पर यह हमला क्यों हो रहा है? और इसका सीधा कारण यह है कि लगातार चुनाव हारने की हताशा अब राहुल"
+  ],
+  [
+   444,
+   "गांधी के सिर चढ़कर बोल रही है। अब उन्हें समझ नहीं आ रहा कि वे कैसे साबित करें कि वे चुनाव हार रहे हैं, वे लोगों का भरोसा जीतने में असमर्थ हैं, वे लोगों का समर्थन जुटाने में असमर्थ हैं, और इसलिए उन्हें कुछ तो करना ही है। लेकिन यह बहुत दुर्भाग्यपूर्ण है। यह देश के साथ अन्याय है। अगर कोई यह चुनता है कि आप हार को स्वीकार नहीं कर सकते"
+  ],
+  [
+   465,
+   "वह मेरा यदि चुनाव आयोग सभी सवालों का सामना कर रहा है , तो उसे बाहर आकर स्पष्टीकरण देना चाहिए, जो नहीं हुआ है। इसीलिए, इसीलिए, जी हां, कृपया। मारिया, उन्हें पांच बार बाहर आना चाहिए। उन्हें 20 बार बाहर आना चाहिए । जवाब देना मेरा काम नहीं है। चुनाव आयोग एक संवैधानिक निकाय है। स्वतंत्र"
+  ],
+  [
+   485,
+   "संवैधानिक निकाय, उन्हें उन सभी आरोपों के बारे में स्पष्टीकरण देना चाहिए जो लगाए जा रहे हैं । मैं आपसे सहमत हूं। मैं यहां तर्क के आधार पर जवाब देने आया हूं। मैं यहां इस देश के एक नागरिक के तौर पर बुनियादी तर्क के आधार पर जवाब देने आया हूं। इसीलिए मैं रजत सेठी से भी शुरुआती टिप्पणी लेना चाहता हूँ और उसके बाद मैं इस संस्था के कामकाज पर वापस आऊंगा, जहाँ रुचि रावत अपनी बात रखेंगी। लेकिन रजत सेठी"
+  ],
+  [
+   505,
+   "। मैं यह समझने की कोशिश कर रहा हूँ कि यह वास्तव में राई का पहाड़ नहीं है। स्पष्ट रहें। इस बार जो दिख रहा है, मामला उससे कहीं अधिक गंभीर है। यह स्पष्ट है कि पूरा विपक्ष ज्ञानेश कुमार के पीछे पड़ा है । तो एक"
+  ],
+  [
+   525,
+   "राजनीतिक विश्लेषक के तौर पर मैं आपसे वह सवाल पूछता हूँ। क्या उनका पद अब असहनीय हो गया है? मुझे लगता है कि इस स्तर पर सीईसी को संदेह का लाभ मिलना चाहिए जब तक कि वे खुद सामने आकर कुछ न कहें, क्योंकि कहानी का दूसरा पक्ष पूरी तरह से"
+  ],
+  [
+   545,
+   "गायब है। आप जानते हैं, यदि अगले 10 दिनों तक भी वे सामने आकर स्थिति स्पष्ट नहीं करते हैं, तो उनकी स्थिति और अधिक असहनीय हो जाएगी। क्या आपको लगता है कि उन्हें ऐसा करना चाहिए? रजत सेठी? एक प्रेस विज्ञप्ति काफी नहीं है। इसमें कोई संदेह नहीं है। बिल्कुल, उन्हें न केवल अकेले, बल्कि"
+  ],
+  [
+   565,
+   "पूरे चुनाव आयोग को सामने आना चाहिए और कम से कम यह बताना चाहिए कि जिन फैसलों को लेकर कहा गया है कि कोई आम सहमति नहीं थी या शायद बहुमत नहीं था, उन्हें सभी फाइलें पेश करनी चाहिए और कहना चाहिए कि हाँ, आम सहमति या बहुमत था और इसलिए इन सभी आदेशों की पवित्रता और पूर्ण चुनाव आयोग की मंजूरी है, चाहे वह"
+  ],
+  [
+   585,
+   "बहुमत से हो या सर्वसम्मति से, इससे कोई फर्क नहीं पड़ता। लेकिन ऐसा लाइव प्रेस के सामने, सभी के सामने, इस देश के लोगों के सामने होना चाहिए। वे भाग नहीं सकते, इसलिए जब तक कहानी का दूसरा पक्ष सामने नहीं आता, मेरी राय में तुरंत उनके इस्तीफे की मांग करना प्राकृतिक न्याय के खिलाफ"
+  ],
+  [
+   605,
+   "है। उन्हें अपना पक्ष रखने का समय दिया जाना चाहिए और यदि इंडियन एक्सप्रेस की रिपोर्ट में लगाए गए आरोप सच साबित होते हैं, तो हाँ, आगे की कार्रवाई बर्खास्तगी या उनके अपने इस्तीफे के रूप में हो सकती है। लेकिन फिर से, यह देखना बाकी है कि यह वास्तव में तूफान है या नहीं, जब तक कि हम कहानी का दूसरा पक्ष न सुन लें।"
+  ],
+  [
+   625,
+   "ठीक है, हमें कहानी का दूसरा पक्ष जानना चाहिए। तो, मैं ओ.पी. रावत को फिर से चर्चा में लाता हूँ। ओ.पी. रावत, एक सवाल जो पिछले 24 घंटों से मेरे दिमाग में है, जब से इंडियन एक्सप्रेस की पहली रिपोर्ट आई है, कि आखिर दो चुनाव आयुक्त कैबिनेट सचिव से संपर्क क्यों कर रहे"
+  ],
+  [
+   646,
+   "हैं, जबकि उन्हें भारत के राष्ट्रपति को रिपोर्ट करना होता है? तर्क यह है कि यह बात समझ से परे है क्योंकि उनके पास वीटो पावर थी, इस तथ्य के साथ कि वे दोनों सीईसी द्वारा लिए गए किसी भी निर्णय को पलट"
+  ],
+  [
+   667,
+   "सकते थे। जब उन्हें वह शक्ति दी गई थी, तो उस शक्ति का प्रयोग क्यों नहीं किया गया? यह बिल्कुल सही है और यह पूरे मामले पर एक संदेह पैदा करता है। जब दो लोग एक ही तरह से सोच रहे थे,"
+  ],
+  [
+   687,
+   "तो उन्होंने स्वीकार करने से इनकार क्यों नहीं किया? तीसरे व्यक्ति का आदेश? उन्होंने यह क्यों नहीं कहा कि जो भी बहुमत का विचार है, उसे चुनाव आयोग के निर्णय के रूप में दर्ज किया जाना चाहिए? और उसके अनुसार ही आगे की कार्रवाई की"
+  ],
+  [
+   707,
+   "जानी चाहिए। और कैबिनेट सचिव के पास जाना एक गलत संकेत देता है कि वे अभी भी सरकार के अधीन हैं। नहीं, वे सीधे भारत के राष्ट्रपति के अधीन काम करते हैं। और इसलिए, यदि उन्हें किसी शिकायत के निवारण के लिए कहना था, तो उन्हें भारत के राष्ट्रपति के पास जाना चाहिए था। ठीक है। तो क्या"
+  ],
+  [
+   727,
+   "आप उन्हें क्या आप फिर यह कहेंगे, मिस्टर रावत, कि एक्सप्रेस रिपोर्ट के बाद, चुनावी प्रक्रिया के संबंध में विपक्ष की चिंताएं, उन चुनावों के संबंध में जो वे कह रहे हैं, वास्तव में वैध हैं। कि यहाँ एक"
+  ],
+  [
+   748,
+   "संस्था है जिसने सीईसी के पास शक्ति को केंद्रित कर रखा है, जबकि अन्य दो आयुक्त चिंताएं उठा रहे हैं, लेकिन उन चिंताओं का समाधान नहीं किया जा रहा है। तो मूल रूप से, अन्य दो आयुक्तों द्वारा समस्या का सामना न करना , जब उनके पास शक्तियाँ हैं, जब बहुमत उनके"
+  ],
+  [
+   768,
+   "पक्ष में है, तो इसे चुनाव आयोग के कामकाज के खिलाफ क्यों माना जाना चाहिए? यह सही नहीं है। क्योंकि यदि उन्होंने यह दावा किया होता कि उनके पास शक्ति है, बहुमत उनके पक्ष में है, तो इसे इसी के अनुसार दर्ज किया जाना चाहिए था और उनके निर्णय के अनुसार कार्रवाई की जानी चाहिए थी।"
+  ],
+  [
+   789,
+   "इसे सीईसी के खिलाफ के रूप में क्यों व्याख्यायित किया जाना चाहिए? ठीक है, यह यहाँ एक वैध तर्क है। डॉ. निशांत, इसका जवाब दें। पैनल में मौजूद सभी लोगों को याद दिलाना चाहता हूँ कि बिहार चुनाव जीतने के बाद"
+  ],
+  [
+   811,
+   "ठीक है। ठीक है, कुछ हाँ, निशांत , वहाँ कुछ नेटवर्क समस्या है ने गमछा पहना हुआ था। मैं चाहता हूँ कि क्या आप मुझे अब सुन सकते हैं? क्या मेरी आवाज आ रही है? आपकी ओर से नेटवर्क समस्या है। कृपया अपनी बात जारी रखें। ठीक है। तो, मैं सभी दर्शकों को याद दिलाना चाहता हूँ कि बिहार चुनाव जीतने के बाद, मोदी जी ने गमछा पहना था जो"
+  ],
+  [
+   831,
+   "बिहार की जनता या उनके जनादेश द्वारा नहीं दिया गया था। वह चुनाव आयुक्त गणेश कुमार द्वारा दिया गया था। देखिए, 2023 अधिनियम की धारा 16 एसईसी और चुनाव आयुक्तों को आधिकारिक कार्यों के लिए जीवन भर किसी भी दीवानी या आपराधिक कार्यवाही से बचाती है। क्यों? यह पेश किए गए विधेयक में नहीं था। सरकार ने"
+  ],
+  [
+   851,
+   "दिसंबर 2023 में संशोधन में इसे जोड़ा। क्यों? 141 विपक्षी सांसद निलंबित बैठे थे और जनादेश को दरकिनार करने के लिए दो बार कहने के बाद भी सरकार ने ऐसा नहीं किया। देखिए, अगर आप हरियाणा की बात करें, तो कांग्रेस पार्टी द्वारा 27 लाख एपिक नंबर दिए गए हैं, लेकिन 27,000 वोटों का अंतर था। अगर"
+  ],
+  [
+   871,
+   "हम महाराष्ट्र की बात करें, तो लोकसभा और विधानसभा चुनावों के 6 महीने के भीतर 49 लाख मतदाता हटा दिए गए थे। और लाखों मतदाता जोड़े गए। इसका कोई जवाब नहीं है। निशांत, आप जानते हैं, चोरी एक पत्रकार के रूप में जिसने इन सभी चुनावों को कवर किया है, एक पत्रकार के रूप में जिसने बिहार चुनावों को कवर किया है और मैं इसी राज्य से आता हूँ अह चुनाव को"
+  ],
+  [
+   893,
+   "जिसने बदला वह पूरी तरह अलग था और तथ्य यह है कि इंडिया ब्लॉक या महागठबंधन चुनाव लड़ता हुआ भी नहीं दिख रहा था। यही सच है। और जिसने चुनाव बदला वह 10,000 रुपये थे, नहीं। 10,000 रुपये जो बिहार की महिलाओं को दिए गए थे। वह चुनाव का निर्णायक मोड़ था। तो, यह कहना कि वोट चोरी हुई थी, दो"
+  ],
+  [
+   913,
+   "नहीं, नहीं, नहीं। यह एक चुनाव था जो दो चरणों में हुआ था। एक भी व्यक्ति आपको नहीं मिल सका, नहीं, नहीं, नहीं। मैं इसे कम से कम बिहार के संदर्भ में नहीं लूंगा। आप दूसरे राज्यों के बारे में बात कर सकते हैं, लेकिन बिहार के संदर्भ में नहीं। दो चरण। चुनाव दो चरणों में संपन्न हुआ था। क्या किसी एक चरण में विपक्ष को कोई भी एक ऐसा व्यक्ति मिला"
+  ],
+  [
+   933,
+   "जिसे वोट देने के अधिकार से वंचित किया गया हो? ठीक है, मुझे जवाब देने दें। हाँ। वोट चोरी से कानून चोरी आती है और कानून चोरी से संस्था चोरी आती है। यही बात हम कह रहे हैं। हम जीत और हार की बात नहीं कर रहे हैं । हम वोट चोरी, फिर कानून चोरी और खुद संस्थानों की चोरी की बात कर रहे हैं। दर्ज की गई 14 आपत्तियों में"
+  ],
+  [
+   953,
+   "से हर एक का क्या हुआ? फॉर्म छह में बदलाव का कानूनी आधार क्या है? गोवा में नामों को हटाने के लिए किसने अधिकृत किया? कैबिनेट सचिव के पत्रों में वास्तव में क्या कहा गया है ? आयोग ने आज तक एक का भी जवाब नहीं दिया है। हमारे पास कोई जवाब नहीं है। ठीक है। 97 नामी मतदाता जिन्हें उनके अपने चुनाव पंजीकरण अधिकारी द्वारा मंजूरी दी गई थी, आप जानते हैं, वह कार्यप्रणाली"
+  ],
+  [
+   974,
+   "जवाब? उस आईटी की कार्यप्रणाली एक वैध प्रश्न है। यह एक वैध प्रश्न है कि यह क्या था विपक्ष यहाँ वैध प्रश्न। अह सिद्धार्थ यादव, क्या आप उस सवाल का जवाब देंगे? आप जानते हैं, पूरे डेटाबेस का केंद्रीकृत संचालन आखिर"
+  ],
+  [
+   994,
+   "कैसे हुआ। मारिया, सबसे पहले, मुझे यह बहुत दिलचस्प लगता है कि जब भी कांग्रेस पार्टी से विशिष्ट सवाल पूछे जाते हैं, तो वे या तो काम चा पर कूद पड़ते हैं या संस्था चोरी पर। मुझे नहीं पता क्या। क्या आप बिहार को दोषी ठहराना चाहते हैं? आप 1990 से बिहार की सत्ता से बाहर हैं। कूदने- फांदने की बात करते हैं। 1990 से"
+  ],
+  [
+   1014,
+   "आज तक आप क्या कारण देंगे? 1990 से बिहार की जनता ने आपको नहीं चुना है। 1967 से तमिलनाडु की जनता ने आपको नहीं चुना है। 1990 से बंगाल की जनता ने आपको नहीं चुना है। लेकिन, उसे छोड़िए। आप जानते हैं, यह एक बहुत ही गंभीर बहस है क्योंकि सवाल हमारे लोकतांत्रिक संस्थानों की अखंडता और चुनाव कराने के"
+  ],
+  [
+   1034,
+   "तरीके पर है। अब , मारिया, विशिष्ट सवाल का जवाब देते हुए। अब, जाहिर है, तकनीकी विवरण चुनाव आयोग को ही देने होंगे। लेकिन, उन्होंने इस मुद्दे पर जो कहा है वह यह है कि जो डेटा अब एकत्र किया जा रहा है और डिजिटल रूप से ऐप में संग्रहीत किया जा रहा है, वह डीपीडीपी अधिनियम के अंतर्गत आता है । यदि कांग्रेस पार्टी यह"
+  ],
+  [
+   1054,
+   "सुझाव देना चाहती है कि स्थानीय कार्यालयों से शक्तियाँ ले ली गई हैं। ऐसा नहीं है। ऐसा कभी नहीं हुआ है । मतदाताओं को जोड़ने या हटाने की शक्ति ईआरओ, एसडीएम और स्थानीय बीएलओ के पास है, लेकिन डेटाबेस को केंद्रीय रूप से बनाए रखा जा रहा है क्योंकि डेटा की पवित्रता की रक्षा की जानी है। अब, यदि"
+  ],
+  [
+   1075,
+   "कांग्रेस पार्टी यह सुझाव देती है कि सभी राज्यों, वार्डों, बीएलओ और ईआरओ को अपने स्वयं के ऐप लाने चाहिए जहाँ वे डेटा स्टोर करें, और वह ऐप विशेष रूप से उनके पास होना चाहिए, और आईटी सेटअप को उतना स्थानीय होना चाहिए, तो मुझे नहीं पता कि वे क्या सुझाव दे रहे हैं। दुनिया की किसी भी विकसित अर्थव्यवस्था"
+  ],
+  [
+   1095,
+   "में, चुनावी डेटा को केंद्रीय रूप से सहेजा जाता है। केंद्रीय रूप से सहेजा जाता है। कहीं भी आप नहीं देखेंगे लेकिन ओ.पी. रावत इसका जवाब देने में सक्षम होंगे। ओ पी रावत इस पर प्रतिक्रिया दें। मुझे लगता है कि वह सच बोल रहे हैं। ईआरओ नेट या ईसीआई नेट, यह मूल रूप से चुनावी रोल डेटा की पवित्रता को"
+  ],
+  [
+   1115,
+   "बनाए रखने के लिए है ताकि इसमें छेड़छाड़ न की जा सके, इसे हैक न किया जा सके और यह साइबर हमलों से सुरक्षित रहे। ईआरओ और बीएलओ कानून के तहत अपने कर्तव्यों का पालन करते हैं। जोड़ना और हटाना, वे इसे"
+  ],
+  [
+   1138,
+   "ईसीआई नेट को सौंपते हैं और इसे वहाँ स्वीकार किया जाना चाहिए। हालाँकि, कुछ तकनीकी खराबी थी। कभी-कभी ईसीआई नेट काम नहीं करता या कुछ ऐसा हो जाता है। यह बहुत स्पष्ट नहीं किया गया है कि कितने दिनों या कितने हफ्तों तक वे ईसीआई नेट"
+  ],
+  [
+   1158,
+   "पर डेटा दर्ज नहीं कर सके? वे सभी तथ्य वहां से वास्तव में गायब हैं। जी हाँ, कई अनुत्तरित प्रश्न हैं, रजत सेठी 30 सेकंड। यहाँ अजीब जनता पार्टी है जिसने कहा है कि यदि श्री ज्ञानेश कुमार अगले 48 घंटों में इस्तीफा नहीं देते हैं, तो वे"
+  ],
+  [
+   1178,
+   "राष्ट्रव्यापी आंदोलन शुरू करेंगे। क्या आपको लगता है कि यह कुछ ऐसा होगा जो उनकी स्थिति को बहुत कठिन बना देगा? नहीं, नहीं, मैं फिर से कहता हूँ कि मुझे इसे बहुत अधिक महत्व देने की आवश्यकता नहीं है, यह देखना कि बाहर जाकर आक्रोश जताना एक अलग बात है और आप अंतहीन आक्रोश के"
+  ],
+  [
+   1198,
+   "व्यवसाय में रह सकते हैं। और कुछ करना या किसी चीज़ को ठीक करना एक अलग बात है। तो वे हर पेड़ पर जितना चाहें उतना भौंक सकते हैं और उन्हें वह करने दें जो वे करना चाहते हैं। यदि वे चुनाव आयोग की पवित्रता के बारे में जागरूकता पैदा करना चाहते हैं, तो उन्हें करने दें। अंततः, यह एक संस्था है और इस संस्था की वैधता की रक्षा उन लोगों द्वारा की जानी"
+  ],
+  [
+   1218,
+   "चाहिए जो महत्वपूर्ण कुर्सियों पर बैठे हैं, न कि सड़कों पर रहने वाले लोगों द्वारा। मेरा मतलब है, सड़कों पर लोग नाटक कर सकते हैं। सड़कों पर बहुत कम जवाबदेही होती है। असली जवाबदेही उस कुर्सी पर है और इसलिए कुर्सी को उठकर इन सवालों का जवाब देना होगा। चुनाव आयोग के पास ऐसी बहुत सी चीजें हैं जो... हाँ।"
+  ],
+  [
+   1238,
+   "यदि मुख्य चुनाव आयुक्त और दो चुनाव आयुक्त हर बार चुनाव की तारीखों की घोषणा करते समय प्रेस को संबोधित कर सकते हैं, तो अब समय आ गया है कि वे प्रेस को संबोधित करें और संस्थान के कामकाज के संबंध में उठाए जा रहे सभी सवालों का जवाब दें। सिद्धार्थ यादव, ओपी रावत, डॉ. निशांत आनंद और रजत सेठी, आप सभी का समय देने के लिए बहुत- बहुत धन्यवाद। हमारे साथ जुड़ने और अपने"
+  ],
+  [
+   1258,
+   "विचार साझा करने के लिए धन्यवाद। निश्चित रूप से, यह एक विकसित होती कहानी है। अभी कई अध्याय सामने आने बाकी हैं। मेरे लिए बस इतना ही। देखने के लिए बहुत-बहुत धन्यवाद।"
+  ]
+ ],
+ "footer": "The replays and missed steps come from a simulated better version of the same debate, not the truth. Each side keeps its view; only the arguing improves. Timings are approximate. Numbers quoted on the panel were not checked. Voices are named by their role."
 }
 </script>
+
 <script>
-(() => {
-  const D = JSON.parse(document.getElementById('deliberation').textContent);
-  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const secs = t => t.split(':').map(Number).reduce((a, n) => a * 60 + n, 0);
-  // With a video link, each timestamp opens the video at that moment.
-  const tc = t => {
-    if (!t) return '<span class="tc"></span>';
-    if (!D.video) return `<span class="tc">${esc(t)}</span>`;
-    const u = new URL(D.video); u.searchParams.set('t', secs(t) + 's');
-    return `<a class="tc" href="${esc(u.href)}" target="_blank" rel="noopener">${esc(t)}</a>`;
-  };
-  const TAG = { 'settled': 'holds', 'leans yes': 'challenged', 'leans no': 'fails', 'disputed': 'challenged', 'open': 'open' };
+// Everything on the page comes from the JSON above; Claude replaces only that JSON and the <title>.
+const DATA = JSON.parse(document.getElementById("report").textContent);
+document.body.setAttribute("data-v", "marks");
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clock = s => Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
+const secs = t => String(t || "").split(":").map(Number).reduce((a, b) => a * 60 + b, 0);
+const ts = t => t ? '<span class="ts">' + esc(t) + '</span>' : "";
+const END = { converged: "Agreed", clarified: "Clearer", bounded: "Agreed to differ", stuck: "Stuck", dropped: "Dropped" };
+const badge = e => '<span class="badge ' + esc(e) + '">' + esc(END[e] || e) + '</span>';
+const THREADS = Object.fromEntries((DATA.threads || []).map(t => [t.id, t]));
+const total = DATA.total_seconds;
+const segs = DATA.segments.map(([a, b, type, thread, label]) => ({ a, b, type, thread: thread || "", label: label || "" }));
+const dur = list => list.reduce((n, s) => n + s.b - s.a, 0);
+const pct = n => Math.round(n / total * 100) + "%";
 
-  document.title = D.topic;
-  document.getElementById('topic').textContent = D.topic;
-  document.getElementById('about').textContent = D.about;
-  document.getElementById('source').textContent = D.source || '';
+$("eyebrow").textContent = DATA.eyebrow;
+$("title").textContent = DATA.question;
+$("context").textContent = DATA.context;
+$("progress-caption").textContent = DATA.progress_caption;
 
-  document.getElementById('key').innerHTML = [['holds-wash', 'stands'], ['challenged-wash', 'disputed'], ['open-wash', 'never taken up'], [null, 'fell away']]
-    .map(([c, l]) => `<span><i style="${c ? `background:var(--${c})` : 'border-style:dashed;border-color:var(--soft)'}"></i>${l}</span>`).join('');
+// 1. What got done: reached steps (the good), then missed steps (the bad) with when and how each was lost, and what it leads to.
+const detail = blocks => !blocks || !blocks.length ? "" :
+  '<details class="more"><summary>What was said on the night</summary><div class="src">' + blocks.map(b =>
+    (b.heading ? '<p class="src-h">' + esc(b.heading) + '</p>' : "") +
+    (b.items ? (b.ordered ? '<ol>' : '<ul>') + b.items.map(i => typeof i === "string" ? '<li>' + esc(i) + '</li>' :
+      '<li' + (i.t ? "" : ' class="neg"') + '>' + ts(i.t) + esc(i.text) + '</li>').join("") + (b.ordered ? '</ol>' : '</ul>') : "") +
+    (b.note ? '<p class="note">' + esc(b.note) + '</p>' : "")).join("") + '</div></details>';
+const step = s => {
+  const ok = s.status === "reached", n = s.chain.length;
+  const cls = i => ok ? "g" + Math.min(i + 1, 2) : "r" + (n === 1 ? 3 : n === 2 ? i * 2 + 1 : Math.min(i + 1, 3));
+  const lost = !ok && s.lost ? '<p class="lost">' + (s.lost.t ? "Lost at " + ts(s.lost.t) + " · " : "") + esc(s.lost.label) + '</p>' : "";
+  return '<div class="step ' + (ok ? "ok" : "miss") + '"><span class="ic">' + (ok ? "✓" : "✕") + '</span><span>' + esc(s.text) + '</span><span class="st">' + (ok ? "Reached" : "Missed") + '</span>' + lost +
+    '<div class="why"><p class="because">' + esc(s.because) + '</p>' + s.chain.map((c, i) => '<p class="so ' + cls(i) + '">' + esc(c) + '</p>').join("") + '</div>' +
+    detail(s.detail) + '</div>';
+};
+const reached = DATA.progress.filter(s => s.status === "reached"), missed = DATA.progress.filter(s => s.status === "missed");
+$("steps").outerHTML = '<div class="steps">' +
+  (reached.length ? '<p class="sub">Progress made</p>' + reached.map(step).join("") : "") +
+  (missed.length ? '<p class="sub bad">Within reach, but missed</p><div class="misses">' + missed.map(step).join("") +
+    (DATA.outcome ? '<div class="merge"><span class="ar">↓ ' + (missed.length === 1 ? "this miss leads here" : missed.length === 2 ? "both misses lead here" : "these misses lead here") + ' ↓</span><div class="outcome">' + esc(DATA.outcome) + '</div></div>' : "") + '</div>' : "") +
+  '</div>' + (DATA.outcome_note ? '<p class="cap">' + esc(DATA.outcome_note) + '</p>' : "");
 
-  const point = p => `<li class="pt ${esc(p.end)}"><span class="say">${esc(p.say)}</span><ul class="trail">${
-    p.steps.map(s => `<li>${tc(s.t)}<span>${esc(s.did)}</span></li>`).join('')
-  }<li>${tc('')}<span class="end">${esc(p.outcome)}</span></li></ul></li>`;
-  const side = (o, k, h) => `<div class="side ${k}"><h3>${h}</h3>${
-    (o[k] || []).length ? `<ul class="pts">${o[k].map(point).join('')}</ul>` : '<p class="none">Nothing was raised.</p>'}</div>`;
-  document.getElementById('ropes').innerHTML = D.options.map(o =>
-    `<div class="rope"><div class="rope-title">${esc(o.title)}</div><div class="sides">${side(o, 'for', 'For')}${side(o, 'against', 'Against')}</div>${
-      o.lean ? `<p class="lean">${esc(o.lean)}</p>` : ''}</div>`).join('');
+// 2. Where the time went: three bars, the minute-by-minute ribbon, and the share of each distraction label.
+["fwd", "talk", "side"].forEach(t => { const p = pct(dur(segs.filter(s => s.type === t))); $("p-" + t).textContent = p; $("b-" + t).style.width = p; });
+const idle = pct(dur(segs.filter(s => s.type === "idle")));
+$("rest").textContent = idle === "0%" ? "" : "The other " + idle + " was the intro and breaks.";
+segs.forEach(s => { const el = document.createElement("span"); el.className = "seg " + s.type; el.style.flex = String(s.b - s.a); $("ribbon").appendChild(el); });
+$("axis").innerHTML = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
 
-  document.getElementById('story').innerHTML = D.moments.map(m =>
-    `<li class="${esc(m.kind || '')}"><b>${esc(m.title)} ${tc(m.t)}</b><p>${esc(m.text)}</p>${m.shift ? `<span class="shift">${esc(m.shift)}</span>` : ''}</li>`).join('');
+// Unanswered bids: progress stopped by silence. Lead with the ones that could have led somewhere.
+const UNANS = (DATA.unanswered || []).slice().sort((x, y) => secs(x.t) - secs(y.t));
+const MOD = DATA.moderator || "Host";
+const ownerOf = u => u.to || MOD;
+const mattered = UNANS.filter(u => u.matters).length;
+if (UNANS.length) {
+  $("unans-line").innerHTML = '<b>' + UNANS.length + (UNANS.length === 1 ? " point" : " points") + ' got no reply at all.</b> ' +
+    (mattered ? mattered + (mattered === 1 ? " of them" : " of them") + " could have led somewhere." : "");
+  $("unans").innerHTML = UNANS.map(u =>
+    '<div class="tr ua">' + ts(u.t) + '<div><p><b>' + esc(u.by) + '</b> → ' + esc(u.to || "the whole panel") + '</p><p class="what">' + esc(u.bid) + '</p>' +
+    '<p class="what">' + (u.matters ? '<span class="sig">Could have led somewhere.</span> ' : "") + esc(u.cost ? u.cost.replace(/\.?$/, ".") : "") +
+    (u.to ? "" : " Nobody was asked to reply; the " + esc(MOD.toLowerCase()) + " moved on.") + '</p></div></div>').join("");
+} else { $("unans-line").hidden = true; $("unans-more").hidden = true; }
 
-  document.getElementById('qs').innerHTML = D.questions.map(q =>
-    `<li><span class="q">${esc(q.q)}</span><span class="tag ${TAG[q.answer] || 'open'}">${esc(q.answer)}</span><span class="a">${esc(q.a)}</span></li>`).join('');
+// Answers that left a gap: they engaged, so they look like progress, but a named part of the question stayed open.
+const GAPS = (DATA.gaps || []).slice().sort((x, y) => secs(x.t) - secs(y.t));
+if (GAPS.length) {
+  const m = GAPS.filter(g => g.matters).length;
+  $("gaps-line").innerHTML = '<b>' + GAPS.length + (GAPS.length === 1 ? " answer" : " answers") + ' left a gap.</b> ' +
+    (m ? m + " of them could have been closed with one follow-up." : "");
+  $("gaps").innerHTML = GAPS.map(g =>
+    '<div class="tr ua">' + ts(g.t) + '<div><p><b>' + esc(g.label) + '</b> · ' + esc(g.to) + '</p>' +
+    '<p class="what">' + esc(g.by) + ' asked: ' + esc(g.bid) + '</p><p class="what">Answer: ' + esc(g.answer) + '</p>' +
+    '<p class="what"><span class="sig">Gap:</span> ' + esc(g.gap) + '</p>' +
+    (g.follow_up ? '<p class="what">Follow-up that would close it: "' + esc(g.follow_up) + '"</p>' : "") +
+    (g.cost ? '<p class="what">' + esc(g.cost.replace(/\.?$/, ".")) + '</p>' : "") + '</div></div>').join("");
+} else { $("gaps-line").hidden = true; $("gaps-more").hidden = true; }
 
-  document.querySelector('.toggle').addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    document.querySelectorAll('.toggle button').forEach(x => x.setAttribute('aria-pressed', x === b));
-    document.getElementById('points-view').hidden = b.dataset.view !== 'points';
-    document.getElementById('timeline-view').hidden = b.dataset.view !== 'timeline';
+const kindOf = {};
+(DATA.distractions || []).forEach(d => { kindOf[d.label] = kindOf[d.label] || d.kind; });
+const byLabel = {};
+segs.filter(s => s.type === "side").forEach(s => { byLabel[s.label] = (byLabel[s.label] || 0) + s.b - s.a; });
+const maxLabel = Math.max(1, ...Object.values(byLabel));
+$("dshares").innerHTML = Object.entries(byLabel).sort((x, y) => y[1] - x[1]).map(([label, n]) =>
+  '<div class="ds"><span><b>' + esc(label) + '</b>' + (kindOf[label] ? ' <span class="kind">· ' + (kindOf[label] === "dodge" ? "a reply that dodged" : "unprompted") + '</span>' : "") + '</span>' +
+  '<span class="bar"><i style="width:' + (n / maxLabel * 100) + '%"></i></span><span class="pc">' + pct(n) + '</span></div>').join("");
+$("dist").innerHTML = (DATA.distractions || []).slice().sort((x, y) => secs(x.t) - secs(y.t)).map(d =>
+  '<div class="tr">' + ts(d.t) + '<div><p><b>' + esc(d.label) + '</b> · ' + esc(d.who) + '</p><p class="what">' + esc(d.what) + '</p>' +
+  '<p class="what">' + (d.victim ? "Left unanswered: " + esc(d.victim) : "Pulled off course: " + esc((THREADS[d.thread] || {}).title || "the conversation")) + '</p></div>' + ts(d.length) + '</div>').join("");
+$("leak-h").textContent = DATA.insight.title;
+$("leak").textContent = DATA.insight.text;
+
+// 3. Thread by thread: one lane per thread across the run time, its distractions laid over it in red; tap for the flow and a replay.
+const MARK = { fwd: "g", talk: "t", gap: "h", side: "a" };
+$("lanes").innerHTML = DATA.threads.map(th => {
+  const track = segs.filter(s => s.thread === th.id && s.type !== "idle").map(s =>
+    '<i class="' + s.type + '" style="left:' + (s.a / total * 100) + '%;width:' + ((s.b - s.a) / total * 100) + '%"></i>').join("");
+  const flow = (th.flow || []).map(f => f.t ?
+    '<div class="mvi ' + (MARK[f.mark] || "t") + '">' + ts(f.t) + '<p>' + esc(f.text) + '</p></div>' :
+    '<div class="mvi n"><p>' + esc(f.text) + '</p></div>').join("");
+  const r = th.replay;
+  const replay = r && r.lines && r.lines.length ? '<div class="replay"><p class="rh">One fair way it could have gone' + (r.from ? ", from " + esc(r.from) : "") + ' (simulated)</p>' +
+    r.lines.map(l => '<div class="line"><b>' + esc(l.who) + '</b><p>' + esc(l.says) + '</p></div>').join("") +
+    '<div class="line end"><b>Ends</b><p>' + badge(r.ends) + (r.note ? " " + esc(r.note) : "") + '</p></div></div>' : "";
+  return '<details class="lane"><summary><span class="ln">' + esc(th.title) + '</span>' + badge(th.end) +
+    '<span class="track">' + track + '</span><span class="sum">' + esc(th.summary) + '</span></summary>' +
+    '<div class="lane-body">' + (th.pulled ? '<p class="pulled">' + esc(th.pulled) + '</p>' : "") +
+    '<div class="mvlist">' + flow + '</div>' + replay + '</div></details>';
+}).join("");
+$("lanes-axis").innerHTML = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+
+// 4. Voices: green dots for good moves; red dots for this voice's distractions (from the ledger) and omissions.
+$("cards").innerHTML = DATA.voices.map(v => {
+  const back = (DATA.distractions || []).filter(d => d.who === v.name)
+    .map(d => ({ t: d.t, what: d.label + ": " + d.what, better: d.better, cost: d.cost }))
+    .concat(v.missed || []).sort((x, y) => secs(x.t) - secs(y.t));
+  const quiet = UNANS.filter(u => ownerOf(u) === v.name);
+  const thin = GAPS.filter(g => g.to === v.name);
+  return '<details class="vc"><summary class="voice"><span class="n">' + esc(v.name) + '</span><div class="moves">' +
+    '<span class="mv g"></span>'.repeat(v.forward.length) + '<span class="mv t"></span>'.repeat(quiet.length) + '<span class="mv h"></span>'.repeat(thin.length) + '<span class="mv a"></span>'.repeat(back.length) +
+    '</div><span class="note">' + esc(v.note) + '</span></summary><div class="mvlist">' +
+    v.forward.map(m => '<div class="mvi g">' + ts(m.t) + '<p>' + esc(m.what) + '</p></div>').join("") +
+    quiet.map(u => '<div class="mvi t">' + ts(u.t) + '<div><p>Left unanswered: ' + esc(u.by) + (u.to ? "" : " (to the whole panel)") + ': ' + esc(u.bid) + '</p>' +
+      (u.cost ? '<p class="cost"><b>Cost:</b> ' + esc(u.cost) + '</p>' : "") + '</div></div>').join("") +
+    thin.map(g => '<div class="mvi h">' + ts(g.t) + '<div><p>' + esc(g.label) + ': ' + esc(g.gap) + '</p>' +
+      (g.follow_up ? '<p class="better"><b>Follow-up that would close it:</b> ' + esc(g.follow_up) + '</p>' : "") +
+      (g.cost ? '<p class="cost"><b>Cost:</b> ' + esc(g.cost) + '</p>' : "") + '</div></div>').join("") +
+    back.map(m => '<div class="mvi a">' + ts(m.t) + '<div><p>' + esc(m.what) + '</p><p class="better"><b>Better move:</b> ' + esc(m.better) + '</p><p class="cost"><b>Cost:</b> ' + esc(m.cost) + '</p></div></div>').join("") +
+    '</div></details>';
+}).join("");
+
+if (DATA.ask) {
+  $("ask-d").innerHTML = DATA.ask.distraction.map(q => '<li>' + esc(q) + '</li>').join("");
+  $("ask-n").setAttribute("start", DATA.ask.distraction.length + 1);
+  $("ask-n").innerHTML = DATA.ask.nowhere.map(q => '<li>' + esc(q) + '</li>').join("");
+} else $("ask").hidden = true;
+$("footer").textContent = DATA.footer;
+
+const SOURCE = { youtube: DATA.youtube || "", transcript: DATA.transcript || [] };
+// Sources: with a YouTube link, every timestamp opens the video at that second;
+// otherwise the raw transcript is hosted here and every timestamp opens it at that line.
+(function () {
+  const yt = (SOURCE.youtube || "").trim(), tx = SOURCE.transcript || [];
+  const re = /^\d{1,2}:\d{2}(:\d{2})?$/;
+  if (!yt && tx.length) {
+    document.getElementById("trs").hidden = false;
+    document.getElementById("tx").innerHTML = tx.map(([s, text]) =>
+      '<p data-s="' + s + '"><span class="ts">' + clock(s) + '</span><span>' + esc(text) + '</span></p>').join("");
+  }
+  if (!yt && !tx.length) return;
+  document.querySelectorAll("span.ts").forEach(el => {
+    const t = el.textContent.trim();
+    if (!re.test(t) || el.closest(".tx, .axis, .lanes-axis")) return;
+    const s = secs(t), a = document.createElement("a");
+    a.className = "ts"; a.textContent = t;
+    // keep a tap on a timestamp inside a thread's summary from toggling the thread
+    a.addEventListener("click", e => e.stopPropagation());
+    if (yt) {
+      a.href = yt + (yt.includes("?") ? "&" : "?") + "t=" + s + "s";
+      a.target = "_blank"; a.rel = "noopener"; a.title = "Watch from " + t;
+    } else {
+      a.href = "#transcript"; a.title = "Read from " + t;
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const box = document.getElementById("transcript"); box.open = true;
+        const lines = [...document.querySelectorAll(".tx p")];
+        const hit = lines.filter(p => +p.dataset.s <= s).pop() || lines[0];
+        lines.forEach(p => p.classList.remove("hit")); hit.classList.add("hit");
+        box.scrollIntoView({ behavior: "smooth", block: "start" });
+        hit.parentNode.scrollTop = hit.offsetTop - hit.parentNode.offsetTop - 8;
+      });
+    }
+    el.replaceWith(a);
   });
 })();
 </script>

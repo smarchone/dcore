@@ -1,0 +1,1726 @@
+<title>Civic Sense Citizen Report</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Compact variant: one line per idea, numbers first, everything else one tap away. */
+:root {
+  --bg: #f5efe4; --surface: #fffaf2; --fg: #2b241d; --muted: #75695b; --line: #e7dccb;
+  --link: #4a5a86; --good: #3d8c5c; --good-soft: #eef2e6; --bad: #b4483a; --bad-soft: #f7e9e1;
+  --quiet: #d6a13a; --quiet-soft: #f7ecdc; --idle: #b9ae9f; --track: #ece2d3;
+  --f-head: "Bricolage Grotesque", system-ui, sans-serif;
+  --f-body: "Source Sans 3", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121418; --surface: #1a1d23; --fg: #e6e8ec; --muted: #9aa2b1; --line: #2c313a;
+  --link: #a3b4dc; --good: #2f9a72; --good-soft: #1c2621; --bad: #da5a6c; --bad-soft: #2c2221;
+  --quiet: #b08d26; --quiet-soft: #2c261c; --idle: #4b515b; --track: #252a32; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121418; --surface: #1a1d23; --fg: #e6e8ec; --muted: #9aa2b1; --line: #2c313a;
+  --link: #a3b4dc; --good: #2f9a72; --good-soft: #1c2621; --bad: #da5a6c; --bad-soft: #2c2221;
+  --quiet: #b08d26; --quiet-soft: #2c261c; --idle: #4b515b; --track: #252a32; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 var(--f-body); }
+.wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 24px; }
+h1, h2 { font-family: var(--f-head); margin: 0; text-wrap: balance; }
+h1 { font-size: 1.45rem; line-height: 1.15; }
+h2 { font-size: 1.35rem; line-height: 1.2; letter-spacing: -.01em; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+h2 small { font: 600 .8rem var(--f-body); color: var(--muted); }
+p { margin: 0; }
+section { display: grid; gap: 16px; min-width: 0; }
+header { display: grid; gap: 8px; position: relative; }
+.top { position: absolute; top: 0; right: 0; }
+header h1 { padding-right: 84px; }
+.theme { flex: none; min-height: 32px; font: 600 .75rem var(--f-body); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.theme:hover { color: var(--fg); }
+.theme:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.ctx { color: var(--muted); font-size: .92rem; }
+.ts { font: 500 .78rem var(--f-mono); color: var(--muted); white-space: nowrap; }
+/* padding widens the tap area to about 32px; the negative margin keeps the layout unchanged */
+a.ts { color: var(--link); text-decoration: underline dotted; text-underline-offset: 3px; padding: 9px 4px; margin: -9px -4px; border-radius: 4px; }
+.muted { color: var(--muted); }
+
+/* In short: two lines a reader can repeat */
+.summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 12px; }
+.summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
+.summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--good); margin-right: 2px; }
+.summary > p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
+.summary .pies { margin-top: 4px; }
+.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: .92rem; line-height: 1.45; }
+.reach b:first-of-type { color: var(--bad); }
+.summary > p.hook-sub { font-size: .88rem; color: var(--muted); margin-top: -10px; }
+.summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
+@media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
+
+section[id] { scroll-margin-top: 16px; }
+/* a thin rule between sections, like the one under the summary */
+section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
+/* Section tabs: one section at a time under the header; sticks to the top while reading */
+.sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); }
+.sectabs::-webkit-scrollbar { display: none; }
+.sectabs button { flex: none; font: 600 1rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
+.sectabs button:hover { color: var(--fg); }
+.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font-weight: 700; }
+.sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
+#ask { padding-top: 16px; gap: 4px; }
+#trs { border-top: 0; padding-top: 0; margin-top: -24px; }
+.summary.pane { border-bottom: 0; padding-bottom: 0; }
+
+/* Rows: one line each, tap to open */
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: clip; }
+details.row { border-top: 1px solid var(--line); }
+details.row:first-child { border-top: 0; }
+details.row > summary { list-style: none; cursor: pointer; padding: 14px 14px; display: grid; grid-template-columns: 18px minmax(0, 1fr) 12px; gap: 5px 10px; align-items: start; line-height: 1.35; }
+/* an open row keeps its title in view under the tabs while its detail is read */
+details.row[open] > summary { position: sticky; top: var(--tabs-h, 44px); z-index: 2; background: var(--surface); border-bottom: 1px dashed var(--line); }
+details.row > summary::-webkit-details-marker { display: none; }
+details.row > summary::after { content: "▸"; color: var(--muted); font-size: .9rem; line-height: 1.2; grid-column: 3; grid-row: 1; transition: transform .15s; }
+details.row > summary:hover::after { color: var(--fg); }
+details.row[open] > summary::after { transform: rotate(90deg); }
+details.row > summary:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+/* outcome rows: a faint green or red wash and edge instead of a tick or cross */
+details.step > summary { grid-template-columns: minmax(0, 1fr) 12px; }
+details.step .tx-main, details.step .tx-sub { grid-column: 1; }
+details.step > summary::after { grid-column: 2; }
+details.step .body { padding-left: 14px; }
+details.step.ok { --row: color-mix(in srgb, var(--good) 13%, var(--surface)); --edge: var(--good); }
+details.step.miss { --row: color-mix(in srgb, var(--bad) 12%, var(--surface)); --edge: var(--bad); }
+details.step, details.step[open] > summary { background: var(--row); box-shadow: inset 3px 0 var(--edge); }
+.tx-main { font-weight: 600; grid-column: 2; grid-row: 1; }
+details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
+.tx-sub { grid-column: 2; font-size: .86rem; line-height: 1.4; color: var(--muted); }
+.tx-sub .why { color: var(--fg); }
+.body { padding: 12px 14px 16px 42px; display: grid; gap: 10px; font-size: .9rem; line-height: 1.45; }
+.body h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.chain { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.chain li { padding-left: 14px; position: relative; }
+.chain li::before { content: ""; position: absolute; left: 0; top: .5em; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
+.chain li:last-child { font-weight: 600; }
+.chain.r li::before { background: var(--bad); opacity: 1; } .chain.g li::before { background: var(--good); opacity: 1; }
+.mo { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.mo.neg { grid-template-columns: 1fr; padding-left: 50px; color: var(--muted); font-style: italic; }
+.mo.dot::before { content: none; }
+ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
+.outcome { border-left: 3px solid var(--bad); margin-top: 8px; padding: 8px 0 8px 14px; font-weight: 600; font-size: .95rem; line-height: 1.4; display: grid; gap: 6px; }
+.outcome .lbl { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.outcome .note { font-weight: 400; color: var(--muted); font-size: .8rem; }
+
+/* Time */
+.stack { display: flex; height: 16px; border-radius: 5px; overflow: hidden; }
+.stack i, .ribbon i { display: block; height: 100%; }
+.fwd { background: var(--good); } .talk { background: var(--quiet); } .side { background: var(--bad); } .idle { background: var(--idle); }
+.shares { display: grid; gap: 3px; }
+.sh { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: .92rem; }
+.sh i { width: 8px; height: 8px; border-radius: 50%; }
+.sh b { font-weight: 600; }
+.key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; }
+.key span { display: inline-flex; align-items: center; gap: 5px; }
+.key i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.key b { font-weight: 700; }
+.ribbon { display: flex; height: 12px; gap: 1px; border-radius: 3px; overflow: hidden; }
+.axis { display: flex; justify-content: space-between; }
+.bars { display: grid; gap: 4px; }
+.bl { display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-size: .86rem; }
+.bl .bar { height: 6px; background: var(--track); border-radius: 3px; overflow: hidden; }
+.bl .bar i { display: block; height: 100%; background: var(--bad); }
+.bl .pc { text-align: right; font-weight: 600; font-size: .86rem; }
+.bl .k { color: var(--muted); font-size: .76rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
+.card-h { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.insight { border-left: 3px solid var(--line); padding: 4px 0 4px 12px; font-size: .92rem; line-height: 1.5; }
+#s-dist { gap: 14px; }
+#s-dist > p { line-height: 1.5; }
+.insight b { display: block; margin-bottom: 4px; }
+details.more > summary { list-style: none; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--link); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: "▸"; transition: transform .15s; }
+details.more[open] > summary::before { transform: rotate(90deg); }
+details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem; }
+.ent { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 6px; align-items: baseline; padding-top: 6px; border-top: 1px dashed var(--line); }
+.ent:first-child { border-top: 0; padding-top: 0; }
+.ent b { font-weight: 600; }
+
+/* Two donuts side by side: how the time was used, and what the distractions were */
+.pies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pie { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.pie figcaption { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pie svg { width: 112px; height: 112px; justify-self: center; display: block; }
+.pie svg circle.seg { fill: none; stroke-width: 16; }
+.pie svg circle.seg:hover { stroke-width: 19; }
+.pie svg .big { font: 700 17px var(--f-head); fill: var(--fg); }
+.pie svg .small { font: 600 9.5px var(--f-body); fill: var(--muted); }
+.lg { display: grid; gap: 3px; font-size: .8rem; line-height: 1.25; }
+.lg p { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
+.lg i { width: 9px; height: 9px; border-radius: 2px; display: block; align-self: center; }
+.lg b { font-weight: 600; }
+.moments { display: grid; gap: 6px; font-size: .86rem; }
+.moments h4, details.more h4 { margin: 6px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+/* stacked on narrow screens: donut beside its legend, so labels keep one line */
+@media (max-width: 520px) {
+  .pies { grid-template-columns: 1fr; }
+  .pie { grid-template-columns: 96px minmax(0, 1fr); align-items: center; column-gap: 14px; }
+  .pie figcaption { grid-column: 1 / -1; }
+  .pie svg { width: 96px; height: 96px; }
+}
+.tabs { display: flex; gap: 4px; margin-top: 8px; border-bottom: 1px solid var(--line); }
+.tabs button { font: 600 .82rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px; margin-bottom: -1px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+.tabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+[role="tabpanel"] { display: grid; gap: 6px; padding-top: 4px; min-height: 260px; align-content: start; }
+[role="tabpanel"][hidden], .tabs button[hidden] { display: none; }
+.showmore.off { visibility: hidden; }
+[role="tabpanel"].clip { max-height: 260px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent); mask-image: linear-gradient(to bottom, #000 75%, transparent); }
+.showmore { justify-self: start; font: 600 .8rem var(--f-body); color: var(--link); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+.showmore:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* Threads */
+.badge { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; white-space: nowrap; justify-self: start; }
+.badge { color: var(--muted); padding: 1px 0; }
+.badge::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.badge.converged::before { background: var(--good); }
+.badge.clarified::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--good); }
+.badge.bounded::before { background: var(--link); }
+.badge.stuck::before { background: var(--quiet); }
+.badge.dropped::before { background: var(--bad); }
+/* the endings that need attention carry their colour in the text too, not only the dot */
+.badge.dropped { color: var(--bad); }
+.badge.stuck { color: color-mix(in srgb, var(--quiet) 55%, var(--fg)); }
+details.thr > summary { grid-template-columns: minmax(0, 1fr) auto 12px; }
+details.thr .tx-main { grid-column: 1; }
+details.thr .badge { grid-column: 2; grid-row: 1; margin-top: 2px; }
+details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 4px; margin: 8px 0 2px; opacity: .5; }
+.lane-key { color: var(--muted); }
+.track { position: relative; height: 6px; background: var(--track); border-radius: 3px; }
+.track i { position: absolute; top: 0; bottom: 0; }
+details.thr .body { padding-left: 14px; }
+.pulled { color: var(--fg); }
+.fl { display: grid; grid-template-columns: 8px 44px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.fl::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--quiet); }
+.fl.fwd::before { background: var(--good); } .fl.side::before { background: var(--bad); }
+.fl.fwd, .fl.talk, .fl.gap, .fl.side { background: none; }
+.fl.neg { grid-template-columns: 1fr; padding-left: 64px; color: var(--muted); font-style: italic; }
+.fl.neg::before { display: none; }
+.replay { background: var(--bg); border-radius: 8px; padding: 8px 10px; display: grid; gap: 4px; }
+.replay p { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; }
+.replay p b { font-weight: 600; color: var(--muted); font-size: .8rem; }
+
+/* Voices */
+details.vo > summary { grid-template-columns: 92px auto minmax(0, 1fr) 12px; align-items: center; }
+details.vo .n { font-weight: 600; font-size: .88rem; }
+.dots { display: flex; gap: 3px; }
+.dots i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.dots .g { background: var(--good); } .dots .o { background: var(--quiet); } .dots .r { background: var(--bad); }
+.dots .h { background: transparent; box-shadow: inset 0 0 0 2px var(--quiet); }
+details.vo .note { font-size: .82rem; color: var(--muted); min-width: 0; }
+details.vo summary::after { grid-column: 4; }
+details.vo .body { padding-left: 14px; max-height: 340px; overflow-y: auto; overscroll-behavior: contain; }
+.mv { display: grid; grid-template-columns: 8px 44px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.mv::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+.mv.g::before { background: var(--good); } .mv.o::before { background: var(--quiet); } .mv.r::before { background: var(--bad); }
+.mv.h::before, .fl.gap::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--quiet); }
+.mv .better, .mv .cost { color: var(--muted); }
+.mv .better b, .mv .cost b { color: var(--fg); font-weight: 600; }
+
+.ask ol { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.ask h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.txs { max-height: 55vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.txs p { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 6px; padding: 2px; }
+.txs p.hit { background: var(--quiet-soft); }
+footer { font-size: .78rem; color: var(--muted); }
+
+@media (max-width: 480px) {
+  details.vo > summary { grid-template-columns: minmax(0, 1fr) auto 12px; }
+  details.vo .note { grid-column: 1 / 3; grid-row: 2; }
+  details.vo summary::after { grid-column: 3; }
+  .body { padding-left: 12px; }
+  .replay p { grid-template-columns: 1fr; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) { details > summary::after, details > summary::before { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
+    <h1 id="title"></h1>
+    <p class="ctx" id="context"></p>
+  </header>
+
+  <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
+
+  <div class="summary" id="summary"></div>
+
+
+
+  <section id="s-done">
+    <p class="reach" id="reach"></p>
+    <div class="list" id="steps"></div>
+    <div class="outcome" id="outcome"></div>
+  </section>
+
+  <section id="s-threads">
+    <p class="key lane-key" id="lane-key"></p>
+    <div class="list" id="threads"></div>
+  </section>
+
+  <section id="s-dist">
+    <p class="muted">What pulled the debate off course.</p>
+    <p class="insight" id="insight"></p>
+    <p id="unans-line"></p>
+    <p id="gaps-line"></p>
+    <div class="moments">
+      <h4>Minute by minute</h4><div class="ribbon" id="ribbon"></div><div class="axis" id="axis"></div>
+      <div class="tabs" role="tablist" aria-label="Moments">
+        <button type="button" role="tab" id="tab-dist" aria-controls="dist" aria-selected="true"></button>
+        <button type="button" role="tab" id="tab-unans" aria-controls="unans" aria-selected="false" tabindex="-1"></button>
+        <button type="button" role="tab" id="tab-gaps" aria-controls="gaps" aria-selected="false" tabindex="-1"></button>
+      </div>
+      <div id="dist" role="tabpanel" aria-labelledby="tab-dist"></div>
+      <div id="unans" role="tabpanel" aria-labelledby="tab-unans" hidden></div>
+      <div id="gaps" role="tabpanel" aria-labelledby="tab-gaps" hidden></div>
+      <button type="button" class="showmore off" id="showmore"></button>
+    </div>
+  </section>
+
+  <section id="s-acc">
+    <p class="muted">Who moved the debate forward, and who held it back.</p>
+    <div class="list" id="voices"></div>
+  </section>
+
+  <section class="ask" id="ask">
+    <details class="more"><summary>What to ask next time you watch a debate</summary><div>
+      <h4>To spot a distraction</h4><ol id="ask-d"></ol>
+      <h4>To spot talk that went nowhere</h4><ol id="ask-n"></ol></div></details>
+  </section>
+
+  <section id="trs" hidden>
+    <details class="more" id="transcript"><summary>Full transcript, as broadcast</summary><div class="txs" id="tx"></div></details>
+  </section>
+
+  <footer><p id="footer"></p></footer>
+</div>
+
+<script id="report" type="application/json">
+{
+ "eyebrow": "Studio debate · 49 minutes · quick read · tap ▸ for detail",
+ "question": "Are Indian cities broken because Indians lack civic sense?",
+ "context": "A WTF Discourse studio debate on that motion. A journalist argued for it, an urban researcher against. The studio poll was 27% for at the start and 29% at the end.",
+ "progress_caption": "Seven steps were within reach. The speakers took four.",
+ "progress": [
+  {
+   "status": "reached",
+   "thread": "define",
+   "text": "Both sides agreed: civic sense is learned, not inborn",
+   "because": "What this leads to",
+   "chain": [
+    "The question can move from 'are Indians like this?' to 'what teaches the habit?'",
+    "So schools, rules and design all become things to test"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "12:16",
+       "text": "For the motion defined civic sense: social awareness, ethics and responsibility towards shared spaces."
+      },
+      {
+       "t": "13:24",
+       "text": "Against the motion: \"the way you define it ... I agree with you.\""
+      },
+      {
+       "t": "20:15",
+       "text": "Against the motion: civic sense \"doesn't come because you're born with it. It comes because you're socialized into it.\""
+      },
+      {
+       "t": "21:08",
+       "text": "For the motion: \"you said that people are not born with civic sense, they are socialized into it\", so society is not socializing people."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "reached",
+   "thread": "cause",
+   "text": "Both sides agreed: caste is an institution that must be reformed",
+   "because": "What this leads to",
+   "chain": [
+    "Both sides named the same root of who cleans and who litters",
+    "So the debate had one shared place to start"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "17:16",
+       "text": "Against the motion: caste is \"an institution that is not personal behavior\"."
+      },
+      {
+       "t": "18:30",
+       "text": "For the motion: privileged people litter because \"someone else will clean it up\", usually \"from a lower caste\"."
+      },
+      {
+       "t": "18:41",
+       "text": "For the motion: \"I completely agree with you when you say that caste is an institution [that] needs to be reformed.\""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "reached",
+   "thread": "cause",
+   "text": "The pressure tests showed the real split: fix people first, or fix design first",
+   "because": "What this leads to",
+   "chain": [
+    "The disagreement shrank to one choice viewers can weigh for themselves"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "35:10",
+       "text": "For the motion chose \"best citizens, same city\": better citizens bring \"a better sense of community\"."
+      },
+      {
+       "t": "37:48",
+       "text": "Against the motion refused both options: admit the footpaths were designed without vendors, redesign with them, follow the Street Vendors Act."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "reached",
+   "thread": "duty",
+   "text": "Both sides agreed: citizens must demand accountability, not do the government's job",
+   "because": "What this leads to",
+   "chain": [
+    "\"Organize, educate, agitate\" became a shared ask from both sides",
+    "So viewers have one thing both speakers said they should do"
+   ],
+   "detail": [
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "42:20",
+       "text": "Audience member: why should citizens do the job they gave the government?"
+      },
+      {
+       "t": "42:55",
+       "text": "For the motion: \"I'm not saying do the government's job for them ... Demand accountability.\""
+      },
+      {
+       "t": "43:16",
+       "text": "Host: \"demand accountability but we shouldn't have to do the damn job.\" For the motion: \"I do agree.\""
+      },
+      {
+       "t": "45:05",
+       "text": "Against the motion: \"I agree with him that people have to educate, agitate, organize.\""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "enforcement",
+   "text": "Notice both sides made the same point: a cheap penalty gets the rule broken",
+   "lost": {
+    "t": "24:02",
+    "label": "Nobody took it up"
+   },
+   "because": "Because nobody put the bribe and the fine side by side",
+   "chain": [
+    "The one cause both sides described never got named as shared",
+    "So 'people or system?' stayed a contest",
+    "So the debate ended without the one fix both could back"
+   ],
+   "detail": [
+    {
+     "heading": "The two halves already on the table",
+     "ordered": true,
+     "items": [
+      "People break traffic rules because a bribe costs less (22:50, For the motion)",
+      "A contractor pays a 7 lakh fine rather than spend 50 lakh doing it right (23:20, Against the motion)"
+     ]
+    },
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "22:46",
+       "text": "Host: \"We are lacking enforcement, then.\""
+      },
+      {
+       "t": "22:48",
+       "text": "For the motion: \"we are over-enforced\"; people break rules \"because they know they can get away by bribing an officer\"."
+      },
+      {
+       "t": "23:16",
+       "text": "Against the motion: BMC fined the contractor 7 lakh after the tree fell on a school bus; \"I'll just pay the fine.\""
+      },
+      {
+       "t": "24:02",
+       "text": "Host moved to a question about Indore."
+      },
+      {
+       "text": "Nobody said the bribe and the 7 lakh fine are the same mechanism."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "broken",
+   "text": "Compare a place where people behave with one where they don't",
+   "lost": {
+    "t": "41:04",
+    "label": "Nobody took it up"
+   },
+   "because": "Because the examples were never put side by side",
+   "chain": [
+    "The test that could settle the motion was never run",
+    "So each side left with its own examples",
+    "So the poll barely moved: 27% for at the start, 29% at the end"
+   ],
+   "detail": [
+    {
+     "heading": "Examples already on the table",
+     "ordered": true,
+     "items": [
+      "Tejas train: screens broken and headphones stolen on day one (15:27, For the motion)",
+      "A clean metro and railway stations where \"people behave themselves\" (20:38, Against the motion)",
+      "Indians who cross anywhere at home wait at the signal in Singapore (25:32, Host)",
+      "Local trains that \"work even in the rains\" (40:54, Against the motion)"
+     ]
+    },
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "41:04",
+       "text": "Against the motion: \"we should also understand what works and why it works.\""
+      },
+      {
+       "t": "41:35",
+       "text": "An audience member took the floor; neither speaker returned to the point."
+      },
+      {
+       "text": "Nobody asked what differs between the metro and the Tejas train."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "status": "missed",
+   "thread": "cause",
+   "text": "Ask whether a school-cleaning rule could work where caste decides who cleans",
+   "lost": {
+    "t": "22:07",
+    "label": "Answered part of it"
+   },
+   "because": "Because the caste objection got a Japan example, not an answer",
+   "chain": [
+    "The point where both positions met went unexplored",
+    "So 'start with people or with policy' stayed two speeches"
+   ],
+   "detail": [
+    {
+     "heading": "The question either side could have asked",
+     "items": [
+      "If a school-cleaning rule would hit caste lines here, what would make it work?"
+     ]
+    },
+    {
+     "heading": "Moments from the real debate",
+     "items": [
+      {
+       "t": "21:25",
+       "text": "For the motion: if schools made children clean, \"the caste system takes over\" and \"it might not work\"."
+      },
+      {
+       "t": "22:07",
+       "text": "Against the motion: Japan's waste policy changed behaviour; \"behavior of people followed from good policy\"."
+      },
+      {
+       "text": "Nobody said whether a policy can work where caste decides who cleans."
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "outcome": "The audience left with each side's examples, not a test between them",
+ "outcome_note": "All three misses end where the debate began: people or system, unsettled.",
+ "total_seconds": 2934,
+ "segments": [
+  [
+   0,
+   410,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   410,
+   540,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   540,
+   560,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   560,
+   633,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   633,
+   640,
+   "side",
+   "cause",
+   "Twisted the other side's point"
+  ],
+  [
+   640,
+   685,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   685,
+   707,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   707,
+   772,
+   "fwd",
+   "define",
+   ""
+  ],
+  [
+   772,
+   779,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   779,
+   843,
+   "fwd",
+   "define",
+   ""
+  ],
+  [
+   843,
+   854,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   854,
+   910,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   910,
+   927,
+   "side",
+   "cause",
+   "Host took a side"
+  ],
+  [
+   927,
+   1012,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1012,
+   1121,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1121,
+   1140,
+   "fwd",
+   "cause",
+   ""
+  ],
+  [
+   1140,
+   1158,
+   "talk",
+   "define",
+   ""
+  ],
+  [
+   1158,
+   1215,
+   "fwd",
+   "define",
+   ""
+  ],
+  [
+   1215,
+   1268,
+   "talk",
+   "define",
+   ""
+  ],
+  [
+   1268,
+   1279,
+   "fwd",
+   "define",
+   ""
+  ],
+  [
+   1279,
+   1327,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1327,
+   1366,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1366,
+   1442,
+   "talk",
+   "enforcement",
+   ""
+  ],
+  [
+   1442,
+   1532,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1532,
+   1620,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1620,
+   1643,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1643,
+   1675,
+   "fwd",
+   "duty",
+   ""
+  ],
+  [
+   1675,
+   1715,
+   "talk",
+   "duty",
+   ""
+  ],
+  [
+   1715,
+   1731,
+   "talk",
+   "define",
+   ""
+  ],
+  [
+   1731,
+   1783,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   1783,
+   1806,
+   "talk",
+   "duty",
+   ""
+  ],
+  [
+   1806,
+   1880,
+   "side",
+   "broken",
+   "Claimed more than the evidence shows"
+  ],
+  [
+   1880,
+   1907,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   1907,
+   1980,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   1980,
+   2094,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   2094,
+   2192,
+   "fwd",
+   "cause",
+   ""
+  ],
+  [
+   2192,
+   2268,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   2268,
+   2316,
+   "fwd",
+   "cause",
+   ""
+  ],
+  [
+   2316,
+   2322,
+   "side",
+   "cause",
+   "Host took a side"
+  ],
+  [
+   2322,
+   2354,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   2354,
+   2427,
+   "talk",
+   "broken",
+   ""
+  ],
+  [
+   2427,
+   2464,
+   "fwd",
+   "broken",
+   ""
+  ],
+  [
+   2464,
+   2495,
+   "talk",
+   "broken",
+   ""
+  ],
+  [
+   2495,
+   2540,
+   "talk",
+   "enforcement",
+   ""
+  ],
+  [
+   2540,
+   2575,
+   "talk",
+   "duty",
+   ""
+  ],
+  [
+   2575,
+   2605,
+   "fwd",
+   "duty",
+   ""
+  ],
+  [
+   2605,
+   2633,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   2633,
+   2659,
+   "talk",
+   "duty",
+   ""
+  ],
+  [
+   2659,
+   2685,
+   "side",
+   "broken",
+   "Same point repeated"
+  ],
+  [
+   2685,
+   2694,
+   "idle",
+   "",
+   ""
+  ],
+  [
+   2694,
+   2703,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   2703,
+   2711,
+   "fwd",
+   "duty",
+   ""
+  ],
+  [
+   2711,
+   2768,
+   "talk",
+   "cause",
+   ""
+  ],
+  [
+   2768,
+   2934,
+   "idle",
+   "",
+   ""
+  ]
+ ],
+ "threads": [
+  {
+   "id": "define",
+   "title": "What does \"civic sense\" mean?",
+   "end": "converged",
+   "summary": "Both defined it, and agreed it is learned, not inborn.",
+   "pulled": "Nothing pulled this thread off course.",
+   "flow": [
+    {
+     "t": "12:16",
+     "mark": "fwd",
+     "text": "For the motion defined civic sense: awareness, ethics, care for shared spaces."
+    },
+    {
+     "t": "13:24",
+     "mark": "fwd",
+     "text": "Against the motion: called it vague, then agreed with that definition."
+    },
+    {
+     "t": "19:05",
+     "mark": "talk",
+     "text": "For the motion asked for a definition; Against first said he had none."
+    },
+    {
+     "t": "19:18",
+     "mark": "fwd",
+     "text": "Against the motion defined it: respect for formal and informal rules."
+    },
+    {
+     "t": "21:08",
+     "mark": "fwd",
+     "text": "Both agreed civic sense is socialized, not inborn."
+    }
+   ]
+  },
+  {
+   "id": "cause",
+   "title": "Do people shape institutions, or institutions shape people?",
+   "end": "clarified",
+   "summary": "Narrowed to one choice: fix people first, or fix design first.",
+   "pulled": "The host backed each side once; the caste objection was half-answered.",
+   "flow": [
+    {
+     "t": "10:17",
+     "mark": "talk",
+     "text": "Against the motion: Mumbai's buses declined after privatization, not from habits."
+    },
+    {
+     "t": "15:10",
+     "mark": "side",
+     "text": "Host stated as fact that spat paan corroded Kolkata bridges."
+    },
+    {
+     "t": "16:21",
+     "mark": "talk",
+     "text": "For the motion: municipal staff lack civic sense too."
+    },
+    {
+     "t": "18:41",
+     "mark": "fwd",
+     "text": "For the motion agreed caste is an institution to be reformed."
+    },
+    {
+     "t": "22:07",
+     "mark": "gap",
+     "text": "Caste objection to school cleaning met with Japan's waste policy only."
+    },
+    {
+     "t": "35:10",
+     "mark": "fwd",
+     "text": "Pressure tests: For picks better citizens; Against redesigns with vendors."
+    },
+    {
+     "t": "38:36",
+     "mark": "side",
+     "text": "Host called the Against answer \"the right answer\"."
+    }
+   ]
+  },
+  {
+   "id": "enforcement",
+   "title": "Do penalties and enforcement work in Indian cities?",
+   "end": "dropped",
+   "summary": "Both sides blamed penalties that cost less than the rule.",
+   "pulled": "Host moved to Indore before anyone joined the two points.",
+   "flow": [
+    {
+     "t": "22:46",
+     "mark": "talk",
+     "text": "Host: \"We are lacking enforcement, then.\""
+    },
+    {
+     "t": "22:48",
+     "mark": "talk",
+     "text": "For the motion: over-enforced; people bribe their way out."
+    },
+    {
+     "t": "23:16",
+     "mark": "talk",
+     "text": "Against the motion: a 7 lakh fine is cheaper than doing it right."
+    },
+    {
+     "t": "24:02",
+     "mark": "talk",
+     "text": "Host moved to Indore; the fine point got no reply."
+    },
+    {
+     "t": "41:35",
+     "mark": "talk",
+     "text": "Audience member: the ticket checker ignores littering; no reply."
+    }
+   ],
+   "replay": {
+    "from": "24:02",
+    "lines": [
+     {
+      "who": "Host",
+      "says": "Your bribe and his 7 lakh fine sound like the same point. Are they?"
+     },
+     {
+      "who": "For the motion",
+      "says": "Yes. A bribe is a cheap fine. Breaking the rule costs less."
+     },
+     {
+      "who": "Against the motion",
+      "says": "Then we agree: it's the price of breaking the rule, not morals."
+     },
+     {
+      "who": "For the motion",
+      "says": "But someone still has to refuse the bribe. That's civic sense."
+     },
+     {
+      "who": "Host",
+      "says": "So agreed: penalties must cost more than obeying. Open: who refuses first."
+     }
+    ],
+    "ends": "converged",
+    "note": "Agreement on the price of penalties; who refuses the bribe stays open."
+   }
+  },
+  {
+   "id": "duty",
+   "title": "What must citizens do when the city fails them?",
+   "end": "converged",
+   "summary": "Agreed: demand accountability and organize, not do the government's job.",
+   "pulled": "Nothing pulled this thread off course.",
+   "flow": [
+    {
+     "t": "27:23",
+     "mark": "talk",
+     "text": "Host: whose job is it to fix the first broken window?"
+    },
+    {
+     "t": "27:43",
+     "mark": "fwd",
+     "text": "For the motion: ask the right person, keep asking, then agitate."
+    },
+    {
+     "t": "28:15",
+     "mark": "talk",
+     "text": "Against the motion: direct action helps, but institutions stay responsible."
+    },
+    {
+     "t": "42:20",
+     "mark": "talk",
+     "text": "Audience member: why do the job we gave the government?"
+    },
+    {
+     "t": "43:16",
+     "mark": "fwd",
+     "text": "For the motion agreed: demand accountability, don't do the job."
+    },
+    {
+     "t": "45:05",
+     "mark": "fwd",
+     "text": "Against the motion agreed: educate, agitate, organize."
+    }
+   ]
+  },
+  {
+   "id": "broken",
+   "title": "Is the system broken beyond repair?",
+   "end": "stuck",
+   "summary": "\"100% broken\" met \"many things work\"; neither engaged the other's examples.",
+   "pulled": "A sweeping claim about people, and a repeat after a counterexample.",
+   "flow": [
+    {
+     "t": "30:53",
+     "mark": "side",
+     "text": "For the motion: people don't take ownership because \"they're shitty people\"."
+    },
+    {
+     "t": "39:43",
+     "mark": "gap",
+     "text": "Asked if the state must raise living standards; For spoke of citizens' power."
+    },
+    {
+     "t": "40:27",
+     "mark": "fwd",
+     "text": "Against restated For's view fairly; For confirmed: \"100% broken\"."
+    },
+    {
+     "t": "41:04",
+     "mark": "talk",
+     "text": "Against the motion: local trains work; ask what works and why. No reply."
+    },
+    {
+     "t": "44:19",
+     "mark": "side",
+     "text": "For the motion: \"politics is dead, which means institutions are dead\"."
+    }
+   ],
+   "replay": {
+    "from": "41:04",
+    "lines": [
+     {
+      "who": "Against the motion",
+      "says": "The local train works, even in the rains. Why, when the buses don't?"
+     },
+     {
+      "who": "For the motion",
+      "says": "Fair, the local works. But people stripped the Tejas train on day one."
+     },
+     {
+      "who": "Host",
+      "says": "Same people, two trains. What's different?"
+     },
+     {
+      "who": "Against the motion",
+      "says": "Who runs it, how it's kept up, what happens if you break things."
+     },
+     {
+      "who": "For the motion",
+      "says": "And whether people feel they own it. Add that to the list."
+     }
+    ],
+    "ends": "clarified",
+    "note": "\"100% broken\" narrows to \"which parts fail, and why\"."
+   }
+  }
+ ],
+ "distractions": [
+  {
+   "t": "10:33",
+   "who": "Against the motion",
+   "kind": "unprompted",
+   "label": "Twisted the other side's point",
+   "thread": "cause",
+   "what": "Said the buses didn't fail from \"some genetic mutation in Indians\"; nobody had said civic sense is inborn",
+   "length": "7 sec",
+   "better": "Argue against the actual claim: that habits, not systems, broke the buses",
+   "cost": "Framed the motion as a claim about inborn traits"
+  },
+  {
+   "t": "15:10",
+   "who": "Host",
+   "kind": "unprompted",
+   "label": "Host took a side",
+   "thread": "cause",
+   "what": "Stated as fact that spat paan corroded Kolkata bridges, for the motion's side",
+   "length": "17 sec",
+   "better": "Put the Kolkata case to both speakers as a question",
+   "cost": "The host added evidence for one side instead of testing both"
+  },
+  {
+   "t": "30:53",
+   "who": "For the motion",
+   "kind": "unprompted",
+   "label": "Claimed more than the evidence shows",
+   "thread": "broken",
+   "what": "Went from chained bank pens to \"they're shitty people\"",
+   "length": "1 min 14 sec",
+   "better": "Make the ownership point from the examples, without a verdict on everyone",
+   "cost": "The ownership idea was never developed; the line came back as a target at 41:18"
+  },
+  {
+   "t": "38:36",
+   "who": "Host",
+   "kind": "unprompted",
+   "label": "Host took a side",
+   "thread": "cause",
+   "what": "Called the Against side's answer \"the right answer\"",
+   "length": "6 sec",
+   "better": "Note it refused both options, and ask the For side to respond",
+   "cost": "The For side never answered the redesign idea"
+  },
+  {
+   "t": "44:19",
+   "who": "For the motion",
+   "kind": "unprompted",
+   "label": "Same point repeated",
+   "thread": "broken",
+   "what": "Repeated \"institutions are dead\" after the local-train point went unanswered",
+   "length": "26 sec",
+   "better": "Answer the local-train point, then say which institutions are dead",
+   "cost": "\"100% broken\" ended as a claim, not a finding"
+  }
+ ],
+ "moderator": "Host",
+ "unanswered": [
+  {
+   "t": "23:16",
+   "by": "Against the motion",
+   "to": "",
+   "thread": "enforcement",
+   "bid": "A 7 lakh fine is cheaper than doing the work right, so the contractor pays it",
+   "matters": true,
+   "cost": "The point that matched the For side's bribe example got no reply"
+  },
+  {
+   "t": "41:04",
+   "by": "Against the motion",
+   "to": "For the motion",
+   "thread": "broken",
+   "bid": "Local trains work even in the rains; ask what works and why",
+   "matters": true,
+   "cost": "\"100% broken\" was never tested against a working example"
+  },
+  {
+   "t": "41:35",
+   "by": "Audience member",
+   "to": "",
+   "thread": "enforcement",
+   "bid": "Even the ticket checker ignores littering on trains: where is the blame?",
+   "matters": false
+  }
+ ],
+ "gaps": [
+  {
+   "t": "22:07",
+   "by": "For the motion",
+   "to": "Against the motion",
+   "thread": "cause",
+   "bid": "Said a school-cleaning rule would fail here because of caste",
+   "answer": "Said Japan's waste policy changed behaviour",
+   "label": "Answered part of it",
+   "gap": "Asked about caste blocking the rule; answered with Japan, which has no caste system",
+   "follow_up": "So what would make a school-cleaning rule work where caste decides who cleans?",
+   "matters": true,
+   "cost": "The point where both positions met went unexplored"
+  },
+  {
+   "t": "39:43",
+   "by": "Audience member",
+   "to": "For the motion",
+   "thread": "broken",
+   "bid": "Asked if it is the state's job to raise standards of living",
+   "answer": "Spoke about citizens' power and empathy for those below",
+   "label": "Answered part of it",
+   "gap": "Asked about the state's duty; answered about citizens' duty",
+   "follow_up": "So is raising living standards the state's job, yes or no?",
+   "matters": false
+  }
+ ],
+ "insight": {
+  "title": "The biggest loss was a point both sides already shared",
+  "text": "At 22:48 the For side said people break traffic rules because a bribe is cheaper. At 23:16 the Against side said a contractor pays a 7 lakh fine rather than spend 50 lakh. Same mechanism: a penalty that costs less than obeying. Nobody noticed, and the host moved on to Indore."
+ },
+ "voices": [
+  {
+   "name": "Host",
+   "note": "asked sharp questions of both sides, but backed each side once",
+   "forward": [
+    {
+     "t": "14:14",
+     "what": "Asked: can you expect good behaviour without good infrastructure?"
+    },
+    {
+     "t": "19:15",
+     "what": "Pushed the Against side to define civic sense"
+    },
+    {
+     "t": "26:07",
+     "what": "Narrowed it: not inherently uncivic, just needing better incentives?"
+    },
+    {
+     "t": "27:23",
+     "what": "Asked whose job it is to fix the first broken window"
+    },
+    {
+     "t": "43:16",
+     "what": "Restated the audience point fairly; the For side agreed"
+    }
+   ],
+   "missed": [
+    {
+     "t": "24:02",
+     "what": "Moved to Indore while the 7 lakh fine point was unanswered",
+     "better": "Ask the For side: is the 7 lakh fine the same as your bribe point?",
+     "cost": "The shared cause was never named"
+    },
+    {
+     "t": "47:12",
+     "what": "Closed with \"maybe both sides are to blame\"",
+     "better": "Say what both agreed: civic sense is learned; demand accountability, don't do the job",
+     "cost": "Viewers left with a shrug instead of two agreements"
+    }
+   ]
+  },
+  {
+   "name": "For the motion",
+   "note": "defined the key term and gave ground twice; overclaimed about people",
+   "forward": [
+    {
+     "t": "12:16",
+     "what": "Defined civic sense in plain terms"
+    },
+    {
+     "t": "18:41",
+     "what": "Agreed caste is an institution that must be reformed"
+    },
+    {
+     "t": "21:08",
+     "what": "Built on the other side's point: civic sense is socialized"
+    },
+    {
+     "t": "35:10",
+     "what": "Picked one option in the pressure test and said why"
+    },
+    {
+     "t": "42:55",
+     "what": "Agreed: demand accountability, don't do the government's job"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Against the motion",
+   "note": "brought checkable examples and restated the other side fairly",
+   "forward": [
+    {
+     "t": "10:17",
+     "what": "Gave a checkable example: Mumbai's bus decline after privatization"
+    },
+    {
+     "t": "13:24",
+     "what": "Agreed in part with the For side's definition"
+    },
+    {
+     "t": "23:16",
+     "what": "Gave a checkable fact: the 7 lakh fine after the tree fell"
+    },
+    {
+     "t": "40:27",
+     "what": "Restated the For side's view; the For side confirmed it"
+    },
+    {
+     "t": "45:05",
+     "what": "Agreed citizens must educate, agitate and organize"
+    }
+   ],
+   "missed": []
+  },
+  {
+   "name": "Audience member",
+   "note": "asked the question that produced an agreement",
+   "forward": [
+    {
+     "t": "42:20",
+     "what": "Asked why citizens should do the job they gave the government"
+    }
+   ],
+   "missed": []
+  }
+ ],
+ "ask": {
+  "distraction": [
+   "Was the question answered, or did the talk move to something else?",
+   "Did the answer cover what was asked, or only part of it, or a promise?",
+   "When someone made a strong claim, did they back it up, or just repeat it louder?",
+   "Did they argue the point, or attack and mock the other side?",
+   "Did the host ask questions, or argue for one side?"
+  ],
+  "nowhere": [
+   "When someone made a point, did anyone reply to it?",
+   "When a question was dropped, did anyone bring it back?",
+   "When both sides gave examples, did anyone put them side by side?",
+   "At the end, did anyone say what was settled and what is still open?"
+  ]
+ },
+ "youtube": "https://www.youtube.com/watch?v=rBPLwZI5whY",
+ "footer": "The replays and missed steps show one fair way the same debate could have gone, using only what was said, not what happened. Voices are named by role. Numbers quoted by speakers are reported as said, not checked. Timings and quotes come from YouTube's auto-captions; the speaker of a few short lines is inferred from context."
+}
+</script>
+
+<script>
+// Everything on the page comes from the JSON above; Claude replaces only that JSON and the <title>.
+const DATA = JSON.parse(document.getElementById("report").textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clock = s => Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
+const secs = t => String(t || "").split(":").map(Number).reduce((a, b) => a * 60 + b, 0);
+const ts = t => t ? '<span class="ts">' + esc(t) + '</span>' : "";
+const END = { converged: "Agreed", clarified: "Clearer", bounded: "Agreed to differ", stuck: "Stuck", dropped: "Dropped" };
+const badge = e => '<span class="badge ' + esc(e) + '">' + esc(END[e] || e) + '</span>';
+const THREADS = Object.fromEntries((DATA.threads || []).map(t => [t.id, t]));
+const total = DATA.total_seconds;
+const segs = DATA.segments.map(([a, b, type, thread, label]) => ({ a, b, type, thread: thread || "", label: label || "" }));
+const dur = list => list.reduce((n, s) => n + s.b - s.a, 0);
+const pct = n => Math.round(n / total * 100) + "%";
+const share = t => pct(dur(segs.filter(s => s.type === t)));
+const UNANS = (DATA.unanswered || []).slice().sort((x, y) => secs(x.t) - secs(y.t));
+const GAPS = (DATA.gaps || []).slice().sort((x, y) => secs(x.t) - secs(y.t));
+const MOD = DATA.moderator || "Host";
+// Light/dark switch: follows the device until the reader picks; the pick is remembered in this browser.
+(function () {
+  const root = document.documentElement, btn = document.getElementById("theme");
+  let saved = null;
+  try { saved = localStorage.getItem("dcore-theme"); } catch (e) {}
+  if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+  const current = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const label = () => { btn.textContent = current() === "dark" ? "☀ Light" : "☾ Dark"; };
+  btn.addEventListener("click", () => {
+    root.dataset.theme = current() === "dark" ? "light" : "dark";
+    try { localStorage.setItem("dcore-theme", root.dataset.theme); } catch (e) {}
+    label();
+  });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", label);
+  label();
+})();
+const row = (summary, body, cls) => '<details class="row ' + (cls || "") + '" name="' + (cls || "step").split(" ")[0] + '"><summary>' + summary + '</summary><div class="body">' + body + '</div></details>';
+
+$("title").textContent = DATA.question;
+$("context").textContent = DATA.context;
+
+// In short: steps taken, and how much of the time moved the conversation forward.
+const reached = DATA.progress.filter(s => s.status === "reached"), missed = DATA.progress.filter(s => s.status === "missed");
+const things = n => n + (n === 1 ? " thing" : " things");
+// Lead with the share of time that moved the debate forward; "Only" when it was under half.
+const fwdSec = dur(segs.filter(s => s.type === "fwd")), fwd = pct(fwdSec);
+$("summary").innerHTML =
+  '<p class="hook">' + (fwdSec < total / 2 ? "Only " : "") + '<em>' + fwd + '</em> of ' + Math.round(total / 60) + ' minutes was fruitful.</p>' +
+  '<p class="hook-sub">Fruitful: time where something got agreed or answered.</p>';
+// The progress report opens with how many steps were missed and how many settled.
+$("reach").innerHTML = (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
+    (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.');
+
+// Outcome analysis: one line per step; missed steps show when they were lost and the consequence that matters most.
+const blocks = bs => (bs || []).map(b =>
+  (b.heading ? '<h4>' + esc(b.heading) + '</h4>' : "") +
+  (b.items ? (b.ordered ? '<ol class="plain">' + b.items.map(i => '<li>' + esc(typeof i === "string" ? i : i.text) + '</li>').join("") + '</ol>' :
+    b.items.map(i => typeof i === "string" ? '<p>' + esc(i) + '</p>' : '<p class="mo' + (i.t ? "" : " neg") + '">' + ts(i.t) + '<span>' + esc(i.text) + '</span></p>').join("")) : "") +
+  (b.note ? '<p>' + esc(b.note) + '</p>' : "")).join("");
+// The last link of a chain starts with "So …" inside the chain; on its own in a row it reads as a fragment.
+const lead = c => String(c).replace(/^So,?\s+/, "").replace(/^./, m => m.toUpperCase());
+$("steps").innerHTML = DATA.progress.map(s => {
+  const ok = s.status === "reached", last = lead(s.chain[s.chain.length - 1]);
+  const sub = ok ? '<span class="tx-sub">→ ' + esc(last) + '</span>' :
+    '<span class="tx-sub">' + (s.lost ? (s.lost.t ? ts(s.lost.t) + " " : "") + esc(s.lost.label) + " " : "") + '→ <span class="why">' + esc(last) + '</span></span>';
+  return row('<span class="tx-main">' + esc(s.text) + '</span>' + sub,
+    '<h4>' + esc(s.because) + '</h4><ul class="chain ' + (ok ? "g" : "r") + '">' + s.chain.map(c => '<li>' + esc(c) + '</li>').join("") + '</ul>' + blocks(s.detail), "step " + (ok ? "ok" : "miss"));
+}).join("");
+if (DATA.outcome) $("outcome").innerHTML = '<span class="lbl">What failing to reach ' + (missed.length > 1 ? "them" : "it") + ' leads to</span><span>' + esc(DATA.outcome) + '</span>' +
+  (DATA.outcome_note ? '<span class="note">' + esc(DATA.outcome_note) + '</span>' : "");
+else $("outcome").hidden = true;
+
+// Two donuts (how the time was used; what the distractions were), shown under the summary.
+const donut = (parts, big, small) => {
+  const r = 46, C = 2 * Math.PI * r, sum = parts.reduce((n, p) => n + p.v, 0) || 1, gap = parts.length > 1 ? 2 : 0;
+  let at = 0;
+  const arcs = parts.map(p => {
+    const len = p.v / sum * C, seg = '<circle class="seg" cx="60" cy="60" r="' + r + '" stroke="' + p.color + '" stroke-dasharray="' + Math.max(len - gap, 0.01) + ' ' + (C - Math.max(len - gap, 0.01)) +
+      '" stroke-dashoffset="' + (-at) + '" transform="rotate(-90 60 60)"><title>' + esc(p.label) + ': ' + esc(p.pc) + '</title></circle>';
+    at += len; return seg;
+  }).join("");
+  return '<svg viewBox="0 0 120 120" role="img" aria-label="' + esc(parts.map(p => p.label + " " + p.pc).join(", ")) + '">' + arcs +
+    '<text class="big" x="60" y="62" text-anchor="middle">' + esc(big) + '</text><text class="small" x="60" y="76" text-anchor="middle">' + esc(small) + '</text></svg>';
+};
+const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="background:' + p.color + '"></i><span>' + esc(p.label) + '</span><b>' + esc(p.pc) + '</b></p>').join("") + '</div>';
+
+const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
+const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
+const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "fruitful") + legend(timeParts);
+
+// distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
+// Measured in time throughout (slices, legend and centre), so this donut never mixes counts with shares of the whole debate.
+const span = s => s < 60 ? Math.round(s) + " sec" : (s / 60).toFixed(s < 600 ? 1 : 0).replace(/\.0$/, "") + " min";
+const byLabel = {};
+segs.filter(s => s.type === "side").forEach(s => { byLabel[s.label] = (byLabel[s.label] || 0) + s.b - s.a; });
+let kinds = Object.entries(byLabel).sort((x, y) => y[1] - x[1]);
+if (kinds.length > 6) kinds = kinds.slice(0, 5).concat([["Other", kinds.slice(5).reduce((n, k) => n + k[1], 0)]]);
+const STEPS = [100, 80, 64, 50, 38, 28];
+const kindParts = kinds.map(([label, v], i) => ({ v, label, pc: span(v), color: "color-mix(in srgb, var(--bad) " + STEPS[i] + "%, var(--surface))" }));
+const nD = (DATA.distractions || []).length;
+const pieKinds = '<figcaption>What the distractions were</figcaption>' +
+  donut(kindParts, span(dur(segs.filter(s => s.type === "side"))), "in " + nD + (nD === 1 ? " moment" : " moments")) + legend(kindParts);
+// The same two donuts also sit under the summary, so the first screen shows where the time went.
+$("summary").insertAdjacentHTML("beforeend", '<div class="pies"><figure class="pie">' + pieTime + '</figure><figure class="pie">' + pieKinds + '</figure></div>');
+
+const ribbon = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
+const axis = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+$("ribbon").innerHTML = ribbon;
+$("axis").innerHTML = axis;
+// The minute-by-minute strip also sits under the summary donuts.
+$("summary").insertAdjacentHTML("beforeend", '<div class="card"><p class="card-h">Minute by minute</p><div class="ribbon">' + ribbon + '</div><div class="axis">' + axis + '</div></div>');
+$("dist").innerHTML = (DATA.distractions || []).slice().sort((x, y) => secs(x.t) - secs(y.t)).map(d =>
+  '<div class="ent">' + ts(d.t) + '<div><p><b>' + esc(d.label) + '</b> · ' + esc(d.who) + (d.length ? ' · <span class="muted">' + esc(d.length) + '</span>' : "") + '</p><p class="muted">' + esc(d.what) + '</p>' +
+  '<p class="muted">' + (d.victim ? "Left unanswered: " + esc(d.victim) : "Thread: " + esc((THREADS[d.thread] || {}).title || "none")) + '</p></div></div>').join("");
+
+if (UNANS.length) {
+  const m = UNANS.filter(u => u.matters).length;
+  $("unans-line").innerHTML = '<b>' + UNANS.length + (UNANS.length === 1 ? " point" : " points") + '</b> got no reply at all' + (m ? '; <b>' + m + '</b> could have led somewhere.' : ".");
+  $("unans").innerHTML = UNANS.map(u =>
+    '<div class="ent">' + ts(u.t) + '<div><p><b>' + esc(u.by) + '</b> → ' + esc(u.to || "the whole panel") + '</p><p class="muted">' + esc(u.bid) + '</p>' +
+    (u.matters || u.cost ? '<p>' + (u.matters ? '<b>Could have led somewhere.</b> ' : "") + esc(u.cost ? u.cost.replace(/\.?$/, ".") : "") + '</p>' : "") +
+    (u.to ? "" : '<p class="muted">Nobody was asked to reply; the ' + esc(MOD.toLowerCase()) + ' moved on.</p>') + '</div></div>').join("");
+} else { $("unans-line").hidden = true; $("tab-unans").hidden = true; }
+// Answers that left a gap: they engaged, so they look like progress, but a named part of the question stayed open.
+if (GAPS.length) {
+  const m = GAPS.filter(g => g.matters).length;
+  $("gaps-line").innerHTML = '<b>' + GAPS.length + (GAPS.length === 1 ? " answer" : " answers") + '</b> left a gap' + (m ? '; <b>' + m + '</b> could have been closed with one follow-up.' : ".");
+  $("gaps").innerHTML = GAPS.map(g =>
+    '<div class="ent">' + ts(g.t) + '<div><p><b>' + esc(g.label) + '</b> · ' + esc(g.to) + '</p><p class="muted">' + esc(g.by) + ' asked: ' + esc(g.bid) + '</p>' +
+    '<p class="muted">Answer: ' + esc(g.answer) + '</p><p><b>Gap:</b> ' + esc(g.gap) + '</p>' +
+    (g.follow_up ? '<p class="muted">Follow-up that would close it: "' + esc(g.follow_up) + '"</p>' : "") + '</div></div>').join("");
+} else { $("gaps-line").hidden = true; $("tab-gaps").hidden = true; }
+
+// Tabs under the distraction analysis: distractions, and points left unanswered.
+(function () {
+  const tabs = [$("tab-dist"), $("tab-unans"), $("tab-gaps")];
+  $("tab-dist").textContent = "Distractions (" + (DATA.distractions || []).length + ")";
+  $("tab-unans").textContent = "Left unanswered (" + UNANS.length + ")";
+  $("tab-gaps").textContent = "Left a gap (" + GAPS.length + ")";
+  // Each list opens at a fixed height; "Show all" lets it grow, "Show less" folds it back.
+  const more = $("showmore"), expanded = new Set();
+  const active = () => $(tabs.find(b => b.getAttribute("aria-selected") === "true").getAttribute("aria-controls"));
+  const fit = () => {
+    const panel = active(), open = expanded.has(panel.id);
+    panel.classList.remove("clip");
+    const tall = panel.scrollHeight > 280;
+    panel.classList.toggle("clip", tall && !open);
+    more.classList.toggle("off", !tall);
+    more.textContent = open ? "Show less" : "Show all " + panel.children.length;
+    more.setAttribute("aria-expanded", open);
+  };
+  more.addEventListener("click", () => {
+    const panel = active();
+    expanded.has(panel.id) ? expanded.delete(panel.id) : expanded.add(panel.id);
+    fit();
+  });
+  const pick = t => {
+    tabs.forEach(b => {
+      const on = b === t;
+      b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
+      $(b.getAttribute("aria-controls")).hidden = !on;
+    });
+    expanded.clear();
+    fit();
+  };
+  tabs.forEach((b, i) => {
+    b.addEventListener("click", () => pick(b));
+    b.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs.filter(x => !x.hidden)[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length] || b;
+      pick(next); next.focus();
+    });
+  });
+  fit();
+})();
+$("insight").innerHTML = '<b>' + esc(DATA.insight.title) + '</b>' + esc(DATA.insight.text);
+
+// Threads: title, how it ended, and a thin lane across the run time under the title; tap for its moments and a fair replay.
+// Grouped by how they ended (Agreed first, Dropped last); within a group, in the order they first came up.
+const RANK = Object.keys(END), rank = th => RANK.includes(th.end) ? RANK.indexOf(th.end) : RANK.length;
+const opened = th => Math.min(...segs.filter(s => s.thread === th.id && s.type !== "idle").map(s => s.a),
+  ...(th.flow || []).filter(f => f.t).map(f => secs(f.t)));
+$("threads").innerHTML = DATA.threads.slice().sort((x, y) => rank(x) - rank(y) || opened(x) - opened(y)).map(th => {
+  const track = segs.filter(s => s.thread === th.id && s.type !== "idle").map(s =>
+    '<i class="' + s.type + '" style="left:' + (s.a / total * 100) + '%;width:' + ((s.b - s.a) / total * 100) + '%"></i>').join("");
+  const flow = (th.flow || []).map(f => f.t ? '<p class="fl ' + esc(f.mark || "talk") + '">' + ts(f.t) + '<span>' + esc(f.text) + '</span></p>' : '<p class="fl neg">' + esc(f.text) + '</p>').join("");
+  const r = th.replay;
+  const replay = r && r.lines && r.lines.length ? '<h4>One fair way it could have gone' + (r.from ? ", from " + esc(r.from) : "") + '</h4><div class="replay">' +
+    r.lines.map(l => '<p><b>' + esc(l.who) + '</b><span>' + esc(l.says) + '</span></p>').join("") + '<p><b>Ends</b><span>' + badge(r.ends) + (r.note ? " " + esc(r.note) : "") + '</span></p></div>' : "";
+  const lane = '<span class="track" aria-hidden="true" title="When it was talked about, 0:00 to ' + clock(total) + '">' + track + '</span>';
+  return row('<span class="tx-main">' + esc(th.title) + '</span>' + badge(th.end) + lane,
+    '<p>' + esc(th.summary) + '</p>' + (th.pulled ? '<p class="pulled">' + esc(th.pulled) + '</p>' : "") + '<h4>What happened</h4>' + flow + replay, "thr");
+}).join("");
+
+$("lane-key").innerHTML = '<span>Each bar is the debate, ' + clock(0) + ' to ' + clock(total) + ':</span>' +
+  [["fwd", "progress"], ["talk", "left open"], ["side", "distraction"]].map(([c, l]) => '<span><i class="' + c + '"></i>' + l + '</span>').join("");
+
+// Voices: dots on one line, grouped by colour; tap for every moment in time order, with the better move and its cost.
+$("voices").innerHTML = DATA.voices.map(v => {
+  const quiet = UNANS.filter(u => (u.to || MOD) === v.name);
+  const thin = GAPS.filter(g => g.to === v.name);
+  const back = (DATA.distractions || []).filter(d => d.who === v.name)
+    .map(d => ({ t: d.t, what: d.label + ": " + d.what, better: d.better, cost: d.cost }))
+    .concat(v.missed || []);
+  const dots = '<i class="g"></i>'.repeat(v.forward.length) + '<i class="o"></i>'.repeat(quiet.length) + '<i class="h"></i>'.repeat(thin.length) + '<i class="r"></i>'.repeat(back.length);
+  // the owner of an unanswered bid either was asked and did not reply, or (as moderator) did not follow up on a point put to the whole panel
+  const moves = v.forward.map(m => ({ t: m.t, html: '<p class="mv g">' + ts(m.t) + '<span>' + esc(m.what) + '</span></p>' }))
+    .concat(quiet.map(u => ({ t: u.t, html: '<div class="mv o">' + ts(u.t) + '<div><p>' + (u.to ? "Didn't reply to the " : "Didn't follow up on the ") + esc(u.by) + "'s point" + (u.to ? "" : " to the whole panel") + ': ' + esc(u.bid) + '</p>' +
+      (u.cost ? '<p class="cost"><b>Cost:</b> ' + esc(u.cost) + '</p>' : "") + '</div></div>' })))
+    .concat(thin.map(g => ({ t: g.t, html: '<div class="mv h">' + ts(g.t) + '<div><p>' + esc(g.label) + ': ' + esc(g.gap) + '</p>' +
+      (g.follow_up ? '<p class="better"><b>Follow-up:</b> ' + esc(g.follow_up) + '</p>' : "") + (g.cost ? '<p class="cost"><b>Cost:</b> ' + esc(g.cost) + '</p>' : "") + '</div></div>' })))
+    .concat(back.map(m => ({ t: m.t, html: '<div class="mv r">' + ts(m.t) + '<div><p>' + esc(m.what) + '</p><p class="better"><b>Better:</b> ' + esc(m.better) + '</p><p class="cost"><b>Cost:</b> ' + esc(m.cost) + '</p></div></div>' })))
+    .sort((x, y) => (x.t ? secs(x.t) : Infinity) - (y.t ? secs(y.t) : Infinity)).map(m => m.html).join("");
+  return row('<span class="n">' + esc(v.name) + '</span><span class="dots">' + dots + '</span><span class="note">' + esc(v.note) + '</span>', moves, "vo");
+}).join("");
+
+if (DATA.ask) {
+  $("ask-d").innerHTML = DATA.ask.distraction.map(q => '<li>' + esc(q) + '</li>').join("");
+  $("ask-n").setAttribute("start", DATA.ask.distraction.length + 1);
+  $("ask-n").innerHTML = DATA.ask.nowhere.map(q => '<li>' + esc(q) + '</li>').join("");
+} else $("ask").hidden = true;
+$("footer").textContent = DATA.footer;
+
+// Sections as tabs: the tab bar under the header switches which section shows.
+(function () {
+  const voices = DATA.voices.length;
+  const stops = [
+    ["summary", "Summary", "Summary", fwd + " fruitful"],
+    ["s-done", "Outcomes", "Outcome analysis", reached.length + " of " + DATA.progress.length + " reached"],
+    ["s-threads", "Threads", "Thread by thread analysis", DATA.threads.length + " threads"],
+    ["s-dist", "Distractions", "Distraction analysis", fwd + " fruitful"],
+    ["s-acc", "Accountability", "Accountability", voices + (voices === 1 ? " voice" : " voices")]
+  ];
+  $("sectabs").innerHTML = stops.map(([id, tab, name]) => '<button type="button" role="tab" aria-controls="' + id + '" title="' + esc(name) + '">' + esc(tab) + '</button>').join("");
+  const tabs = [...$("sectabs").querySelectorAll("button")];
+  stops.forEach(([id]) => { const sec = document.getElementById(id); sec.classList.add("pane"); sec.setAttribute("role", "tabpanel"); });
+  const show = (id, scroll) => {
+    stops.forEach(([sid]) => { document.getElementById(sid).hidden = sid !== id; });
+    tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+    // On narrow screens the bar scrolls sideways: bring the chosen tab fully into view.
+    const cur = tabs.find(b => b.getAttribute("aria-controls") === id), bar = $("sectabs");
+    const left = cur.offsetLeft - 8, right = cur.offsetLeft + cur.offsetWidth + 8 - bar.clientWidth;
+    if (bar.scrollLeft > left) bar.scrollLeft = left; else if (bar.scrollLeft < right) bar.scrollLeft = right;
+    // Keep the reader at the top of the new section, not wherever the last one was scrolled to.
+    if (scroll && $("sectabs").getBoundingClientRect().top <= 1) $("sectabs").scrollIntoView({ block: "start" });
+  };
+  tabs.forEach((b, i) => {
+    b.addEventListener("click", () => show(b.getAttribute("aria-controls"), true));
+    b.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      next.click(); next.focus();
+    });
+  });
+  const fitTabs = () => document.documentElement.style.setProperty("--tabs-h", $("sectabs").offsetHeight + "px");
+  addEventListener("resize", fitTabs); fitTabs();
+  show("summary", false);
+})();
+
+// Rows are plain <details>: rows in the same list share a name, so the browser keeps one open at a time.
+
+
+// Sources: with a YouTube link, every timestamp opens the video at that second;
+// otherwise the raw transcript is hosted here and every timestamp opens it at that line.
+(function () {
+  const yt = (DATA.youtube || "").trim(), tx = DATA.transcript || [];
+  const re = /^\d{1,2}:\d{2}(:\d{2})?$/;
+  if (!yt && tx.length) {
+    $("trs").hidden = false;
+    $("tx").innerHTML = tx.map(([s, text]) => '<p data-s="' + s + '"><span class="ts">' + clock(s) + '</span><span>' + esc(text) + '</span></p>').join("");
+  }
+  if (!yt && !tx.length) return;
+  document.querySelectorAll("span.ts").forEach(el => {
+    const t = el.textContent.trim();
+    if (!re.test(t) || el.closest(".txs, .axis")) return;
+    const s = secs(t), a = document.createElement("a");
+    a.className = "ts"; a.textContent = t;
+    // keep a tap on a timestamp inside a row's summary from toggling the row
+    a.addEventListener("click", e => e.stopPropagation());
+    if (yt) {
+      a.href = yt + (yt.includes("?") ? "&" : "?") + "t=" + s + "s";
+      a.target = "_blank"; a.rel = "noopener"; a.title = "Watch from " + t;
+    } else {
+      a.href = "#transcript"; a.title = "Read from " + t;
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const box = $("transcript"); box.open = true;
+        const lines = [...document.querySelectorAll(".txs p")];
+        const hit = lines.filter(p => +p.dataset.s <= s).pop() || lines[0];
+        lines.forEach(p => p.classList.remove("hit")); hit.classList.add("hit");
+        box.scrollIntoView({ behavior: "smooth", block: "start" });
+        hit.parentNode.scrollTop = hit.offsetTop - hit.parentNode.offsetTop - 8;
+      });
+    }
+    el.replaceWith(a);
+  });
+})();
+</script>
