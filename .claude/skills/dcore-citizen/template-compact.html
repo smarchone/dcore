@@ -47,6 +47,7 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 .summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
 .summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--bad); margin-right: 2px; }
 .summary p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
+.summary .pies { margin-top: 8px; }
 .summary p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
@@ -275,14 +276,14 @@ footer { font-size: .78rem; color: var(--muted); }
 
 
   <section id="s-done">
-    <h2>Within reach</h2>
+    <h2>Progress report</h2>
     <p class="muted" id="progress-caption"></p>
     <div class="list" id="steps"></div>
     <div class="outcome" id="outcome"></div>
   </section>
 
   <section id="s-threads">
-    <h2>Thread by thread</h2>
+    <h2>Thread by thread analysis</h2>
     <div class="list" id="threads"></div>
   </section>
 
@@ -1506,7 +1507,7 @@ $("summary").innerHTML =
   '<p>' + (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
     (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.') + '</p>';
 
-// Within reach: one line per step; missed steps show when they were lost and the consequence that matters most.
+// Progress report: one line per step; missed steps show when they were lost and the consequence that matters most.
 if (DATA.progress_caption) $("progress-caption").textContent = DATA.progress_caption;
 else $("progress-caption").hidden = true;
 const blocks = bs => (bs || []).map(b =>
@@ -1543,7 +1544,8 @@ const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="backgr
 
 const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
 const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
-$("pie-time").innerHTML = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, wasted, "wasted") + legend(timeParts);
+const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, wasted, "wasted") + legend(timeParts);
+$("pie-time").innerHTML = pieTime;
 
 // distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
 // Measured in time throughout (slices, legend and centre), so this donut never mixes counts with shares of the whole debate.
@@ -1555,8 +1557,11 @@ if (kinds.length > 6) kinds = kinds.slice(0, 5).concat([["Other", kinds.slice(5)
 const STEPS = [100, 80, 64, 50, 38, 28];
 const kindParts = kinds.map(([label, v], i) => ({ v, label, pc: span(v), color: "color-mix(in srgb, var(--bad) " + STEPS[i] + "%, var(--surface))" }));
 const nD = (DATA.distractions || []).length;
-$("pie-kinds").innerHTML = '<figcaption>What the distractions were</figcaption>' +
+const pieKinds = '<figcaption>What the distractions were</figcaption>' +
   donut(kindParts, span(dur(segs.filter(s => s.type === "side"))), "in " + nD + (nD === 1 ? " moment" : " moments")) + legend(kindParts);
+$("pie-kinds").innerHTML = pieKinds;
+// The same two donuts also sit under the summary, so the first screen shows where the time went.
+$("summary").insertAdjacentHTML("beforeend", '<div class="pies"><figure class="pie">' + pieTime + '</figure><figure class="pie">' + pieKinds + '</figure></div>');
 
 $("ribbon").innerHTML = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
 $("axis").innerHTML = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
@@ -1673,8 +1678,8 @@ $("footer").textContent = DATA.footer;
 (function () {
   const voices = DATA.voices.length;
   const stops = [
-    ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Within reach"],
-    ["s-threads", DATA.threads.length + " threads", "Thread by thread"],
+    ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Progress report"],
+    ["s-threads", DATA.threads.length + " threads", "Thread by thread analysis"],
     ["s-dist", wasted + " wasted", "Distraction analysis"],
     ["s-acc", voices + (voices === 1 ? " voice" : " voices"), "Accountability"]
   ];
