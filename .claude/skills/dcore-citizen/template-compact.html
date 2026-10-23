@@ -46,11 +46,11 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 .summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 6px; }
 .summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
 .summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--bad); margin-right: 2px; }
-.summary p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
+.summary > p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
 .summary .pies { margin-top: 8px; }
 .reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1rem; }
 .reach b:first-of-type { color: var(--bad); }
-.summary p:not(.hook) b { font: 700 1.05rem var(--f-head); }
+.summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
 /* Minimap: a quiet rail on the left; a dot per section, names beside it when there is room */
@@ -157,8 +157,7 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 .pie svg { width: 112px; height: 112px; justify-self: center; display: block; }
 .pie svg circle.seg { fill: none; stroke-width: 16; }
 .pie svg circle.seg:hover { stroke-width: 19; }
-.pie svg .big { font: 700 20px var(--f-head); fill: var(--fg); }
-.pie svg .big.long { font-size: 16px; }
+.pie svg .big { font: 700 17px var(--f-head); fill: var(--fg); }
 .pie svg .small { font: 600 9.5px var(--f-body); fill: var(--muted); }
 .lg { display: grid; gap: 3px; font-size: .8rem; line-height: 1.25; }
 .lg p { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
@@ -1536,7 +1535,7 @@ const donut = (parts, big, small) => {
     at += len; return seg;
   }).join("");
   return '<svg viewBox="0 0 120 120" role="img" aria-label="' + esc(parts.map(p => p.label + " " + p.pc).join(", ")) + '">' + arcs +
-    '<text class="big' + (String(big).length > 4 ? " long" : "") + '" x="60" y="62" text-anchor="middle">' + esc(big) + '</text><text class="small" x="60" y="76" text-anchor="middle">' + esc(small) + '</text></svg>';
+    '<text class="big" x="60" y="62" text-anchor="middle">' + esc(big) + '</text><text class="small" x="60" y="76" text-anchor="middle">' + esc(small) + '</text></svg>';
 };
 const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="background:' + p.color + '"></i><span>' + esc(p.label) + '</span><b>' + esc(p.pc) + '</b></p>').join("") + '</div>';
 
@@ -1561,8 +1560,12 @@ $("pie-kinds").innerHTML = pieKinds;
 // The same two donuts also sit under the summary, so the first screen shows where the time went.
 $("summary").insertAdjacentHTML("beforeend", '<div class="pies"><figure class="pie">' + pieTime + '</figure><figure class="pie">' + pieKinds + '</figure></div>');
 
-$("ribbon").innerHTML = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
-$("axis").innerHTML = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+const ribbon = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
+const axis = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+$("ribbon").innerHTML = ribbon;
+$("axis").innerHTML = axis;
+// The minute-by-minute strip also sits under the summary donuts.
+$("summary").insertAdjacentHTML("beforeend", '<div class="card"><p class="card-h">Minute by minute</p><div class="ribbon">' + ribbon + '</div><div class="axis">' + axis + '</div></div>');
 $("dist").innerHTML = (DATA.distractions || []).slice().sort((x, y) => secs(x.t) - secs(y.t)).map(d =>
   '<div class="ent">' + ts(d.t) + '<div><p><b>' + esc(d.label) + '</b> · ' + esc(d.who) + (d.length ? ' · <span class="muted">' + esc(d.length) + '</span>' : "") + '</p><p class="muted">' + esc(d.what) + '</p>' +
   '<p class="muted">' + (d.victim ? "Left unanswered: " + esc(d.victim) : "Thread: " + esc((THREADS[d.thread] || {}).title || "none")) + '</p></div></div>').join("");
