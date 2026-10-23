@@ -56,25 +56,15 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 
 /* Minimap: a quiet rail on the left; a dot per section, names beside it when there is room */
 .aside-col { display: grid; gap: 14px; }
-.side-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.minimap { display: none; }
-#minimap { position: relative; display: grid; gap: 2px; }
-#minimap::before { content: ""; position: absolute; left: 3px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
-#minimap a { position: relative; display: flex; align-items: center; gap: 9px; min-height: 22px; text-decoration: none; color: var(--muted); font-size: .8rem; }
-#minimap a::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--muted); transition: transform .2s, background .2s; }
-#minimap a[aria-current="true"] { color: var(--fg); font-weight: 600; }
-#minimap a[aria-current="true"]::before { background: var(--fg); box-shadow: none; transform: scale(1.3); }
-#minimap a:hover { color: var(--fg); }
-#minimap a:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; border-radius: 4px; }
 section[id] { scroll-margin-top: 16px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
 /* Section tabs: one section at a time under the header; sticks to the top while reading */
 .sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
 .sectabs::-webkit-scrollbar { display: none; }
-.sectabs button { flex: none; font: 600 .9rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
+.sectabs button { flex: none; font: 600 1rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
 .sectabs button:hover { color: var(--fg); }
-.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font: 700 1.2rem var(--f-head); }
+.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font-weight: 700; }
 .sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
 section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
 .summary.pane { border-bottom: 0; padding-bottom: 0; }
@@ -95,7 +85,6 @@ section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
 .kinds i { width: 9px; height: 9px; border-radius: 50%; display: block; transform: translateY(1px); }
 @media (min-width: 1120px) {
   .aside-col { position: fixed; z-index: 4; top: 20px; right: 24px; width: min(280px, calc(50vw - 300px - 56px)); max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; }
-  .minimap { display: block; padding: 0 2px; }
   .guide > div { font-size: .8rem; }
 }
 
@@ -210,7 +199,8 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 details.thr > summary { grid-template-columns: minmax(0, 1fr) auto 12px; }
 details.thr .tx-main { grid-column: 1; }
 details.thr .badge { grid-column: 2; grid-row: 1; margin-top: 2px; }
-details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 4px; margin: 5px 0 1px; }
+details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 8px; margin: 6px 0 1px; }
+.lane-key { color: var(--muted); }
 .track { position: relative; height: 6px; background: var(--track); border-radius: 3px; }
 .track i { position: absolute; top: 0; bottom: 0; }
 details.thr .body { padding-left: 12px; }
@@ -271,7 +261,6 @@ footer { font-size: .78rem; color: var(--muted); }
   <div class="summary" id="summary"></div>
 
   <div class="aside-col">
-  <nav class="minimap" aria-label="Sections of this report"><p class="side-h">On this page</p><div id="minimap"></div></nav>
   <div class="help">
     <button type="button" class="help-btn" id="howto-btn" aria-expanded="false" aria-controls="howto"><span class="q">?</span>How to read this report</button>
     <details class="guide" id="howto"><summary>How to read this report</summary><div>
@@ -297,11 +286,13 @@ footer { font-size: .78rem; color: var(--muted); }
   </section>
 
   <section id="s-threads">
+    <p class="key lane-key" id="lane-key"></p>
     <div class="list" id="threads"></div>
   </section>
 
   <section id="s-dist">
     <p class="muted">What pulled the debate off course.</p>
+    <p class="insight" id="insight"></p>
     <p id="unans-line"></p>
     <p id="gaps-line"></p>
     <div class="moments">
@@ -316,7 +307,6 @@ footer { font-size: .78rem; color: var(--muted); }
       <div id="gaps" role="tabpanel" aria-labelledby="tab-gaps" hidden></div>
       <button type="button" class="showmore off" id="showmore"></button>
     </div>
-    <p class="insight" id="insight"></p>
   </section>
 
   <section id="s-acc">
@@ -1654,6 +1644,9 @@ $("threads").innerHTML = DATA.threads.slice().sort((x, y) => rank(x) - rank(y) |
     '<p>' + esc(th.summary) + '</p>' + (th.pulled ? '<p class="pulled">' + esc(th.pulled) + '</p>' : "") + '<h4>What happened</h4>' + flow + replay, "thr");
 }).join("");
 
+$("lane-key").innerHTML = '<span>Each bar is the debate, ' + clock(0) + ' to ' + clock(total) + ':</span>' +
+  [["fwd", "progress"], ["talk", "left open"], ["side", "distraction"]].map(([c, l]) => '<span><i class="' + c + '"></i>' + l + '</span>').join("");
+
 // Voices: dots on one line, grouped by colour; tap for every moment in time order, with the better move and its cost.
 $("voices").innerHTML = DATA.voices.map(v => {
   const quiet = UNANS.filter(u => (u.to || MOD) === v.name);
@@ -1680,7 +1673,7 @@ if (DATA.ask) {
 } else $("ask").hidden = true;
 $("footer").textContent = DATA.footer;
 
-// Sections as tabs: the tab bar under the header and the minimap on wide screens both switch which section shows.
+// Sections as tabs: the tab bar under the header switches which section shows.
 (function () {
   const voices = DATA.voices.length;
   const stops = [
@@ -1691,17 +1684,15 @@ $("footer").textContent = DATA.footer;
     ["s-acc", "Accountability", "Accountability", voices + (voices === 1 ? " voice" : " voices")]
   ];
   $("sectabs").innerHTML = stops.map(([id, tab, name]) => '<button type="button" role="tab" aria-controls="' + id + '" title="' + esc(name) + '">' + esc(tab) + '</button>').join("");
-  $("minimap").innerHTML = stops.map(([id, , name, stat]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
-  const tabs = [...$("sectabs").querySelectorAll("button")], links = [...$("minimap").querySelectorAll("a")];
+  const tabs = [...$("sectabs").querySelectorAll("button")];
   stops.forEach(([id]) => { const sec = document.getElementById(id); sec.classList.add("pane"); sec.setAttribute("role", "tabpanel"); });
   const show = (id, scroll) => {
     stops.forEach(([sid]) => { document.getElementById(sid).hidden = sid !== id; });
     tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
-    // On narrow screens the bar scrolls sideways: bring the chosen (now larger) tab fully into view.
+    // On narrow screens the bar scrolls sideways: bring the chosen tab fully into view.
     const cur = tabs.find(b => b.getAttribute("aria-controls") === id), bar = $("sectabs");
     const left = cur.offsetLeft - 8, right = cur.offsetLeft + cur.offsetWidth + 8 - bar.clientWidth;
     if (bar.scrollLeft > left) bar.scrollLeft = left; else if (bar.scrollLeft < right) bar.scrollLeft = right;
-    links.forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + id));
     // Keep the reader at the top of the new section, not wherever the last one was scrolled to.
     if (scroll && $("sectabs").getBoundingClientRect().top <= 1) $("sectabs").scrollIntoView({ block: "start" });
   };
@@ -1713,11 +1704,6 @@ $("footer").textContent = DATA.footer;
       next.click(); next.focus();
     });
   });
-  links.forEach(a => a.addEventListener("click", e => {
-    e.preventDefault();
-    show(a.getAttribute("href").slice(1), false);
-    $("sectabs").scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
   show("summary", false);
 })();
 
