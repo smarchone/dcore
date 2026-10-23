@@ -71,7 +71,7 @@ section[id] { scroll-margin-top: 16px; }
 section > h2::before { content: ""; position: absolute; width: 28px; height: 4px; border-radius: 2px; background: var(--fg); margin-top: -12px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
-/* Section tabs: one section at a time under the summary; sticks to the top while reading */
+/* Section tabs: one section at a time under the header; sticks to the top while reading */
 .sectabs { position: sticky; top: 0; z-index: 3; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
 .sectabs::-webkit-scrollbar { display: none; }
 .sectabs button { flex: none; font: 600 .9rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
@@ -79,6 +79,7 @@ section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
 .sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
 .sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
 section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
+.summary.pane { border-bottom: 0; padding-bottom: 0; }
 
 /* How to read: a quiet "?" that opens a floating panel, so nothing on the page moves */
 .help { position: relative; }
@@ -267,6 +268,8 @@ footer { font-size: .78rem; color: var(--muted); }
     <p class="ctx" id="context"></p>
   </header>
 
+  <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
+
   <div class="summary" id="summary"></div>
 
   <div class="aside-col">
@@ -288,8 +291,6 @@ footer { font-size: .78rem; color: var(--muted); }
   </div>
   </div>
 
-
-  <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
 
   <section id="s-done">
     <h2>Outcome analysis</h2>
@@ -1685,10 +1686,11 @@ if (DATA.ask) {
 } else $("ask").hidden = true;
 $("footer").textContent = DATA.footer;
 
-// Sections as tabs: the tab bar under the summary and the minimap on wide screens both switch which section shows.
+// Sections as tabs: the tab bar under the header and the minimap on wide screens both switch which section shows.
 (function () {
   const voices = DATA.voices.length;
   const stops = [
+    ["summary", "Summary", "Summary", fwd + " fruitful"],
     ["s-done", "Outcomes", "Outcome analysis", reached.length + " of " + DATA.progress.length + " reached"],
     ["s-threads", "Threads", "Thread by thread analysis", DATA.threads.length + " threads"],
     ["s-dist", "Distractions", "Distraction analysis", fwd + " fruitful"],
@@ -1718,7 +1720,7 @@ $("footer").textContent = DATA.footer;
     show(a.getAttribute("href").slice(1), false);
     $("sectabs").scrollIntoView({ behavior: "smooth", block: "start" });
   }));
-  show("s-done", false);
+  show("summary", false);
 })();
 
 // Collapsibles open and close smoothly, and only one is open at a time (never closing its own parent).
