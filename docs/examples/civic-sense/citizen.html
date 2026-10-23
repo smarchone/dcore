@@ -1,28 +1,35 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Civic Sense Citizen Report</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Compact variant: one line per idea, numbers first, everything else one tap away. */
 :root {
   --bg: #f5efe4; --surface: #fffaf2; --fg: #2b241d; --muted: #75695b; --line: #e7dccb;
   --link: #4a5a86; --good: #3d8c5c; --good-soft: #eef2e6; --bad: #b4483a; --bad-soft: #f7e9e1;
   --quiet: #d6a13a; --quiet-soft: #f7ecdc; --idle: #b9ae9f; --track: #ece2d3;
-  --f-head: "Bricolage Grotesque", system-ui, sans-serif;
-  --f-body: "Source Sans 3", system-ui, sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --f-head: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #121418; --surface: #1a1d23; --fg: #e6e8ec; --muted: #9aa2b1; --line: #2c313a;
-  --link: #a3b4dc; --good: #2f9a72; --good-soft: #1c2621; --bad: #da5a6c; --bad-soft: #2c2221;
-  --quiet: #b08d26; --quiet-soft: #2c261c; --idle: #4b515b; --track: #252a32; color-scheme: dark } }
+  --bg: #121214; --surface: #17171a; --fg: #cfcdc8; --muted: #8c8a85; --line: #2b2b30;
+  --link: #ecebe6; --good: #4fa77a; --good-soft: #18231d; --bad: #e07a6a; --bad-soft: #2a1c1a;
+  --quiet: #c9a03e; --quiet-soft: #28231a; --idle: #4a4946; --track: #212126; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #121418; --surface: #1a1d23; --fg: #e6e8ec; --muted: #9aa2b1; --line: #2c313a;
-  --link: #a3b4dc; --good: #2f9a72; --good-soft: #1c2621; --bad: #da5a6c; --bad-soft: #2c2221;
-  --quiet: #b08d26; --quiet-soft: #2c261c; --idle: #4b515b; --track: #252a32; color-scheme: dark }
+  --bg: #121214; --surface: #17171a; --fg: #cfcdc8; --muted: #8c8a85; --line: #2b2b30;
+  --link: #ecebe6; --good: #4fa77a; --good-soft: #18231d; --bad: #e07a6a; --bad-soft: #2a1c1a;
+  --quiet: #c9a03e; --quiet-soft: #28231a; --idle: #4a4946; --track: #212126; color-scheme: dark }
 
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 var(--f-body); }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--f-body); -webkit-font-smoothing: antialiased; }
+:root[data-theme="dark"] body { background: radial-gradient(900px 420px at 50% -120px, rgba(222,138,104,.08), transparent 70%) no-repeat, var(--bg); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body { background: radial-gradient(900px 420px at 50% -120px, rgba(222,138,104,.08), transparent 70%) no-repeat, var(--bg); } }
+h1, h2 { letter-spacing: -.02em; }
 .wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 24px; }
 h1, h2 { font-family: var(--f-head); margin: 0; text-wrap: balance; }
 h1 { font-size: 1.45rem; line-height: 1.15; }
@@ -240,7 +247,8 @@ footer { font-size: .78rem; color: var(--muted); }
 }
 @media (prefers-reduced-motion: reduce) { details > summary::after, details > summary::before { transition: none !important; } }
 </style>
-
+</head>
+<body>
 <div class="wrap">
   <header>
     <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
@@ -1724,3 +1732,5 @@ $("footer").textContent = DATA.footer;
   });
 })();
 </script>
+</body>
+</html>

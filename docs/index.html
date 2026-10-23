@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>dcore</title>
+  <meta name="description" content="A review for public debates: what a conversation reached, what it missed, and why.">
+  <style>
+    :root {
+      --bg:#121214; --win:#18181b; --bar:#1d1d21; --line:#2b2b30; --code:#212126; --card:#17171a;
+      --fg:#cfcdc8; --dim:#8c8a85; --faint:#5a5955; --white:#ecebe6; --accent:#de8a68; --accent-soft:rgba(222,138,104,.12);
+      --good:#6cbf8c; --bad:#e07a6a;
+      --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans:system-ui, -apple-system, "Segoe UI", sans-serif;
+      color-scheme:dark;
+    }
+    * { box-sizing:border-box; }
+    html, body { background:var(--bg); color:var(--fg); margin:0; }
+    body { font:15px/1.65 var(--sans); padding:56px 16px 48px; -webkit-font-smoothing:antialiased;
+           background:radial-gradient(900px 420px at 50% -120px, rgba(222,138,104,.10), transparent 70%) no-repeat, var(--bg); }
+    main { max-width:860px; margin:0 auto; }
+    a { color:inherit; }
+
+    h1 { font:600 13px/1 var(--mono); color:var(--dim); margin:0 0 22px; letter-spacing:-.01em; }
+    h1 span { color:var(--accent); }
+    .hero { margin:0 0 14px; font:700 clamp(34px, 7vw, 56px)/1.05 var(--sans); color:var(--white); letter-spacing:-.035em; }
+    .hero em { font-style:normal; color:var(--accent);
+               background:linear-gradient(100deg, #f0b48f, #de8a68 55%, #c96a4a); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .tldr { color:var(--fg); margin:0 0 22px; max-width:640px; }
+    .tldr span { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; margin-right:8px; }
+    .tldr code { font:13px var(--mono); color:var(--accent); background:var(--accent-soft); padding:2px 6px; border-radius:5px; }
+
+    .problem { margin:8px 0 24px; padding:16px 20px; border-left:2px solid var(--accent); background:linear-gradient(90deg, var(--accent-soft), transparent 80%); border-radius:0 12px 12px 0; }
+    .lbl, .fix { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
+    .problem ul { list-style:none; padding:0; margin:12px 0 0; }
+    .problem li { color:var(--fg); font-size:15px; margin:6px 0; padding-left:20px; position:relative; }
+    .problem li::before { content:"×"; position:absolute; left:0; color:var(--faint); }
+    .fix { display:block; margin:0 0 12px; }
+
+    .pitch { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin:0 0 18px; }
+    .pitch div { min-width:0; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 20px; transition:border-color .2s; }
+    .pitch div:hover { border-color:#3a3a40; }
+    .pitch h2 { font:600 16px/1.35 var(--sans); color:var(--white); margin:10px 0 6px; }
+    .pitch p { color:var(--dim); font-size:14px; line-height:1.6; margin:0; }
+
+    .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px 6px; margin:0 0 52px; font:13px/1 var(--mono); color:var(--faint); }
+    .flow span { color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:8px 12px; }
+    .flow span.gold { color:var(--accent); border-color:rgba(222,138,104,.45); background:var(--accent-soft); }
+    .flow a.gh { color:var(--dim); margin-left:auto; text-decoration:none; }
+    .flow a.gh:hover { color:var(--accent); }
+
+    .eyebrow { font:600 12px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.12em; margin:0 0 14px; }
+
+    .win { display:block; text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:14px; transition:border-color .2s; }
+    .win:hover { border-color:#3a3a40; }
+    .open { font:12px var(--mono); color:var(--accent); white-space:nowrap; margin-left:6px; vertical-align:2px; }
+    .screen { padding:20px 22px 24px; }
+    .screen h2 { font:600 20px/1.3 var(--sans); color:var(--white); margin:0 0 6px; letter-spacing:-.01em; }
+    .screen .meta { font:12px var(--mono); color:var(--dim); margin:0 0 16px; }
+    .row { display:flex; gap:12px; margin:8px 0; font-size:15px; }
+    .row b { flex:none; width:70px; font:600 11px/2.1 var(--mono); text-transform:uppercase; letter-spacing:.08em; }
+    .row.ok b { color:var(--good); } .row.miss b { color:var(--bad); } .row.so b { color:var(--dim); }
+    .links { display:flex; flex-wrap:wrap; gap:6px 18px; margin:12px 0 0; font:13px var(--mono); }
+    .links a { color:var(--dim); text-decoration:none; }
+    .links a:hover { color:var(--accent); }
+
+    .install { display:flex; align-items:center; gap:10px; margin-top:44px; font:13px var(--mono); }
+    .cmd { flex:1; min-width:0; display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+    .cmd code { flex:1; min-width:0; overflow-x:auto; white-space:nowrap; color:var(--fg); scrollbar-width:none; }
+    .cmd code::before { content:"$ "; color:var(--dim); }
+    .cmd button { font:12px var(--mono); color:var(--dim); background:none; border:0; cursor:pointer; padding:0; }
+    .cmd button:hover { color:var(--accent); }
+    .full { color:var(--dim); text-decoration:none; white-space:nowrap; }
+    .full:hover { color:var(--accent); }
+    .hint { color:var(--faint); font:12px var(--mono); margin-top:14px; }
+
+    @media (max-width:600px) {
+      body { padding-top:28px; }
+      .pitch { grid-template-columns:minmax(0, 1fr); }
+      .flow a.gh { margin-left:0; width:100%; }
+      .row { flex-direction:column; gap:0; }
+      .install { flex-direction:column; align-items:stretch; }
+      .full { text-align:right; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1><span>~/</span>smarchone/dcore</h1>
+  <p class="hero">Debates, <em>reviewed like a chess game.</em></p>
+  <p class="tldr"><span>tl;dr</span> A chess engine doesn't tell you which side to play. It shows the better move you missed and what it cost. <code>/dcore</code> does the same for a debate, panel or townhall, in about a minute.</p>
+
+  <section class="problem">
+    <span class="lbl">The problem</span>
+    <ul>
+      <li>You watch an hour of debate and come away with the loudest slogan.</li>
+      <li>Questions go unanswered, and nobody notices the talk moved on.</li>
+      <li>Two sides agree on something and never say so. The chance is gone.</li>
+    </ul>
+  </section>
+
+  <span class="fix">The fix</span>
+  <section class="pitch">
+    <div><span class="lbl">Progress</span><h2>What was reached, and what slipped.</h2><p>Agreements and sharper disagreements, plus the step one or two moves away that nobody took.</p></div>
+    <div><span class="lbl">Distractions</span><h2>Where the time went.</h2><p>Progress, talk nobody replied to, and moves like "changed the subject", each with who and when.</p></div>
+    <div><span class="lbl">Replay</span><h2>One fair way it could have gone.</h2><p>Same people, same views, every point answered. Grades moves, never positions.</p></div>
+  </section>
+  <p class="flow"><span>YouTube link</span>→<span class="gold">/dcore</span>→<span>a one-minute review</span><a class="gh" href="https://github.com/smarchone/dcore">GitHub →</a></p>
+
+  <p class="eyebrow">See a real review</p>
+  <a class="win" href="examples/civic-sense/citizen.html">
+    <div class="screen">
+      <h2>Are Indian cities broken because Indians lack civic sense? <span class="open">open ↗</span></h2>
+      <p class="meta">49 min studio debate · journalist (for) · urban researcher (against) · host · audience</p>
+      <div class="row ok"><b>Reached</b><span>Both sides agreed civic sense is learned, and that citizens should demand accountability, not do the government's job.</span></div>
+      <div class="row miss"><b>Missed</b><span>One side blamed cheap bribes, the other cheap fines. Same point. Nobody noticed before the host moved on.</span></div>
+      <div class="row so"><b>So</b><span>The audience poll barely moved: 27% for at the start, 29% at the end.</span></div>
+    </div>
+  </a>
+  <p class="links"><a href="https://www.youtube.com/watch?v=rBPLwZI5whY">watch the debate ↗</a><a href="https://github.com/smarchone/dcore/blob/main/docs/examples/civic-sense/citizen-provenance.md">how each call was made →</a></p>
+
+  <div class="install">
+    <div class="cmd"><code id="cmd">/dcore https://www.youtube.com/watch?v=&lt;id&gt;</code><button id="copy">copy</button></div>
+    <a class="full" href="https://github.com/smarchone/dcore">get the skill →</a>
+  </div>
+  <p class="hint">run it in Claude Code, from the repo · a pasted transcript works too</p>
+</main>
+<script>
+  document.getElementById("copy").addEventListener("click", function () {
+    var b = this;
+    try {
+      navigator.clipboard.writeText(document.getElementById("cmd").textContent).then(function () {
+        b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1400);
+      });
+    } catch (e) {}
+  });
+</script>
+</body>
+</html>

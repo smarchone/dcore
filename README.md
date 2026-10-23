@@ -23,7 +23,7 @@ video.
 
 ## Example
 
-[Are Indian cities broken because Indians lack civic sense?](docs/examples/civic-sense/citizen.html)
+[Are Indian cities broken because Indians lack civic sense?](https://smarchone.github.io/dcore/examples/civic-sense/citizen.html)
 A 49-minute studio debate ([video](https://www.youtube.com/watch?v=rBPLwZI5whY)).
 
 - **Reached:** both sides agreed civic sense is learned, not inborn, and that
