@@ -67,16 +67,14 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 #minimap a:hover { color: var(--fg); }
 #minimap a:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; border-radius: 4px; }
 section[id] { scroll-margin-top: 16px; }
-/* a short ink bar above each section title so the titles stand out when scanning */
-section > h2::before { content: ""; position: absolute; width: 28px; height: 4px; border-radius: 2px; background: var(--fg); margin-top: -12px; }
 /* a thin rule between sections, like the one under the summary */
 section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
 /* Section tabs: one section at a time under the header; sticks to the top while reading */
-.sectabs { position: sticky; top: 0; z-index: 3; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
+.sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); margin-bottom: -10px; }
 .sectabs::-webkit-scrollbar { display: none; }
 .sectabs button { flex: none; font: 600 .9rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
 .sectabs button:hover { color: var(--fg); }
-.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font: 700 1.2rem var(--f-head); }
 .sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
 section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
 .summary.pane { border-bottom: 0; padding-bottom: 0; }
@@ -293,19 +291,16 @@ footer { font-size: .78rem; color: var(--muted); }
 
 
   <section id="s-done">
-    <h2>Outcome analysis</h2>
     <p class="reach" id="reach"></p>
     <div class="list" id="steps"></div>
     <div class="outcome" id="outcome"></div>
   </section>
 
   <section id="s-threads">
-    <h2>Thread by thread analysis</h2>
     <div class="list" id="threads"></div>
   </section>
 
   <section id="s-dist">
-    <h2>Distraction analysis</h2>
     <p class="muted">What pulled the debate off course.</p>
     <p id="unans-line"></p>
     <p id="gaps-line"></p>
@@ -325,7 +320,6 @@ footer { font-size: .78rem; color: var(--muted); }
   </section>
 
   <section id="s-acc">
-    <h2>Accountability</h2>
     <p class="muted">Who moved the debate forward, and who held it back.</p>
     <div class="list" id="voices"></div>
   </section>
@@ -1703,6 +1697,10 @@ $("footer").textContent = DATA.footer;
   const show = (id, scroll) => {
     stops.forEach(([sid]) => { document.getElementById(sid).hidden = sid !== id; });
     tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+    // On narrow screens the bar scrolls sideways: bring the chosen (now larger) tab fully into view.
+    const cur = tabs.find(b => b.getAttribute("aria-controls") === id), bar = $("sectabs");
+    const left = cur.offsetLeft - 8, right = cur.offsetLeft + cur.offsetWidth + 8 - bar.clientWidth;
+    if (bar.scrollLeft > left) bar.scrollLeft = left; else if (bar.scrollLeft < right) bar.scrollLeft = right;
     links.forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + id));
     // Keep the reader at the top of the new section, not wherever the last one was scrolled to.
     if (scroll && $("sectabs").getBoundingClientRect().top <= 1) $("sectabs").scrollIntoView({ block: "start" });
