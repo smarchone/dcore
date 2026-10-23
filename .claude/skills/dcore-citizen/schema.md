@@ -30,7 +30,7 @@ contain them.
   "question": "Should the Election Commission chief resign?",
   "context": "One or two plain sentences: what triggered the conversation.",
 
-  "progress_caption": "Five steps were within reach. The panel took two.",
+  "progress_caption": "Five steps were within reach. The panel took two.",   // full page only; the compact page writes its own line
   "progress": [
     {"status": "reached", "thread": "explain",
      "text": "Everyone agreed: the Commission must explain itself in public",

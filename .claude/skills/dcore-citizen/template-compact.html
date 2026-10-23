@@ -48,8 +48,8 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 .summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--bad); margin-right: 2px; }
 .summary p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
 .summary .pies { margin-top: 8px; }
-.summary p.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1.1rem; }
-.summary p.reach b:first-of-type { color: var(--bad); }
+.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1rem; }
+.reach b:first-of-type { color: var(--bad); }
 .summary p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
@@ -279,7 +279,7 @@ footer { font-size: .78rem; color: var(--muted); }
 
   <section id="s-done">
     <h2>Progress report</h2>
-    <p class="muted" id="progress-caption"></p>
+    <p class="reach" id="reach"></p>
     <div class="list" id="steps"></div>
     <div class="outcome" id="outcome"></div>
   </section>
@@ -1502,13 +1502,12 @@ const things = n => n + (n === 1 ? " thing" : " things");
 // Lead with what was lost: time wasted on distractions and on points nobody answered, then what slipped away.
 const wasted = pct(dur(segs.filter(s => s.type === "side" || s.type === "talk")));
 $("summary").innerHTML =
-  '<p class="hook"><em>' + wasted + '</em> of ' + Math.round(total / 60) + ' minutes was wasted.</p>' +
-  '<p class="reach">' + (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
-    (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.') + '</p>';
+  '<p class="hook"><em>' + wasted + '</em> of ' + Math.round(total / 60) + ' minutes was wasted.</p>';
+// The progress report opens with how many steps were missed and how many settled.
+$("reach").innerHTML = (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
+    (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.');
 
 // Progress report: one line per step; missed steps show when they were lost and the consequence that matters most.
-if (DATA.progress_caption) $("progress-caption").textContent = DATA.progress_caption;
-else $("progress-caption").hidden = true;
 const blocks = bs => (bs || []).map(b =>
   (b.heading ? '<h4>' + esc(b.heading) + '</h4>' : "") +
   (b.items ? (b.ordered ? '<ol class="plain">' + b.items.map(i => '<li>' + esc(typeof i === "string" ? i : i.text) + '</li>').join("") + '</ol>' :
