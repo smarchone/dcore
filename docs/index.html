@@ -51,14 +51,9 @@
 
     .eyebrow { font:600 12px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.12em; margin:0 0 14px; }
 
-    .win { display:block; text-decoration:none; background:var(--win); border:1px solid var(--line); border-radius:14px; overflow:hidden;
-           box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.02) inset; transition:border-color .2s; }
+    .win { display:block; text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:14px; transition:border-color .2s; }
     .win:hover { border-color:#3a3a40; }
-    .bar { display:flex; align-items:center; gap:12px; height:40px; padding:0 14px; background:var(--bar); border-bottom:1px solid var(--line); }
-    .dots { display:flex; gap:7px; }
-    .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
-    .title { flex:1; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .open { font:12px var(--mono); color:var(--accent); white-space:nowrap; }
+    .open { font:12px var(--mono); color:var(--accent); white-space:nowrap; margin-left:6px; vertical-align:2px; }
     .screen { padding:20px 22px 24px; }
     .screen h2 { font:600 20px/1.3 var(--sans); color:var(--white); margin:0 0 6px; letter-spacing:-.01em; }
     .screen .meta { font:12px var(--mono); color:var(--dim); margin:0 0 16px; }
@@ -83,7 +78,6 @@
       body { padding-top:28px; }
       .pitch { grid-template-columns:minmax(0, 1fr); }
       .flow a.gh { margin-left:0; width:100%; }
-      .title { display:none; }
       .row { flex-direction:column; gap:0; }
       .install { flex-direction:column; align-items:stretch; }
       .full { text-align:right; }
@@ -115,14 +109,9 @@
 
   <p class="eyebrow">See a real review</p>
   <a class="win" href="examples/civic-sense/citizen.html">
-    <div class="bar">
-      <div class="dots"><i></i><i></i><i></i></div>
-      <div class="title">civic-sense · 49 min studio debate</div>
-      <span class="open">open ↗</span>
-    </div>
     <div class="screen">
-      <h2>Are Indian cities broken because Indians lack civic sense?</h2>
-      <p class="meta">journalist (for) · urban researcher (against) · host · audience</p>
+      <h2>Are Indian cities broken because Indians lack civic sense? <span class="open">open ↗</span></h2>
+      <p class="meta">49 min studio debate · journalist (for) · urban researcher (against) · host · audience</p>
       <div class="row ok"><b>Reached</b><span>Both sides agreed civic sense is learned, and that citizens should demand accountability, not do the government's job.</span></div>
       <div class="row miss"><b>Missed</b><span>One side blamed cheap bribes, the other cheap fines. Same point. Nobody noticed before the host moved on.</span></div>
       <div class="row so"><b>So</b><span>The audience poll barely moved: 27% for at the start, 29% at the end.</span></div>
