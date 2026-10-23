@@ -45,7 +45,7 @@ a.ts { color: var(--link); text-decoration: underline dotted; text-underline-off
 /* In short: two lines a reader can repeat */
 .summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 6px; }
 .summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
-.summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--bad); margin-right: 2px; }
+.summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--good); margin-right: 2px; }
 .summary > p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
 .summary .pies { margin-top: 8px; }
 .reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 8px 12px; font-size: 1rem; }
@@ -267,7 +267,6 @@ footer { font-size: .78rem; color: var(--muted); }
         <li><i class="talk"></i><span><b>Left open:</b> a point aimed at someone got no reply, or the answer left part of it open (a hollow dot).</span></li>
         <li><i class="side"></i><span><b>Distraction:</b> a move that pulled the debate off its question, like changing the subject or attacking motives.</span></li>
       </ul>
-      <p><b>Wasted time</b> is distractions plus points left open.</p>
       <p><b>Failed to reach</b> is a step that was close: one or two moves away, using only what had already been said.</p>
       <p><b>Accountability</b> shows each voice's moves, one dot per moment, in the same three colours. We judge moves, never sides or opinions.</p>
       <p>Each thread's <b>replay</b> is one fair way it could have gone, not what happened.</p>
@@ -1498,10 +1497,10 @@ $("context").textContent = DATA.context;
 // In short: steps taken, and how much of the time moved the conversation forward.
 const reached = DATA.progress.filter(s => s.status === "reached"), missed = DATA.progress.filter(s => s.status === "missed");
 const things = n => n + (n === 1 ? " thing" : " things");
-// Lead with what was lost: time wasted on distractions and on points nobody answered, then what slipped away.
-const wasted = pct(dur(segs.filter(s => s.type === "side" || s.type === "talk")));
+// Lead with the share of time that moved the debate forward; "Only" when it was under half.
+const fwdSec = dur(segs.filter(s => s.type === "fwd")), fwd = pct(fwdSec);
 $("summary").innerHTML =
-  '<p class="hook"><em>' + wasted + '</em> of ' + Math.round(total / 60) + ' minutes was wasted.</p>';
+  '<p class="hook">' + (fwdSec < total / 2 ? "Only " : "") + '<em>' + fwd + '</em> of ' + Math.round(total / 60) + ' minutes moved the debate forward.</p>';
 // The progress report opens with how many steps were missed and how many settled.
 $("reach").innerHTML = (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
     (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.');
@@ -1541,7 +1540,7 @@ const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="backgr
 
 const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
 const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
-const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, wasted, "wasted") + legend(timeParts);
+const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "forward") + legend(timeParts);
 $("pie-time").innerHTML = pieTime;
 
 // distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
@@ -1681,7 +1680,7 @@ $("footer").textContent = DATA.footer;
   const stops = [
     ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Progress report"],
     ["s-threads", DATA.threads.length + " threads", "Thread by thread analysis"],
-    ["s-dist", wasted + " wasted", "Distraction analysis"],
+    ["s-dist", fwd + " forward", "Distraction analysis"],
     ["s-acc", voices + (voices === 1 ? " voice" : " voices"), "Accountability"]
   ];
   $("minimap").innerHTML = stops.map(([id, stat, name]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
