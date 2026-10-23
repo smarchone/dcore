@@ -30,8 +30,9 @@ h2 { font-size: 1.35rem; line-height: 1.2; letter-spacing: -.01em; display: flex
 h2 small { font: 600 .8rem var(--f-body); color: var(--muted); }
 p { margin: 0; }
 section { display: grid; gap: 8px; min-width: 0; }
-header { display: grid; gap: 6px; }
-.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+header { display: grid; gap: 6px; position: relative; }
+.top { position: absolute; top: 0; right: 0; }
+header h1 { padding-right: 84px; }
 .theme { flex: none; min-height: 32px; font: 600 .75rem var(--f-body); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
 .theme:hover { color: var(--fg); }
 .theme:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
@@ -102,6 +103,7 @@ details.row > summary:focus-visible { outline: 2px solid var(--link); outline-of
 .ic { font-weight: 700; grid-row: 1; }
 .ic.g { color: var(--good); } .ic.r { color: var(--bad); }
 .tx-main { font-weight: 600; grid-column: 2; grid-row: 1; }
+details.row[open] .tx-main { font-size: 1.12rem; }
 .tx-sub { grid-column: 2; font-size: .86rem; line-height: 1.4; color: var(--muted); }
 .tx-sub .why { color: var(--fg); }
 .body { padding: 12px 14px 16px 42px; display: grid; gap: 10px; font-size: .9rem; line-height: 1.45; }
@@ -141,8 +143,10 @@ ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
 .bl .k { color: var(--muted); font-size: .76rem; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
 .card-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.insight { border-left: 3px solid var(--line); padding: 2px 0 2px 10px; font-size: .9rem; }
-.insight b { display: block; }
+.insight { border-left: 3px solid var(--line); padding: 4px 0 4px 12px; font-size: .92rem; line-height: 1.5; }
+#s-dist { gap: 14px; }
+#s-dist > p { line-height: 1.5; }
+.insight b { display: block; margin-bottom: 4px; }
 details.more > summary { list-style: none; cursor: pointer; font-size: .8rem; font-weight: 600; color: var(--link); display: inline-flex; gap: 5px; padding: 2px 0; }
 details.more > summary::-webkit-details-marker { display: none; }
 details.more > summary::before { content: "▸"; transition: transform .15s; }
@@ -200,7 +204,7 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 details.thr > summary { grid-template-columns: minmax(0, 1fr) auto 12px; }
 details.thr .tx-main { grid-column: 1; }
 details.thr .badge { grid-column: 2; grid-row: 1; margin-top: 2px; }
-details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 8px; margin: 8px 0 2px; }
+details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 4px; margin: 8px 0 2px; opacity: .5; }
 .lane-key { color: var(--muted); }
 .track { position: relative; height: 6px; background: var(--track); border-radius: 3px; }
 .track i { position: absolute; top: 0; bottom: 0; }
@@ -252,7 +256,7 @@ footer { font-size: .78rem; color: var(--muted); }
 
 <div class="wrap">
   <header>
-    <div class="top"><div></div><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
+    <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
     <h1 id="title"></h1>
     <p class="ctx" id="context"></p>
   </header>
