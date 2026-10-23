@@ -1,141 +1,110 @@
 ---
 name: dcore
-description: Turn a debate, townhall or podcast transcript (or a YouTube link) into one calm HTML page showing what was claimed and how each point fared, a timeline of how the argument moved, and plain answers to a viewer's questions. Use when asked to map, break down, explain or report on a video debate or discussion.
+description: Turn a debate, panel, townhall or deliberation transcript (or a YouTube link) into a one-minute citizen report that follows each thread of the conversation - what progress was made, what was missed because of distractions and what that cost, where the time went by distraction type, who pulled each thread off course (with timestamps), and a simulated replay of one fair path per thread. Use when asked to map, break down or report on a debate or discussion, or for a citizen report, distraction analysis, thread analysis or missed-opportunity report on a discussion.
 ---
 
 # dcore
 
-The reader is someone who missed the discussion and wants to know what happened:
-what each side argued, what stood up, what fell away, and what was never
-answered. You read the transcript and write one JSON object; `template.html`
-turns it into the page. Don't write HTML or change the template.
+A conversation is several threads running side by side, like rivers. Each
+thread either reaches somewhere (agreement, or a clearer disagreement) or
+gets pulled off course by distractions. This report follows each thread and
+shows a busy citizen, in about a minute:
 
-There is no fact-checking. "Stands" means no one in the discussion knocked a
-point down, not that it is true.
+- **Progress.** The good: what was reached. The bad: what was within reach
+  and missed, which distraction cost it, and what that leads to.
+- **Distractions.** How much of the time went to them, by label; each thread
+  with its distractions laid over it; who made each one, with the timestamp.
+- **Replay.** For a thread that got stuck or dropped, one fair way it could
+  have gone with the same voices and views.
 
-## Principles (non-negotiable)
+Think of a chess engine's game review: it doesn't tell you which side to
+play. It shows the better move you missed and what it cost.
 
-- **Anonymous voices.** No names of people in the discussion, even when the
-  video says them. Refer to a voice by its role in this discussion when that
-  helps ("the anchor", "the ruling-party side", "the former official",
-  "a panelist"). People who are talked about are named by office, not by name
-  ("the CEC", "the opposition leader").
-- **Actions, not labels.** Describe what happened, with a time: "Not
-  answered; the reply turned to past elections." Never "dodged", "lied",
-  "propaganda", "biased" or "hypocrite".
-- **Take no sides.** No winner, no score, no verdict on a person or a side.
-  Word every point the way its own speaker would accept.
-- **Claims are reported, not endorsed.** "Said 13 crore names were removed",
-  not "13 crore names were removed". A number that wasn't questioned is still
-  only a claim.
-- **Write in the reader's language.** Use the language of the person asking,
-  whatever the transcript's language. Translate quotes faithfully.
+## Files
+
+The steps below stay fixed. The parts you tune live in their own files; read
+all four before starting:
+
+- `definitions.md`: what a thread, a bid, a distraction and progress are, and
+  the plain labels the page uses.
+- `judgement.md`: how each call is made (dodges, missed steps, replays, time).
+- `tone.md`: principles, wording, and what makes the page effortless to read.
+- `schema.md`: the JSON the page is built from, and its limits.
+
+If one of these files contradicts this one, the specific file wins for its
+subject.
+
+## Input
+
+A transcript, ideally with timestamps (YouTube "Show transcript" text,
+.vtt/.srt, or pasted text). For a YouTube link, run
+`python .claude/skills/dcore/scripts/fetch.py <url> --out debates/<id>` (or
+`--from pasted.txt`) and read `debates/<id>/transcript.txt`; if YouTube is
+blocked, ask for the pasted transcript. If there are no timestamps, estimate
+from position in the text and say timings are approximate. Work from the
+transcript in its own language; write the report in the language the user asks
+for (default English).
 
 ## Steps
 
-1. **Get the transcript.** Use pasted text or a file if you were given one.
-   For a YouTube link, run
-   `python .claude/skills/dcore/scripts/fetch.py <url> --out debates/<id>` and
-   read `debates/<id>/transcript.txt`. If YouTube is blocked (common from
-   cloud machines), ask for YouTube's "... > Show transcript" text or a
-   `.vtt`/`.srt` file, then rerun with `--from <file> --lang <code>`. `<id>`
-   is a short kebab-case slug of the topic.
+1. **Read the whole transcript.** Note the central question, the voices (by
+   role), and what triggered the conversation, in one or two sentences.
+2. **Split it into threads.** Name 3 to 6 threads by their questions. Link
+   returns to a thread across gaps.
+3. **Mark the moves.** Walk through each thread in time order. Mark every bid
+   (question or point) and whether it was engaged with, every good move, and
+   every distraction with its kind and label (`definitions.md`), who made it,
+   and which thread it pulled away from. List every weighty bid that got no
+   reply at all, with its owner, and every answer that left a gap, with the
+   follow-up that would have closed it (`judgement.md`).
+4. **Decide where each thread ended** (`converged`, `clarified`, `bounded`,
+   `stuck`, `dropped`), and write one line on where it got to and one on
+   where it was pulled off course.
+5. **Find the missed steps.** At each distraction and each bid nobody took
+   up, ask what progress was one or two moves away using only what had been
+   said so far (`judgement.md`). Keep the 2 to 4 that matter most, each with
+   the moment it was lost.
+6. **Write the consequences** for every reached and missed step, and the
+   shared outcome if misses lead to the same end.
+7. **Replay** each `stuck` or `dropped` thread from the moment it went wrong:
+   3 to 6 lines by role, ending in the state the replay reaches.
+8. **Slice the time.** Cover the whole run time with segments (`fwd`, `talk`,
+   `side`, `idle`), each carrying its thread, and a label for `side`.
+9. **Fill the voices.** Good moves as green dots; omissions as red dots with
+   the better move and its cost. Distractions become red dots, and unanswered
+   bids orange dots and gaps hollow orange dots, automatically from their
+   lists.
+10. **Name the biggest hidden loss** as a titled insight with one concrete
+    example (usually a thread dropped without any shouting).
+11. **Write the "next time you watch, ask" questions** that teach the reader to
+    spot what this report found. Default:
+    - To spot a distraction: Was the question answered, or did the talk move
+      to something else? / Did the answer cover what was asked, or only part of
+      it, or a promise? / When someone made a strong claim, did they back it
+      up, or just repeat it louder? / Did they argue the point, or attack and
+      mock the other side? / Did the host ask questions, or argue for one
+      side?
+    - To spot talk that went nowhere: When someone made a point, did anyone
+      reply to it? / When a question was dropped, did anyone bring it back? /
+      At the end, did anyone say what was settled and what is still open?
+12. **Link every timestamp to its source.** Put the video link in `youtube`.
+    Without one, put the raw transcript in `transcript` as `[start_sec, text]`
+    chunks (`python3 .claude/skills/dcore/scripts/transcript_chunks.py
+    debates/<id>/transcript.txt` prints them for `[m:ss] text` lines).
+13. **Build the page** as `schema.md` says, then run the checks in `tone.md`.
+14. **Write `debates/<id>/citizen-provenance.md`**: each thread with every
+    marked move and its time; every segment with a one-line reason; every
+    distraction with the rule it met; every bid marked Engaged / Dodged /
+    Nobody took it up; and the reasoning behind each missed step.
 
-2. **Read it all** before writing anything. Captions are often split into
-   2-3 word lines; read them as running speech. Work out the voices from
-   context: who asks and hands over the floor, who argues which line, who
-   is addressed. Voices stay internal; the page never shows a voice list.
+## Output
 
-3. **Find the question and the options.** State the question the discussion
-   was really about, as a neutral question (`topic`). Then name 2 or 3
-   options people argued for, as short neutral phrases ("Resign now", "Wait
-   for the commission's side"). Use the options the discussion actually
-   weighed, even if the anchor framed it differently.
+`debates/<id>/citizen.html` and `debates/<id>/citizen-provenance.md`. Keep
+the page local: don't publish it as an artifact or share it unless the user
+asks. Open it in the browser with `open debates/<id>/citizen.html`.
 
-4. **Collect the points.** A point is one distinct claim that pushes for or
-   against an option. Each distinct claim appears once, however many times
-   it was repeated; merge repeats into its trail. Put it under the option it
-   bears on most, as `for` or `against`. Aim for 2 to 5 points per side;
-   leave out asides, greetings, and process talk. If an option had nothing
-   raised against it, leave `against` empty.
+## Reply to the user
 
-5. **Trace each point.** `steps` is the trail that got the point where it
-   ended, in time order, one short line each, starting with a verb or an
-   outcome word: "Raised: ...", "Challenged: ...", "Asked: ...", "Answered:
-   ...", "Not answered; ...", "Repeated ...", "Accepted by ...". Use the
-   caption's start time (`m:ss` or `h:mm:ss`). Keep 1 to 6 steps; keep only
-   steps that changed how the point stood.
-
-6. **Decide where each point ended** (`end`), from the discussion alone:
-   - `holds` (shown "stands"): another voice accepted or repeated it, or
-     every challenge to it was answered and not pressed again.
-   - `challenged` (shown "disputed"): a challenge was left standing without
-     a reply, or the reply was itself disputed.
-   - `fails` (shown "fell away"): its own side gave it up, or a challenge
-     was accepted.
-   - `open` (shown "never taken up"): no other voice engaged with it at
-     all, or it was a question that was never answered.
-
-   Then write `outcome`: the end state in a word or two, then the reason in
-   one short sentence ("Disputed. No reply came.").
-
-7. **Write each option's `lean`**: one neutral sentence on where the option
-   stands as a whole ("Its main support fell away; the cost to families still
-   stands."). Never say which option won.
-
-8. **Pick the moments** for the timeline: 3 to 6 points where the argument
-   changed direction, not every exchange. Each gets a short title, 1 to 3
-   sentences, and a `shift` line saying what changed ("Falls away: ...",
-   "Left disputed: ...", "Ends open: ..."). Mark at most one moment
-   `"kind": "turn"` (the turning point) and at most one `"common"` (where
-   people agreed); leave the rest `""`.
-
-9. **Answer the viewer's questions.** Write 4 to 6 questions a viewer would
-   ask, in their words, each answered in one or two sentences from the
-   discussion alone, with an `answer` tag: `settled`, `leans yes`,
-   `leans no`, `disputed` or `open`. Include at least one question the
-   discussion left open.
-
-10. **Build the page.** Copy `template.html` to `debates/<id>/index.html` and
-    replace only the JSON inside `<script id="deliberation">` and the
-    `<title>` (a 2 to 4 word name, such as "CEC Resignation Debate"). Check that the
-    JSON parses (`python -c "import json,sys; ..."` or similar) and that
-    every point follows the rules above. Then share the page (publish it as
-    an artifact when that tool is available), with one line saying what the
-    discussion was about.
-
-## JSON schema
-
-```json
-{
-  "topic": "Should the CEC resign over the commissioners' objections?",
-  "about": "A 21-minute Hindi TV panel: an anchor, a former official, two party spokespeople and an analyst.",
-  "source": "From a pasted YouTube transcript.",
-  "video": "https://www.youtube.com/watch?v=VIDEO_ID",
-  "options": [
-    {
-      "title": "Resign now",
-      "lean": "One neutral sentence on where this option stands.",
-      "for": [
-        {
-          "say": "The point, in words its speaker would accept",
-          "end": "holds | challenged | fails | open",
-          "steps": [{ "t": "2:06", "did": "Raised: ..." }, { "t": "4:10", "did": "Challenged: ..." }],
-          "outcome": "Disputed. No reply came."
-        }
-      ],
-      "against": []
-    }
-  ],
-  "moments": [
-    { "t": "10:30", "title": "Short title", "text": "1-3 sentences.", "shift": "What changed.", "kind": "turn | common | (empty)" }
-  ],
-  "questions": [
-    { "q": "A viewer's question?", "a": "One or two sentences.", "answer": "settled | leans yes | leans no | disputed | open" }
-  ]
-}
-```
-
-`video` is optional: when set, every timestamp opens the video at that
-moment. `source` is a short line for the footer. The template ships with a
-made-up sample; replace all of it.
+Give the file path and three lines: what was reached, the biggest miss and what
+cost it, and the share of time lost to distractions. Mention that the replays
+are one fair path, not what happened, and where the provenance file is.

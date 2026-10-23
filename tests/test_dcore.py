@@ -1,4 +1,4 @@
-"""Tests for the dcore skill: transcript parsing and the page template's sample data."""
+"""Tests for the dcore skill: transcript parsing and the report pages' data."""
 
 import json
 import sys
@@ -33,67 +33,49 @@ def test_parse_vtt_drops_repeats():
     assert [(s["start"], s["text"]) for s in segs] == [(1.0, "hello"), (5.0, "world")]
 
 
-def sample():
-    html = (SKILL / "template.html").read_text(encoding="utf-8")
-    start = html.index('<script id="deliberation" type="application/json">')
-    body = html[html.index(">", start) + 1:html.index("</script>", start)]
-    return json.loads(body)
+EXAMPLE = Path(__file__).resolve().parents[1] / "docs/examples/civic-sense/citizen.html"
 
 
-def test_template_sample_follows_schema():
-    d = sample()
-    assert d["topic"] and d["about"] and d["options"] and d["moments"] and d["questions"]
-    for o in d["options"]:
-        assert o["title"]
-        for p in o["for"] + o["against"]:
-            assert p["end"] in {"holds", "challenged", "fails", "open"}
-            assert p["say"] and p["outcome"] and p["steps"]
-            assert all(s["t"] and s["did"] for s in p["steps"])
-    assert all(m["kind"] in {"", "turn", "common"} for m in d["moments"])
-    assert all(q["answer"] in {"settled", "leans yes", "leans no", "disputed", "open"} for q in d["questions"])
-
-
-
-REPORT = Path(__file__).resolve().parents[1] / ".claude/skills/dcore-report"
-
-
-def report_sample():
-    html = (REPORT / "template.html").read_text(encoding="utf-8")
+def citizen_report(path):
+    html = path.read_text(encoding="utf-8")
     start = html.index('<script id="report" type="application/json">')
     body = html[html.index(">", start) + 1:html.index("</script>", start)]
     return json.loads(body)
 
 
-def test_report_sample_follows_schema():
-    d = report_sample()
-    assert d["question"] and d["context"] and d["steps_caption"]
-    assert {s["status"] for s in d["steps"]} <= {"reached", "missed"}
-    assert all(s["text"] and s["because"] and s["chain"] for s in d["steps"])
-    for s in d["steps"]:
-        for block in s.get("detail", []):
-            assert block.get("items") or block.get("note")
-            assert all(isinstance(i, str) or i["text"] for i in block.get("items", []))
+@pytest.mark.parametrize("path", [SKILL / "template-compact.html", SKILL / "template.html", EXAMPLE],
+                         ids=["template-compact", "template", "example"])
+def test_citizen_report_follows_schema(path):
+    d = citizen_report(path)
+    ids = {t["id"] for t in d["threads"]}
+    assert d["question"] and d["context"] and 3 <= len(ids) <= 6
+    assert {p["status"] for p in d["progress"]} <= {"reached", "missed"}
+    for p in d["progress"]:
+        assert p["thread"] in ids and p["text"] and p["chain"]
+        if p["status"] == "missed":
+            assert p["lost"]["t"] and p["lost"]["label"]
     segs = d["segments"]
-    assert all(t in {"fwd", "talk", "side", "idle"} for _, _, t in segs)
+    assert all(t in {"fwd", "talk", "side", "idle"} for _, _, t, _, _ in segs)
     assert segs[0][0] == 0 and segs[-1][1] == d["total_seconds"]
     assert all(a[1] == b[0] for a, b in zip(segs, segs[1:])), "segments must be contiguous"
-    assert all(x["label"] for x in d["distractions"])
-    labels = {x["label"] for x in d["distractions"]}
-    assert all(m["t"] and m["who"] and m["what"] and m["label"] in labels for m in d["distraction_moments"])
+    assert all(th in ids for _, _, _, th, _ in segs if th)
+    for t in d["threads"]:
+        assert t["end"] in {"converged", "clarified", "bounded", "stuck", "dropped"}
+        assert all(m.get("mark") in {"fwd", "talk", "gap", "side"} for m in t["flow"] if "t" in m)
+        if t["end"] in {"stuck", "dropped"}:
+            assert 3 <= len(t["replay"]["lines"]) <= 6
+    for x in d["distractions"] + d.get("unanswered", []) + d.get("gaps", []):
+        assert x["thread"] in ids
+    assert all(x["label"] and x["who"] and x["better"] and x["cost"] for x in d["distractions"])
     assert d["insight"]["title"] and d["insight"]["text"]
-    for v in d["voices"]:
-        assert v["name"] and v["note"] and v["forward"] + v["back"]
-        assert all(m["t"] and m["what"] for m in v["forward"])
-        assert all(m["t"] and m["what"] and m["better"] and m["cost"] for m in v["back"])
+    assert all(v["name"] and v["note"] for v in d["voices"])
     assert d["ask"]["distraction"] and d["ask"]["nowhere"] and d["footer"]
     assert d["youtube"] or d["transcript"], "timestamps need a source to link to"
-    starts = [s for s, _ in d["transcript"]]
-    assert starts == sorted(starts) and all(t for _, t in d["transcript"])
 
 
 def test_transcript_chunks(tmp_path):
     import importlib.util
-    spec = importlib.util.spec_from_file_location("tc", REPORT / "transcript_chunks.py")
+    spec = importlib.util.spec_from_file_location("tc", SKILL / "scripts/transcript_chunks.py")
     tc = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tc)
     f = tmp_path / "t.txt"

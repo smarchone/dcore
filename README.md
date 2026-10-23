@@ -1,47 +1,71 @@
 # dcore
 
-The [`dcore`](.claude/skills/dcore/SKILL.md) skill turns a debate, townhall or
-podcast transcript (or a YouTube link) into one calm HTML page for someone who
-missed it:
+The [`dcore`](.claude/skills/dcore/SKILL.md) skill turns a
+debate, panel, townhall or deliberation transcript (or a YouTube link) into a
+one-minute report for a busy citizen. It follows each thread of the
+conversation, like a chess engine's game review: it doesn't say which side to
+take, it shows the better move that was missed and what it cost.
 
-- **How each point fared:** for each option argued, the points for and against
-  it, each with a short timestamped trail and where it ended (stands, disputed,
-  fell away, never taken up).
-- **Timeline:** the few moments where the argument changed direction.
-- **Your questions, answered:** plain answers to what a viewer would ask.
+- **Progress:** what each thread reached (agreed, clearer, agreed to differ)
+  and what was one or two moves away but missed, with when it slipped, how,
+  and what that leads to.
+- **Distractions:** how much of the run time went to them, by plain label
+  ("changed the subject", "host took a side"), who made each one, with
+  timestamps.
+- **Left open:** points nobody replied to, and answers that left a gap.
+- **Replay:** for each stuck or dropped thread, one fair way it could have
+  gone with the same voices and views.
+- **Accountability:** each voice's good moves and misses as dots, never a
+  score, each miss with the better move and its cost.
 
-Claude reads the transcript and writes one JSON object into a copy of
-[`template.html`](.claude/skills/dcore/template.html); there's no other build
-step. `scripts/fetch.py` is optional plumbing that gets YouTube captions or
-reads a pasted transcript. It doesn't fact-check.
+It grades moves, never positions. Every timestamp links to the video at that
+second, and every judgement traces to a moment in a provenance file.
 
-```bash
-python .claude/skills/dcore/scripts/fetch.py <youtube-url> --out debates/<id>   # or --from pasted.txt
-# Claude writes debates/<id>/index.html from the template (see the skill)
+**Example:** [`docs/examples/civic-sense/`](docs/examples/civic-sense/) is the
+report on a WTF Discourse studio debate, "Indian cities are broken because
+Indians lack civic sense" ([video](https://www.youtube.com/watch?v=rBPLwZI5whY)):
+the [page](docs/examples/civic-sense/citizen.html) and its
+[provenance](docs/examples/civic-sense/citizen-provenance.md). Open the page in
+a browser.
+
+## Run it
+
+In Claude Code, from this repo:
+
+```
+/dcore https://www.youtube.com/watch?v=<id>
 ```
 
-## dcore-report
+Claude fetches the captions, writes `debates/<id>/citizen.html` and
+`debates/<id>/citizen-provenance.md`, and opens the page. Add "upload to
+artifact" to also publish it as a private claude.ai artifact.
 
-The [`dcore-report`](.claude/skills/dcore-report/SKILL.md) skill turns the same
-kind of transcript into a one-screen report card for busy citizens:
+To fetch captions yourself (needs `youtube-transcript-api` 1.x):
 
-- **How far they got:** the steps a good-faith panel could have reached, each
-  marked reached or missed, with what each one leads to.
-- **Where the time went:** progress, on-topic talk nobody engaged with, and
-  distractions, in plain words ("changed the subject", "host took a side").
-- **Report card:** each voice's moves that moved the debate forward or held it
-  back.
-- **Next time you watch, ask:** questions for spotting distractions and talk
-  that goes nowhere.
+```bash
+uv run --python 3.12 --with "youtube-transcript-api>=1.0" \
+  python .claude/skills/dcore/scripts/fetch.py <youtube-url> --out debates/<id>
+# or, with a pasted transcript or .vtt/.srt:
+python .claude/skills/dcore/scripts/fetch.py <youtube-url> --out debates/<id> --from pasted.txt
+```
 
-Collapsed, the page reads in about a minute. Toggles open the detail in place:
-the real timestamped moments behind each step, who did what and when, the
-minute-by-minute timeline, and every move behind a voice's dots with the better
-move and its cost.
+## How it's built
 
-Unlike `dcore`, it grades moves (never positions) to hold participants and the
-moderator accountable. The "could have" part is a simulated good-faith version,
-labelled as such. Claude fills the JSON in
-[`template.html`](.claude/skills/dcore-report/template.html), as with `dcore`.
+Claude reads the transcript and writes one JSON object into a copy of
+[`template-compact.html`](.claude/skills/dcore/template-compact.html)
+([`template.html`](.claude/skills/dcore/template.html) is the fuller
+variant); there's no other build step. The parts you tune live beside
+`SKILL.md`:
 
-Tests: `pip install pytest && pytest -q tests`.
+| File | Holds |
+| --- | --- |
+| `definitions.md` | What a thread, bid, distraction and progress are; the page's labels |
+| `judgement.md` | How each call is made: dodges, gaps, missed steps, replays, time |
+| `tone.md` | Principles, wording, and the pre-publish checks |
+| `schema.md` | The JSON the page is built from, and its limits |
+
+`scripts/transcript_chunks.py` turns `[m:ss] text` lines into transcript
+chunks for pages without a video link. Nothing is fact-checked: numbers are
+reported as speakers said them.
+
+Tests: `uv run --with pytest pytest -q tests`.
