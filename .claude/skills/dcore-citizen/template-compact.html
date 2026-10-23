@@ -23,84 +23,78 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 var(--f-body); }
-.wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 26px; }
+.wrap { max-width: 600px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px)); display: grid; gap: 24px; }
 h1, h2 { font-family: var(--f-head); margin: 0; text-wrap: balance; }
 h1 { font-size: 1.45rem; line-height: 1.15; }
-h2 { font-size: 1rem; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+h2 { font-size: 1.35rem; line-height: 1.2; letter-spacing: -.01em; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 h2 small { font: 600 .8rem var(--f-body); color: var(--muted); }
 p { margin: 0; }
-section { display: grid; gap: 8px; min-width: 0; }
-.eyebrow { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-header { display: grid; gap: 6px; }
-.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+section { display: grid; gap: 16px; min-width: 0; }
+header { display: grid; gap: 8px; position: relative; }
+.top { position: absolute; top: 0; right: 0; }
+header h1 { padding-right: 84px; }
 .theme { flex: none; min-height: 32px; font: 600 .75rem var(--f-body); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
 .theme:hover { color: var(--fg); }
 .theme:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 .ctx { color: var(--muted); font-size: .92rem; }
-.ts { font: 500 .72rem var(--f-mono); color: var(--muted); white-space: nowrap; }
+.ts { font: 500 .78rem var(--f-mono); color: var(--muted); white-space: nowrap; }
 /* padding widens the tap area to about 32px; the negative margin keeps the layout unchanged */
 a.ts { color: var(--link); text-decoration: underline dotted; text-underline-offset: 3px; padding: 9px 4px; margin: -9px -4px; border-radius: 4px; }
 .muted { color: var(--muted); }
 
 /* In short: two lines a reader can repeat */
-.summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 6px; }
+.summary { border-bottom: 1px solid var(--line); padding: 2px 0 16px; display: grid; gap: 12px; }
 .summary .hook { font: 700 1.55rem/1.15 var(--f-head); letter-spacing: -.01em; text-wrap: balance; margin-bottom: 4px; }
-.summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--bad); margin-right: 2px; }
-.summary p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
-.summary p:not(.hook) b { font: 700 1.05rem var(--f-head); }
+.summary .hook em { font-style: normal; font-size: 2.6rem; line-height: 1; letter-spacing: -.02em; color: var(--good); margin-right: 2px; }
+.summary > p:not(.hook) { font-size: 1.02rem; color: var(--fg); }
+.summary .pies { margin-top: 4px; }
+.reach { background: var(--bad-soft); border-left: 3px solid var(--bad); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: .92rem; line-height: 1.45; }
+.reach b:first-of-type { color: var(--bad); }
+.summary > p.hook-sub { font-size: .88rem; color: var(--muted); margin-top: -10px; }
+.summary > p:not(.hook) b { font: 700 1.05rem var(--f-head); }
 @media (max-width: 480px) { .summary .hook { font-size: 1.35rem; } .summary .hook em { font-size: 2.2rem; } }
 
-/* Minimap: a quiet rail on the left; a dot per section, names beside it when there is room */
-.aside-col { display: grid; gap: 14px; }
-.side-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.minimap { display: none; }
-#minimap { position: relative; display: grid; gap: 2px; }
-#minimap::before { content: ""; position: absolute; left: 3px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
-#minimap a { position: relative; display: flex; align-items: center; gap: 9px; min-height: 22px; text-decoration: none; color: var(--muted); font-size: .8rem; }
-#minimap a::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--muted); transition: transform .2s, background .2s; }
-#minimap a[aria-current="true"] { color: var(--fg); font-weight: 600; }
-#minimap a[aria-current="true"]::before { background: var(--fg); box-shadow: none; transform: scale(1.3); }
-#minimap a:hover { color: var(--fg); }
-#minimap a:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; border-radius: 4px; }
 section[id] { scroll-margin-top: 16px; }
-
-/* How to read: a quiet "?" that opens a floating panel, so nothing on the page moves */
-.help { position: relative; }
-.help-btn { display: inline-flex; align-items: center; gap: 7px; font: 600 .78rem var(--f-body); color: var(--muted); background: none; border: 0; padding: 2px 0; cursor: pointer; }
-.help-btn:hover, .help-btn[aria-expanded="true"] { color: var(--fg); }
-.help-btn:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
-.q { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1.5px dotted currentColor; font-size: .72rem; font-weight: 700; }
-.guide { margin-top: 8px; }
-.guide > summary { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-.guide > div { background: var(--surface); border: 1.5px dotted var(--muted); border-radius: 10px; padding: 12px 14px; display: grid; gap: 7px; font-size: .84rem; line-height: 1.4; }
-.guide-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.guide b { font-weight: 600; }
-.kinds { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
-.kinds li { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 8px; align-items: baseline; }
-.kinds i { width: 9px; height: 9px; border-radius: 50%; display: block; transform: translateY(1px); }
-@media (min-width: 1120px) {
-  .aside-col { position: fixed; z-index: 4; top: 20px; right: 24px; width: min(280px, calc(50vw - 300px - 56px)); max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; }
-  .minimap { display: block; padding: 0 2px; }
-  .guide > div { font-size: .8rem; }
-}
+/* a thin rule between sections, like the one under the summary */
+section ~ section { border-top: 1px solid var(--line); padding-top: 22px; }
+/* Section tabs: one section at a time under the header; sticks to the top while reading */
+.sectabs { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-end; gap: 2px; overflow-x: auto; scrollbar-width: none; background: var(--bg); border-bottom: 1px solid var(--line); }
+.sectabs::-webkit-scrollbar { display: none; }
+.sectabs button { flex: none; font: 600 1rem var(--f-body); color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 10px 8px; margin-bottom: -1px; cursor: pointer; }
+.sectabs button:hover { color: var(--fg); }
+.sectabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); font-weight: 700; }
+.sectabs button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+section.pane, section.pane ~ section.pane { border-top: 0; padding-top: 0; }
+#ask { padding-top: 16px; gap: 4px; }
+#trs { border-top: 0; padding-top: 0; margin-top: -24px; }
+.summary.pane { border-bottom: 0; padding-bottom: 0; }
 
 /* Rows: one line each, tap to open */
-.list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: clip; }
 details.row { border-top: 1px solid var(--line); }
 details.row:first-child { border-top: 0; }
-details.row > summary { list-style: none; cursor: pointer; padding: 9px 12px; display: grid; grid-template-columns: 18px minmax(0, 1fr) 12px; gap: 2px 8px; align-items: start; }
+details.row > summary { list-style: none; cursor: pointer; padding: 14px 14px; display: grid; grid-template-columns: 18px minmax(0, 1fr) 12px; gap: 5px 10px; align-items: start; line-height: 1.35; }
+/* an open row keeps its title in view under the tabs while its detail is read */
+details.row[open] > summary { position: sticky; top: var(--tabs-h, 44px); z-index: 2; background: var(--surface); border-bottom: 1px dashed var(--line); }
 details.row > summary::-webkit-details-marker { display: none; }
 details.row > summary::after { content: "▸"; color: var(--muted); font-size: .9rem; line-height: 1.2; grid-column: 3; grid-row: 1; transition: transform .15s; }
 details.row > summary:hover::after { color: var(--fg); }
 details.row[open] > summary::after { transform: rotate(90deg); }
 details.row > summary:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
-.ic { font-weight: 700; grid-row: 1; }
-.ic.g { color: var(--good); } .ic.r { color: var(--bad); }
+/* outcome rows: a faint green or red wash and edge instead of a tick or cross */
+details.step > summary { grid-template-columns: minmax(0, 1fr) 12px; }
+details.step .tx-main, details.step .tx-sub { grid-column: 1; }
+details.step > summary::after { grid-column: 2; }
+details.step .body { padding-left: 14px; }
+details.step.ok { --row: color-mix(in srgb, var(--good) 13%, var(--surface)); --edge: var(--good); }
+details.step.miss { --row: color-mix(in srgb, var(--bad) 12%, var(--surface)); --edge: var(--bad); }
+details.step, details.step[open] > summary { background: var(--row); box-shadow: inset 3px 0 var(--edge); }
 .tx-main { font-weight: 600; grid-column: 2; grid-row: 1; }
-.tx-sub { grid-column: 2; font-size: .84rem; color: var(--muted); }
+details.row[open] .tx-main { font-size: 1.4em; line-height: 1.25; }
+.tx-sub { grid-column: 2; font-size: .86rem; line-height: 1.4; color: var(--muted); }
 .tx-sub .why { color: var(--fg); }
-.body { padding: 2px 12px 12px 38px; display: grid; gap: 8px; font-size: .88rem; }
-.body h4 { margin: 4px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.body { padding: 12px 14px 16px 42px; display: grid; gap: 10px; font-size: .9rem; line-height: 1.45; }
+.body h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .chain { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
 .chain li { padding-left: 14px; position: relative; }
 .chain li::before { content: ""; position: absolute; left: 0; top: .5em; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
@@ -110,8 +104,8 @@ details.row > summary:focus-visible { outline: 2px solid var(--link); outline-of
 .mo.neg { grid-template-columns: 1fr; padding-left: 50px; color: var(--muted); font-style: italic; }
 .mo.dot::before { content: none; }
 ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
-.outcome { border-left: 3px solid var(--bad); padding: 2px 0 2px 10px; font-weight: 600; font-size: .92rem; display: grid; gap: 2px; }
-.outcome .lbl { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.outcome { border-left: 3px solid var(--bad); margin-top: 8px; padding: 8px 0 8px 14px; font-weight: 600; font-size: .95rem; line-height: 1.4; display: grid; gap: 6px; }
+.outcome .lbl { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .outcome .note { font-weight: 400; color: var(--muted); font-size: .8rem; }
 
 /* Time */
@@ -135,10 +129,12 @@ ol.plain { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
 .bl .pc { text-align: right; font-weight: 600; font-size: .86rem; }
 .bl .k { color: var(--muted); font-size: .76rem; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
-.card-h { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.insight { border-left: 3px solid var(--line); padding: 2px 0 2px 10px; font-size: .9rem; }
-.insight b { display: block; }
-details.more > summary { list-style: none; cursor: pointer; font-size: .8rem; font-weight: 600; color: var(--link); display: inline-flex; gap: 5px; padding: 2px 0; }
+.card-h { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.insight { border-left: 3px solid var(--line); padding: 4px 0 4px 12px; font-size: .92rem; line-height: 1.5; }
+#s-dist { gap: 14px; }
+#s-dist > p { line-height: 1.5; }
+.insight b { display: block; margin-bottom: 4px; }
+details.more > summary { list-style: none; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--link); display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; }
 details.more > summary::-webkit-details-marker { display: none; }
 details.more > summary::before { content: "▸"; transition: transform .15s; }
 details.more[open] > summary::before { transform: rotate(90deg); }
@@ -150,18 +146,18 @@ details.more > div { display: grid; gap: 6px; margin-top: 6px; font-size: .86rem
 /* Two donuts side by side: how the time was used, and what the distractions were */
 .pies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .pie { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.pie figcaption { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pie figcaption { font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .pie svg { width: 112px; height: 112px; justify-self: center; display: block; }
 .pie svg circle.seg { fill: none; stroke-width: 16; }
 .pie svg circle.seg:hover { stroke-width: 19; }
-.pie svg .big { font: 700 20px var(--f-head); fill: var(--fg); }
-.pie svg .big.long { font-size: 16px; }
+.pie svg .big { font: 700 17px var(--f-head); fill: var(--fg); }
 .pie svg .small { font: 600 9.5px var(--f-body); fill: var(--muted); }
 .lg { display: grid; gap: 3px; font-size: .8rem; line-height: 1.25; }
 .lg p { display: grid; grid-template-columns: 9px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
 .lg i { width: 9px; height: 9px; border-radius: 2px; display: block; align-self: center; }
 .lg b { font-weight: 600; }
-details.more h4 { margin: 6px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.moments { display: grid; gap: 6px; font-size: .86rem; }
+.moments h4, details.more h4 { margin: 6px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 /* stacked on narrow screens: donut beside its legend, so labels keep one line */
 @media (max-width: 520px) {
   .pies { grid-template-columns: 1fr; }
@@ -195,10 +191,11 @@ details.more h4 { margin: 6px 0 0; font-size: .7rem; letter-spacing: .06em; text
 details.thr > summary { grid-template-columns: minmax(0, 1fr) auto 12px; }
 details.thr .tx-main { grid-column: 1; }
 details.thr .badge { grid-column: 2; grid-row: 1; margin-top: 2px; }
-details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 4px; margin: 5px 0 1px; }
+details.thr > summary .track { grid-column: 1 / 3; grid-row: 2; height: 4px; margin: 8px 0 2px; opacity: .5; }
+.lane-key { color: var(--muted); }
 .track { position: relative; height: 6px; background: var(--track); border-radius: 3px; }
 .track i { position: absolute; top: 0; bottom: 0; }
-details.thr .body { padding-left: 12px; }
+details.thr .body { padding-left: 14px; }
 .pulled { color: var(--fg); }
 .fl { display: grid; grid-template-columns: 8px 44px minmax(0, 1fr); gap: 6px; align-items: baseline; }
 .fl::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--quiet); }
@@ -219,7 +216,7 @@ details.vo .n { font-weight: 600; font-size: .88rem; }
 .dots .h { background: transparent; box-shadow: inset 0 0 0 2px var(--quiet); }
 details.vo .note { font-size: .82rem; color: var(--muted); min-width: 0; }
 details.vo summary::after { grid-column: 4; }
-details.vo .body { padding-left: 12px; }
+details.vo .body { padding-left: 14px; max-height: 340px; overflow-y: auto; overscroll-behavior: contain; }
 .mv { display: grid; grid-template-columns: 8px 44px minmax(0, 1fr); gap: 6px; align-items: baseline; }
 .mv::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
 .mv.g::before { background: var(--good); } .mv.o::before { background: var(--quiet); } .mv.r::before { background: var(--bad); }
@@ -228,7 +225,7 @@ details.vo .body { padding-left: 12px; }
 .mv .better b, .mv .cost b { color: var(--fg); font-weight: 600; }
 
 .ask ol { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
-.ask h4 { margin: 4px 0 0; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ask h4 { margin: 4px 0 0; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .txs { max-height: 55vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 .txs p { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 6px; padding: 2px; }
 .txs p.hit { background: var(--quiet-soft); }
@@ -246,56 +243,34 @@ footer { font-size: .78rem; color: var(--muted); }
 
 <div class="wrap">
   <header>
-    <div class="top"><div class="eyebrow" id="eyebrow"></div><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
+    <div class="top"><div class="tools"><button type="button" class="theme" id="theme" aria-label="Switch light or dark mode"></button></div></div>
     <h1 id="title"></h1>
     <p class="ctx" id="context"></p>
   </header>
 
+  <nav class="sectabs" id="sectabs" role="tablist" aria-label="Sections of this report"></nav>
+
   <div class="summary" id="summary"></div>
 
-  <div class="aside-col">
-  <nav class="minimap" aria-label="Sections of this report"><p class="side-h">On this page</p><div id="minimap"></div></nav>
-  <div class="help">
-    <button type="button" class="help-btn" id="howto-btn" aria-expanded="false" aria-controls="howto"><span class="q">?</span>How to read this report</button>
-    <details class="guide" id="howto"><summary>How to read this report</summary><div>
-      <p class="guide-h">How this report works</p>
-      <p>We follow each question the debate took up (a <b>thread</b>) and sort every moment into one of three kinds:</p>
-      <ul class="kinds">
-        <li><i class="fwd"></i><span><b>Progress:</b> something got settled. Everyone agreed on a point, or a question got a straight answer.</span></li>
-        <li><i class="talk"></i><span><b>Left open:</b> a point aimed at someone got no reply, or the answer left part of it open (a hollow dot).</span></li>
-        <li><i class="side"></i><span><b>Distraction:</b> a move that pulled the debate off its question, like changing the subject or attacking motives.</span></li>
-      </ul>
-      <p><b>Wasted time</b> is distractions plus points left open.</p>
-      <p><b>Failed to reach</b> is a step that was close: one or two moves away, using only what had already been said.</p>
-      <p><b>Accountability</b> shows each voice's moves, one dot per moment, in the same three colours. We judge moves, never sides or opinions.</p>
-      <p>Each thread's <b>replay</b> is one fair way it could have gone, not what happened.</p>
-    </div></details>
-  </div>
-  </div>
 
 
   <section id="s-done">
-    <h2>Within reach</h2>
-    <p class="muted" id="progress-caption"></p>
+    <p class="reach" id="reach"></p>
     <div class="list" id="steps"></div>
     <div class="outcome" id="outcome"></div>
   </section>
 
   <section id="s-threads">
-    <h2>Thread by thread</h2>
+    <p class="key lane-key" id="lane-key"></p>
     <div class="list" id="threads"></div>
   </section>
 
   <section id="s-dist">
-    <h2>Distraction analysis</h2>
     <p class="muted">What pulled the debate off course.</p>
-    <div class="pies">
-      <figure class="pie" id="pie-time"></figure>
-      <figure class="pie" id="pie-kinds"></figure>
-    </div>
+    <p class="insight" id="insight"></p>
     <p id="unans-line"></p>
     <p id="gaps-line"></p>
-    <details class="more"><summary>Who did what, and when</summary><div>
+    <div class="moments">
       <h4>Minute by minute</h4><div class="ribbon" id="ribbon"></div><div class="axis" id="axis"></div>
       <div class="tabs" role="tablist" aria-label="Moments">
         <button type="button" role="tab" id="tab-dist" aria-controls="dist" aria-selected="true"></button>
@@ -306,12 +281,10 @@ footer { font-size: .78rem; color: var(--muted); }
       <div id="unans" role="tabpanel" aria-labelledby="tab-unans" hidden></div>
       <div id="gaps" role="tabpanel" aria-labelledby="tab-gaps" hidden></div>
       <button type="button" class="showmore off" id="showmore"></button>
-    </div></details>
-    <p class="insight" id="insight"></p>
+    </div>
   </section>
 
   <section id="s-acc">
-    <h2>Accountability</h2>
     <p class="muted">Who moved the debate forward, and who held it back.</p>
     <div class="list" id="voices"></div>
   </section>
@@ -1487,28 +1460,24 @@ const MOD = DATA.moderator || "Host";
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", label);
   label();
 })();
-const row = (summary, body, cls) => '<details class="row ' + (cls || "") + '"><summary>' + summary + '</summary><div class="body">' + body + '</div></details>';
+const row = (summary, body, cls) => '<details class="row ' + (cls || "") + '" name="' + (cls || "step").split(" ")[0] + '"><summary>' + summary + '</summary><div class="body">' + body + '</div></details>';
 
-$("eyebrow").textContent = DATA.eyebrow;
 $("title").textContent = DATA.question;
 $("context").textContent = DATA.context;
 
 // In short: steps taken, and how much of the time moved the conversation forward.
 const reached = DATA.progress.filter(s => s.status === "reached"), missed = DATA.progress.filter(s => s.status === "missed");
-const fwd = share("fwd");
 const things = n => n + (n === 1 ? " thing" : " things");
-// Lead with what was lost: time wasted on distractions and on points nobody answered, then what slipped away.
-const wasted = pct(dur(segs.filter(s => s.type === "side" || s.type === "talk")));
+// Lead with the share of time that moved the debate forward; "Only" when it was under half.
+const fwdSec = dur(segs.filter(s => s.type === "fwd")), fwd = pct(fwdSec);
 $("summary").innerHTML =
-  '<p class="hook"><em>' + wasted + '</em> of ' + Math.round(total / 60) + ' minutes was wasted.</p>' +
-  '<p>Distractions took <b>' + share("side") + '</b>, and points nobody answered took <b>' + share("talk") + '</b>.</p>' +
-  '<p>Only <b>' + fwd + '</b> moved the debate forward.</p>' +
-  '<p>' + (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
-    (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.') + '</p>';
+  '<p class="hook">' + (fwdSec < total / 2 ? "Only " : "") + '<em>' + fwd + '</em> of ' + Math.round(total / 60) + ' minutes was fruitful.</p>' +
+  '<p class="hook-sub">Fruitful: time where something got agreed or answered.</p>';
+// The progress report opens with how many steps were missed and how many settled.
+$("reach").innerHTML = (missed.length ? 'It failed to reach <b>' + things(missed.length) + '</b> that ' + (missed.length === 1 ? "was" : "were") + ' close, and settled ' : 'It settled ') +
+    (reached.length ? (missed.length ? 'only ' : '') + '<b>' + reached.length + '</b>.' : '<b>nothing</b>.');
 
-// Within reach: one line per step; missed steps show when they were lost and the consequence that matters most.
-if (DATA.progress_caption) $("progress-caption").textContent = DATA.progress_caption;
-else $("progress-caption").hidden = true;
+// Outcome analysis: one line per step; missed steps show when they were lost and the consequence that matters most.
 const blocks = bs => (bs || []).map(b =>
   (b.heading ? '<h4>' + esc(b.heading) + '</h4>' : "") +
   (b.items ? (b.ordered ? '<ol class="plain">' + b.items.map(i => '<li>' + esc(typeof i === "string" ? i : i.text) + '</li>').join("") + '</ol>' :
@@ -1520,14 +1489,14 @@ $("steps").innerHTML = DATA.progress.map(s => {
   const ok = s.status === "reached", last = lead(s.chain[s.chain.length - 1]);
   const sub = ok ? '<span class="tx-sub">→ ' + esc(last) + '</span>' :
     '<span class="tx-sub">' + (s.lost ? (s.lost.t ? ts(s.lost.t) + " " : "") + esc(s.lost.label) + " " : "") + '→ <span class="why">' + esc(last) + '</span></span>';
-  return row('<span class="ic ' + (ok ? "g" : "r") + '">' + (ok ? "✓" : "✕") + '</span><span class="tx-main">' + esc(s.text) + '</span>' + sub,
-    '<h4>' + esc(s.because) + '</h4><ul class="chain ' + (ok ? "g" : "r") + '">' + s.chain.map(c => '<li>' + esc(c) + '</li>').join("") + '</ul>' + blocks(s.detail));
+  return row('<span class="tx-main">' + esc(s.text) + '</span>' + sub,
+    '<h4>' + esc(s.because) + '</h4><ul class="chain ' + (ok ? "g" : "r") + '">' + s.chain.map(c => '<li>' + esc(c) + '</li>').join("") + '</ul>' + blocks(s.detail), "step " + (ok ? "ok" : "miss"));
 }).join("");
 if (DATA.outcome) $("outcome").innerHTML = '<span class="lbl">What failing to reach ' + (missed.length > 1 ? "them" : "it") + ' leads to</span><span>' + esc(DATA.outcome) + '</span>' +
   (DATA.outcome_note ? '<span class="note">' + esc(DATA.outcome_note) + '</span>' : "");
 else $("outcome").hidden = true;
 
-// Distraction analysis: two donuts (how the time was used; what the distractions were), then one expand with every moment.
+// Two donuts (how the time was used; what the distractions were), shown under the summary.
 const donut = (parts, big, small) => {
   const r = 46, C = 2 * Math.PI * r, sum = parts.reduce((n, p) => n + p.v, 0) || 1, gap = parts.length > 1 ? 2 : 0;
   let at = 0;
@@ -1537,13 +1506,13 @@ const donut = (parts, big, small) => {
     at += len; return seg;
   }).join("");
   return '<svg viewBox="0 0 120 120" role="img" aria-label="' + esc(parts.map(p => p.label + " " + p.pc).join(", ")) + '">' + arcs +
-    '<text class="big' + (String(big).length > 4 ? " long" : "") + '" x="60" y="62" text-anchor="middle">' + esc(big) + '</text><text class="small" x="60" y="76" text-anchor="middle">' + esc(small) + '</text></svg>';
+    '<text class="big" x="60" y="62" text-anchor="middle">' + esc(big) + '</text><text class="small" x="60" y="76" text-anchor="middle">' + esc(small) + '</text></svg>';
 };
 const legend = parts => '<div class="lg">' + parts.map(p => '<p><i style="background:' + p.color + '"></i><span>' + esc(p.label) + '</span><b>' + esc(p.pc) + '</b></p>').join("") + '</div>';
 
 const TYPES = [["fwd", "Progress", "var(--good)"], ["talk", "Left open", "var(--quiet)"], ["side", "Distractions", "var(--bad)"], ["idle", "Intro, breaks", "var(--idle)"]];
 const timeParts = TYPES.map(([t, label, color]) => ({ v: dur(segs.filter(s => s.type === t)), label, color, pc: share(t) })).filter(p => p.v);
-$("pie-time").innerHTML = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, wasted, "wasted") + legend(timeParts);
+const pieTime = '<figcaption>How the ' + Math.round(total / 60) + ' minutes were used</figcaption>' + donut(timeParts, fwd, "fruitful") + legend(timeParts);
 
 // distraction kinds: one hue, darker for a bigger share; more than five kinds fold into "Other".
 // Measured in time throughout (slices, legend and centre), so this donut never mixes counts with shares of the whole debate.
@@ -1555,11 +1524,17 @@ if (kinds.length > 6) kinds = kinds.slice(0, 5).concat([["Other", kinds.slice(5)
 const STEPS = [100, 80, 64, 50, 38, 28];
 const kindParts = kinds.map(([label, v], i) => ({ v, label, pc: span(v), color: "color-mix(in srgb, var(--bad) " + STEPS[i] + "%, var(--surface))" }));
 const nD = (DATA.distractions || []).length;
-$("pie-kinds").innerHTML = '<figcaption>What the distractions were</figcaption>' +
+const pieKinds = '<figcaption>What the distractions were</figcaption>' +
   donut(kindParts, span(dur(segs.filter(s => s.type === "side"))), "in " + nD + (nD === 1 ? " moment" : " moments")) + legend(kindParts);
+// The same two donuts also sit under the summary, so the first screen shows where the time went.
+$("summary").insertAdjacentHTML("beforeend", '<div class="pies"><figure class="pie">' + pieTime + '</figure><figure class="pie">' + pieKinds + '</figure></div>');
 
-$("ribbon").innerHTML = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
-$("axis").innerHTML = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+const ribbon = segs.map(s => '<i class="' + s.type + '" style="flex:' + (s.b - s.a) + '"></i>').join("");
+const axis = [0, total / 2, total].map(s => '<span class="ts">' + clock(s) + '</span>').join("");
+$("ribbon").innerHTML = ribbon;
+$("axis").innerHTML = axis;
+// The minute-by-minute strip also sits under the summary donuts.
+$("summary").insertAdjacentHTML("beforeend", '<div class="card"><p class="card-h">Minute by minute</p><div class="ribbon">' + ribbon + '</div><div class="axis">' + axis + '</div></div>');
 $("dist").innerHTML = (DATA.distractions || []).slice().sort((x, y) => secs(x.t) - secs(y.t)).map(d =>
   '<div class="ent">' + ts(d.t) + '<div><p><b>' + esc(d.label) + '</b> · ' + esc(d.who) + (d.length ? ' · <span class="muted">' + esc(d.length) + '</span>' : "") + '</p><p class="muted">' + esc(d.what) + '</p>' +
   '<p class="muted">' + (d.victim ? "Left unanswered: " + esc(d.victim) : "Thread: " + esc((THREADS[d.thread] || {}).title || "none")) + '</p></div></div>').join("");
@@ -1582,7 +1557,7 @@ if (GAPS.length) {
     (g.follow_up ? '<p class="muted">Follow-up that would close it: "' + esc(g.follow_up) + '"</p>' : "") + '</div></div>').join("");
 } else { $("gaps-line").hidden = true; $("tab-gaps").hidden = true; }
 
-// Tabs inside the expand: distractions, and points left unanswered.
+// Tabs under the distraction analysis: distractions, and points left unanswered.
 (function () {
   const tabs = [$("tab-dist"), $("tab-unans"), $("tab-gaps")];
   $("tab-dist").textContent = "Distractions (" + (DATA.distractions || []).length + ")";
@@ -1605,7 +1580,6 @@ if (GAPS.length) {
     expanded.has(panel.id) ? expanded.delete(panel.id) : expanded.add(panel.id);
     fit();
   });
-  more.closest("details").addEventListener("toggle", fit);
   const pick = t => {
     tabs.forEach(b => {
       const on = b === t;
@@ -1623,6 +1597,7 @@ if (GAPS.length) {
       pick(next); next.focus();
     });
   });
+  fit();
 })();
 $("insight").innerHTML = '<b>' + esc(DATA.insight.title) + '</b>' + esc(DATA.insight.text);
 
@@ -1642,6 +1617,9 @@ $("threads").innerHTML = DATA.threads.slice().sort((x, y) => rank(x) - rank(y) |
   return row('<span class="tx-main">' + esc(th.title) + '</span>' + badge(th.end) + lane,
     '<p>' + esc(th.summary) + '</p>' + (th.pulled ? '<p class="pulled">' + esc(th.pulled) + '</p>' : "") + '<h4>What happened</h4>' + flow + replay, "thr");
 }).join("");
+
+$("lane-key").innerHTML = '<span>Each bar is the debate, ' + clock(0) + ' to ' + clock(total) + ':</span>' +
+  [["fwd", "progress"], ["talk", "left open"], ["side", "distraction"]].map(([c, l]) => '<span><i class="' + c + '"></i>' + l + '</span>').join("");
 
 // Voices: dots on one line, grouped by colour; tap for every moment in time order, with the better move and its cost.
 $("voices").innerHTML = DATA.voices.map(v => {
@@ -1669,93 +1647,44 @@ if (DATA.ask) {
 } else $("ask").hidden = true;
 $("footer").textContent = DATA.footer;
 
-// Minimap: one stop per section with its headline number; the stop for the section in view is marked.
+// Sections as tabs: the tab bar under the header switches which section shows.
 (function () {
   const voices = DATA.voices.length;
   const stops = [
-    ["s-done", reached.length + " of " + DATA.progress.length + " reached", "Within reach"],
-    ["s-threads", DATA.threads.length + " threads", "Thread by thread"],
-    ["s-dist", wasted + " wasted", "Distraction analysis"],
-    ["s-acc", voices + (voices === 1 ? " voice" : " voices"), "Accountability"]
+    ["summary", "Summary", "Summary", fwd + " fruitful"],
+    ["s-done", "Outcomes", "Outcome analysis", reached.length + " of " + DATA.progress.length + " reached"],
+    ["s-threads", "Threads", "Thread by thread analysis", DATA.threads.length + " threads"],
+    ["s-dist", "Distractions", "Distraction analysis", fwd + " fruitful"],
+    ["s-acc", "Accountability", "Accountability", voices + (voices === 1 ? " voice" : " voices")]
   ];
-  $("minimap").innerHTML = stops.map(([id, stat, name]) => '<a href="#' + id + '" title="' + esc(name + " · " + stat) + '"><span>' + esc(name) + '</span></a>').join("");
-  const links = [...$("minimap").querySelectorAll("a")];
-  links.forEach(a => a.addEventListener("click", e => {
-    e.preventDefault();
-    document.getElementById(a.getAttribute("href").slice(1)).scrollIntoView({ behavior: "smooth", block: "start" });
-  }));
-  const mark = () => {
-    const y = innerHeight * 0.4;
-    let current = "s-done";
-    stops.forEach(([id]) => { if (document.getElementById(id).getBoundingClientRect().top <= y) current = id; });
-    links.forEach(a => {
-      const on = a.getAttribute("href") === "#" + current;
-      a.setAttribute("aria-current", on);
-    });
+  $("sectabs").innerHTML = stops.map(([id, tab, name]) => '<button type="button" role="tab" aria-controls="' + id + '" title="' + esc(name) + '">' + esc(tab) + '</button>').join("");
+  const tabs = [...$("sectabs").querySelectorAll("button")];
+  stops.forEach(([id]) => { const sec = document.getElementById(id); sec.classList.add("pane"); sec.setAttribute("role", "tabpanel"); });
+  const show = (id, scroll) => {
+    stops.forEach(([sid]) => { document.getElementById(sid).hidden = sid !== id; });
+    tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+    // On narrow screens the bar scrolls sideways: bring the chosen tab fully into view.
+    const cur = tabs.find(b => b.getAttribute("aria-controls") === id), bar = $("sectabs");
+    const left = cur.offsetLeft - 8, right = cur.offsetLeft + cur.offsetWidth + 8 - bar.clientWidth;
+    if (bar.scrollLeft > left) bar.scrollLeft = left; else if (bar.scrollLeft < right) bar.scrollLeft = right;
+    // Keep the reader at the top of the new section, not wherever the last one was scrolled to.
+    if (scroll && $("sectabs").getBoundingClientRect().top <= 1) $("sectabs").scrollIntoView({ block: "start" });
   };
-  addEventListener("scroll", mark, { passive: true });
-  mark();
+  tabs.forEach((b, i) => {
+    b.addEventListener("click", () => show(b.getAttribute("aria-controls"), true));
+    b.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+      next.click(); next.focus();
+    });
+  });
+  const fitTabs = () => document.documentElement.style.setProperty("--tabs-h", $("sectabs").offsetHeight + "px");
+  addEventListener("resize", fitTabs); fitTabs();
+  show("summary", false);
 })();
 
-// Collapsibles open and close smoothly, and only one is open at a time (never closing its own parent).
-const still = matchMedia("(prefers-reduced-motion: reduce)");
-const inner = d => d.querySelector(":scope > :not(summary)");
-// After a row opens, scroll just enough to show what opened, but never push its own title off the top.
-let held = null;
-const reveal = d => {
-  if (d.id === "howto" || !d.open) return;
-  held = null;
-  const box = d.getBoundingClientRect(), head = d.querySelector(":scope > summary").getBoundingClientRect();
-  const dy = Math.min(box.bottom - (innerHeight - 16), head.top - 16);
-  if (dy > 0) scrollBy({ top: dy, behavior: still.matches ? "auto" : "smooth" });
-};
-const slide = (d, opening) => {
-  const el = inner(d);
-  if (!el || still.matches) { d.open = opening; if (opening) requestAnimationFrame(() => reveal(d)); return; }
-  if (d._anim) d._anim.cancel();
-  if (opening) d.open = true;
-  d._closing = !opening;
-  const full = el.scrollHeight;
-  el.style.overflow = "hidden";
-  d._anim = el.animate(opening ? [{ height: "0px", opacity: 0 }, { height: full + "px", opacity: 1 }] : [{ height: full + "px", opacity: 1 }, { height: "0px", opacity: 0 }],
-    { duration: opening ? 240 : 200, easing: "cubic-bezier(.2, .7, .2, 1)" });
-  d._anim.onfinish = d._anim.oncancel = () => { el.style.overflow = ""; d._anim = null; d._closing = false; if (!opening) d.open = false; };
-  if (opening) d._anim.addEventListener("finish", () => reveal(d));
-};
-document.addEventListener("click", e => {
-  const s = e.target.closest("summary");
-  if (!s || s.parentElement.tagName !== "DETAILS") return;
-  e.preventDefault();
-  const d = s.parentElement;
-  slide(d, !d.open || !!d._closing);
-});
-// While a row above collapses, hold the tapped row still on screen, so the page does not jump under the reader's finger.
-// The hold stops as soon as the opened row reveals itself, so the two never pull the page in opposite directions.
-const hold = (el, ms) => {
-  const top = el.getBoundingClientRect().top, end = performance.now() + ms, token = {};
-  const fix = () => { const dy = el.getBoundingClientRect().top - top; if (dy) scrollBy(0, dy); };
-  const loop = () => { if (held !== token) return; fix(); if (performance.now() < end) requestAnimationFrame(loop); };
-  return () => { held = token; fix(); requestAnimationFrame(loop); };
-};
-document.addEventListener("toggle", e => {
-  const opened = e.target;
-  if (!(opened instanceof HTMLDetailsElement) || !opened.open || opened.id === "howto") return;
-  const closing = [...document.querySelectorAll("details[open]:not(#howto)")]
-    .filter(d => d !== opened && !d.contains(opened) && !opened.contains(d) && !d._anim);
-  const above = closing.some(d => d.compareDocumentPosition(opened) & Node.DOCUMENT_POSITION_FOLLOWING);
-  const settle = above ? hold(opened.querySelector(":scope > summary"), 260) : null;
-  closing.forEach(d => slide(d, false));
-  if (settle) settle();
-}, true);
+// Rows are plain <details>: rows in the same list share a name, so the browser keeps one open at a time.
 
-// "How to read": the "?" opens the guide as a floating panel; a tap outside or Escape closes it.
-(function () {
-  const btn = $("howto-btn"), guide = $("howto");
-  btn.addEventListener("click", () => slide(guide, !guide.open || !!guide._closing));
-  guide.addEventListener("toggle", () => btn.setAttribute("aria-expanded", guide.open));
-  document.addEventListener("click", e => { if (guide.open && !guide.contains(e.target) && !btn.contains(e.target)) slide(guide, false); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && guide.open) { slide(guide, false); btn.focus(); } });
-})();
 
 // Sources: with a YouTube link, every timestamp opens the video at that second;
 // otherwise the raw transcript is hosted here and every timestamp opens it at that line.
