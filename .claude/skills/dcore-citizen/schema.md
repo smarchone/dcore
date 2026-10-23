@@ -26,7 +26,7 @@ contain them.
 
 ```json
 {
-  "eyebrow": "TV debate · 21 minutes · quick read · tap any row for detail",
+  "eyebrow": "TV debate · 21 minutes · quick read · tap any row for detail",   // full page only; the compact page does not show it
   "question": "Should the Election Commission chief resign?",
   "context": "One or two plain sentences: what triggered the conversation.",
 
